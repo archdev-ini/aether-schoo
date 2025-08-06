@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -5,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/common/Header';
 import { Footer } from '@/components/common/Footer';
 import { ThemeProvider } from '@/components/common/ThemeProvider';
+import { CookieConsentBanner } from '@/components/common/CookieConsentBanner';
 
 export const metadata: Metadata = {
   title: 'Aether Ecosystem',
@@ -35,6 +37,7 @@ export default function RootLayout({
               <Footer />
             </div>
             <Toaster />
+            <CookieConsentBanner />
         </ThemeProvider>
       </body>
     </html>

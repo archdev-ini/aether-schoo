@@ -13,47 +13,33 @@ export function Footer() {
   return (
     <footer className="border-t border-border/40">
         <div className="container py-8">
-            <div className="grid md:grid-cols-3 gap-8">
-                <div className="space-y-4">
-                    <Link href="/" className="flex items-center gap-2">
-                         <p className="font-bold">Aether</p>
-                    </Link>
-                    <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                 <div className="text-center md:text-left">
+                     <Link href="/" className="font-bold text-lg">Aether</Link>
+                     <p className="text-sm text-muted-foreground mt-2">
                         Part of the Buildr Africa Network
                     </p>
-                </div>
-                <div className="grid grid-cols-2 gap-8">
-                     <div>
-                        <h3 className="font-semibold mb-2">Quick Links</h3>
-                        <ul className="space-y-2">
-                            <li><Link href="/join" className="text-sm text-muted-foreground hover:text-foreground">Join</Link></li>
-                            <li><Link href="/programs" className="text-sm text-muted-foreground hover:text-foreground">Learn</Link></li>
-                             <li><Link href="/programs" className="text-sm text-muted-foreground hover:text-foreground">Studio</Link></li>
-                            <li><Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About</Link></li>
-                            <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link></li>
-                        </ul>
-                    </div>
-                    <div>
-                         <h3 className="font-semibold mb-2">Community</h3>
-                        <ul className="space-y-2">
-                             {socialLinks.map(link => (
-                                <li key={link.name}>
-                                    <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-2">
-                                        <link.icon className="h-4 w-4" />
-                                        {link.name}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-                <div className="space-y-4">
-                    <h3 className="font-semibold">Stay Updated</h3>
-                    <p className="text-sm text-muted-foreground">Join our mailing list for the latest news and updates.</p>
-                </div>
+                 </div>
+                 <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                    <Link href="/about" className="hover:text-foreground">About</Link>
+                    <Link href="/programs" className="hover:text-foreground">Programs</Link>
+                    <Link href="/contact" className="hover:text-foreground">Contact</Link>
+                 </div>
+                 <div className="flex items-center gap-4">
+                    {socialLinks.map(link => (
+                        <Link key={link.name} href={link.href} className="text-muted-foreground hover:text-foreground">
+                            <link.icon className="h-5 w-5" />
+                            <span className="sr-only">{link.name}</span>
+                        </Link>
+                    ))}
+                 </div>
             </div>
-             <div className="mt-8 pt-8 border-t border-border/40 text-center text-sm text-muted-foreground">
-                <p>&copy; {new Date().getFullYear()} Aether. All rights reserved.</p>
+             <div className="mt-8 pt-6 border-t border-border/40 text-center md:text-left text-sm text-muted-foreground flex flex-col md:flex-row justify-between items-center gap-4">
+                <p>&copy; {new Date().getFullYear()} Aether by Buildr Africa. All rights reserved.</p>
+                <div className="flex gap-4">
+                    <Link href="/privacy-policy" className="hover:text-foreground">Privacy Policy</Link>
+                    <Link href="/terms-of-use" className="hover:text-foreground">Terms of Use</Link>
+                </div>
             </div>
         </div>
     </footer>
