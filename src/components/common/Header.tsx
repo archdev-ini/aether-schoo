@@ -6,10 +6,10 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Rocket } from 'lucide-react';
 
 const navLinks = [
-  { href: '/projects', label: 'Projects' },
-  { href: '/programs', label: 'Programs' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/discover', label: 'Discover' },
+  { href: '/programs', label: 'Learn' },
+  { href: '/programs', label: 'Studio' },
+  { href: '/community', label: 'Community' },
+  { href: '/about', label: 'About' },
 ];
 
 export function Header() {
@@ -19,12 +19,12 @@ export function Header() {
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Rocket className="h-6 w-6" />
-            <span className="hidden font-bold sm:inline-block">Aether Space</span>
+            <span className="hidden font-bold sm:inline-block">Aether Ecosystem</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.href + link.label}
                 href={link.href}
                 className="transition-colors hover:text-foreground/80 text-foreground/60"
               >
@@ -46,12 +46,12 @@ export function Header() {
               <SheetContent side="left" className="p-6">
                 <Link href="/" className="mb-8 flex items-center space-x-2">
                   <Rocket className="h-6 w-6" />
-                  <span className="font-bold text-lg">Aether Space</span>
+                  <span className="font-bold text-lg">Aether Ecosystem</span>
                 </Link>
                 <div className="flex flex-col space-y-4">
                     {navLinks.map((link) => (
                       <Link
-                        key={link.href}
+                        key={link.href + link.label}
                         href={link.href}
                         className="text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
                       >
@@ -64,7 +64,7 @@ export function Header() {
           </div>
           <nav className="flex items-center">
             <Button asChild>
-              <Link href="/join">Join Aether</Link>
+              <Link href="/join">Get Your Aether ID</Link>
             </Button>
           </nav>
         </div>

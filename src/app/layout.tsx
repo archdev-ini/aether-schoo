@@ -6,8 +6,8 @@ import { Header } from '@/components/common/Header';
 import { Footer } from '@/components/common/Footer';
 
 export const metadata: Metadata = {
-  title: 'Aether Space',
-  description: 'Explore the Aether Ecosystem',
+  title: 'Aether Ecosystem',
+  description: 'Build the Future of African Design',
 };
 
 export default function RootLayout({
