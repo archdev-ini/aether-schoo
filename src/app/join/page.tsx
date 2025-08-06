@@ -27,6 +27,14 @@ const FormSchema = z.object({
   socialHandle: z.string().optional(),
   reason: z.string().min(10, { message: 'Please tell us why you want to join (at least 10 characters).' }),
   referralCode: z.string().optional(),
+}).refine(data => {
+    if (data.referralCode && data.referralCode.length > 0) {
+        return /^AETH-\d{6}$/.test(data.referralCode);
+    }
+    return true;
+}, {
+    message: 'Invalid referral code. Please use a valid Aether ID (e.g., AETH-123456).',
+    path: ['referralCode'],
 });
 
 type FormValues = z.infer<typeof FormSchema>;
@@ -154,7 +162,7 @@ export default function JoinPage() {
                         )}/>
 
                         <FormField control={form.control} name="referralCode" render={({ field }) => (
-                            <FormItem><FormLabel>Referral Code <span className="text-muted-foreground">(optional)</span></FormLabel><FormControl><Input placeholder="Enter code if you have one" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Referral Code <span className="text-muted-foreground">(Another member's Aether ID, optional)</span></FormLabel><FormControl><Input placeholder="Enter code if you have one" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
 
                         <Button type="submit" disabled={isLoading} size="lg" className="w-full">
