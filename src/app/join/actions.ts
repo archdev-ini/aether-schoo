@@ -56,18 +56,19 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     const newAetherId = generateAetherId(parsedData.data.fullName);
 
-    // Using Field IDs instead of names for a more robust integration.
+    // Using Field IDs for a more robust integration.
     const fields = {
-        'fld7hoOSkHYaZrPr7': newAetherId, // aetherId
-        'fldcoLSWA6ntjtlYV': parsedData.data.fullName, // fullName
-        'fld2EoTnv3wjIHhNX': parsedData.data.email, // Email
-        'flddZjhBPq5z7Gtir': parsedData.data.ageRange, // ageRange
-        'fldP5VgkLoOGwFkb3': parsedData.data.location, // location
-        'fldjnwoJZkpsRvtEN': parsedData.data.role, // role
-        'fldBZageF70cMVzMQ': parsedData.data.mainInterest, // mainInterest
-        'fldq6gxxBsjMWJCM4': parsedData.data.preferredPlatform, // preferredPlatform
-        'fldbUPQ54FwaYZ5Qx': parsedData.data.socialHandle, // socialHandle
-        'flda3C3jBfgZ4aikj': parsedData.data.reason, // reasonToJoin
+        'fld7hoOSkHYaZrPr7': newAetherId,
+        'fldcoLSWA6ntjtlYV': parsedData.data.fullName,
+        'fld2EoTnv3wjIHhNX': parsedData.data.email,
+        'flddZjhBPq5z7Gtir': parsedData.data.ageRange,
+        'fldP5VgkLoOGwFkb3': parsedData.data.location,
+        'fldjnwoJZkpsRvtEN': parsedData.data.role,
+        'fldBZageF70cMVzMQ': parsedData.data.mainInterest,
+        'fldq6gxxBsjMWJCM4': parsedData.data.preferredPlatform,
+        'fldbUPQ54FwaYZ5Qx': parsedData.data.socialHandle,
+        'flda3C3jBfgZ4aikj': parsedData.data.reason,
+        'fldmMy5vyIaoPMN3g': parsedData.data.referralCode,
     };
 
     try {
