@@ -34,7 +34,6 @@ export default function Home() {
                 alt="Hero"
                 data-ai-hint="african architecture students"
                 className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
-                priority
               />
             </div>
           </div>
