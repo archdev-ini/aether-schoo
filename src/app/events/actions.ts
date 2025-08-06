@@ -35,8 +35,10 @@ export async function getEvents(): Promise<Event[]> {
     try {
         const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
             filterByFormula: "({Published} = 1)",
-            sort: [{field: "Status", direction: "asc"}, {field: "Date", direction: "asc"}],
+            sort: [{field: "Date", direction: "asc"}],
         }).all();
+
+        const now = new Date();
 
         const events = records.map(record => {
             const coverImageField = record.get('Cover Image');
@@ -45,20 +47,30 @@ export async function getEvents(): Promise<Event[]> {
                 coverImageUrl = coverImageField[0].url;
             }
 
+            const eventDateStr = record.get('Date');
+            const eventDate = eventDateStr ? new Date(eventDateStr) : new Date();
+            
             return {
                 id: record.id,
                 title: record.get('Title') || 'Untitled Event',
-                date: record.get('Date') || new Date().toISOString(),
+                date: eventDateStr || new Date().toISOString(),
                 type: record.get('Type') || 'General',
                 speaker: record.get('Speaker') || 'TBA',
                 registrationUrl: record.get('Registration URL'),
                 description: record.get('Description') || 'No description provided.',
-                status: record.get('Status') || 'Upcoming',
+                status: eventDate >= now ? 'Upcoming' : 'Past',
                 coverImage: coverImageUrl,
             };
         });
         
-        return EventSchema.array().parse(events.filter(e => e.title && e.date && e.status));
+        // Sort events by status (upcoming first) then by date
+        events.sort((a, b) => {
+            if (a.status === 'Upcoming' && b.status === 'Past') return -1;
+            if (a.status === 'Past' && b.status === 'Upcoming') return 1;
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
+
+        return EventSchema.array().parse(events.filter(e => e.title && e.date));
 
     } catch (error) {
         console.error('Airtable API error:', error);
