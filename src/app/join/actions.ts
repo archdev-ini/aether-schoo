@@ -73,3 +73,5 @@ export async function submitJoinForm(data: FormValues) {
         return { success: false, error: 'Failed to submit form to Airtable.' };
     }
 }
+
+    

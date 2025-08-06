@@ -34,7 +34,7 @@ const FormSchema = z.object({
     }
     return true;
 }, {
-    message: 'Invalid referral code. Please use a valid Aether ID (e.g., AETH-123456).',
+    message: 'Invalid referral code. Please use another member\'s Aether ID (e.g., AETH-123456).',
     path: ['referralCode'],
 });
 
@@ -94,11 +94,15 @@ export default function JoinPage() {
                             <p className="text-2xl font-bold tracking-widest text-primary">{aetherId}</p>
                         </div>
                         <p className="text-muted-foreground">Use this ID to access courses, events, and more within the ecosystem.</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <Button asChild><Link href="#">Join Discord</Link></Button>
                             <Button asChild><Link href="#">Join WhatsApp</Link></Button>
                             <Button asChild><Link href="#">Join Telegram</Link></Button>
-                            <Button asChild variant="outline"><Link href="#">Follow on X & Instagram</Link></Button>
+                        </div>
+                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <Button asChild variant="outline"><Link href="#">Follow on Instagram</Link></Button>
+                            <Button asChild variant="outline"><Link href="#">Follow on X</Link></Button>
+                            <Button asChild variant="outline"><Link href="#">Follow on Facebook</Link></Button>
                         </div>
                     </CardContent>
                 </Card>
@@ -171,3 +175,5 @@ export default function JoinPage() {
     </main>
   );
 }
+
+    
