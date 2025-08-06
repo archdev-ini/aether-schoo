@@ -1,4 +1,5 @@
-import { Rocket, Twitter, Book, MessageCircle, Camera } from 'lucide-react';
+
+import { Twitter, Book, MessageCircle, Camera } from 'lucide-react';
 import Link from 'next/link';
 
 const socialLinks = [
@@ -11,36 +12,50 @@ const socialLinks = [
 export function Footer() {
   return (
     <footer className="border-t border-border/40">
-      <div className="container flex flex-col items-center justify-between gap-6 py-10 md:h-24 md:flex-row">
-        <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-          <Link href="/" className="flex items-center gap-2">
-            <Rocket className="h-6 w-6" />
-            <span className="font-bold">Aether Ecosystem</span>
-          </Link>
-          <p className="hidden text-sm text-muted-foreground md:block">
-            Part of the Buildr Africa Network
-          </p>
+        <div className="container py-8">
+            <div className="grid md:grid-cols-3 gap-8">
+                <div className="space-y-4">
+                    <Link href="/" className="flex items-center gap-2">
+                         <p className="font-bold">Aether Ecosystem</p>
+                    </Link>
+                    <p className="text-sm text-muted-foreground">
+                        Part of the Buildr Africa Network
+                    </p>
+                </div>
+                <div className="grid grid-cols-2 gap-8">
+                     <div>
+                        <h3 className="font-semibold mb-2">Quick Links</h3>
+                        <ul className="space-y-2">
+                            <li><Link href="/join" className="text-sm text-muted-foreground hover:text-foreground">Join</Link></li>
+                            <li><Link href="/programs" className="text-sm text-muted-foreground hover:text-foreground">Learn</Link></li>
+                             <li><Link href="/programs" className="text-sm text-muted-foreground hover:text-foreground">Studio</Link></li>
+                            <li><Link href="/about" className="text-sm text-muted-foreground hover:text-foreground">About</Link></li>
+                            <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link></li>
+                        </ul>
+                    </div>
+                    <div>
+                         <h3 className="font-semibold mb-2">Community</h3>
+                        <ul className="space-y-2">
+                             {socialLinks.map(link => (
+                                <li key={link.name}>
+                                    <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-2">
+                                        <link.icon className="h-4 w-4" />
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+                <div className="space-y-4">
+                    <h3 className="font-semibold">Stay Updated</h3>
+                    <p className="text-sm text-muted-foreground">Join our mailing list for the latest news and updates.</p>
+                </div>
+            </div>
+             <div className="mt-8 pt-8 border-t border-border/40 text-center text-sm text-muted-foreground">
+                <p>&copy; {new Date().getFullYear()} Aether Ecosystem. All rights reserved.</p>
+            </div>
         </div>
-        <div className="flex items-center gap-4">
-            <Link href="/join" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Join</Link>
-            <Link href="/programs" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Programs</Link>
-            <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">About</Link>
-        </div>
-        <div className="flex items-center gap-4">
-            {socialLinks.map(link => (
-                <Link key={link.name} href={link.href} className="text-muted-foreground transition-colors hover:text-foreground">
-                    <link.icon className="h-5 w-5" />
-                    <span className="sr-only">{link.name}</span>
-                </Link>
-            ))}
-        </div>
-         <p className="text-sm text-muted-foreground md:hidden">
-            Part of the Buildr Africa Network
-          </p>
-        <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Aether Ecosystem. All rights reserved.
-        </p>
-      </div>
     </footer>
   );
 }
