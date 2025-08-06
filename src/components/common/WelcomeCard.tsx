@@ -40,15 +40,20 @@ export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
   const [randomQuote, setRandomQuote] = useState('');
 
   useEffect(() => {
-    setRandomQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+    // This check ensures this code only runs on the client
+    if (typeof window !== 'undefined') {
+      setRandomQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+    }
   }, []);
 
   const handleDownload = () => {
     if (cardRef.current) {
-      toPng(cardRef.current, { cacheBust: true, backgroundColor: 'white' })
+      toPng(cardRef.current, { cacheBust: true, pixelRatio: 2, style: {
+        backgroundColor: 'hsl(var(--background))',
+      }})
         .then((dataUrl) => {
           const link = document.createElement('a');
-          link.download = `aether-welcome-card.png`;
+          link.download = `aether-id-card-${aetherId}.png`;
           link.href = dataUrl;
           link.click();
         })
@@ -77,18 +82,20 @@ export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
             <ParametricBackground />
             <div className="relative z-10 text-center space-y-6">
                 <div>
-                    <p className="font-bold text-sm text-primary tracking-widest uppercase">WELCOME TO THE ECOSYSTEM</p>
+                    <p className="font-bold text-sm text-primary tracking-widest uppercase font-logo">WELCOME TO THE ECOSYSTEM</p>
                     <h2 className="text-4xl font-bold font-headline mt-2">{fullName}</h2>
                 </div>
 
                 <div className="bg-muted/50 dark:bg-muted/20 p-4 rounded-lg">
-                    <p className="text-sm text-muted-foreground">YOUR AETHER ID</p>
-                    <p className="text-2xl font-bold tracking-widest text-primary">{aetherId}</p>
+                    <p className="text-sm text-muted-foreground font-logo">YOUR AETHER ID</p>
+                    <p className="text-2xl font-bold tracking-widest text-primary font-mono">{aetherId}</p>
                 </div>
                 
-                <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
-                    "{randomQuote}"
-                </blockquote>
+                {randomQuote && (
+                  <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
+                      "{randomQuote}"
+                  </blockquote>
+                )}
             </div>
         </div>
       <div className="flex justify-center gap-4">

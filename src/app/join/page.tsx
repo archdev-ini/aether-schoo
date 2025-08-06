@@ -31,11 +31,11 @@ const FormSchema = z.object({
   referralCode: z.string().optional(),
 }).refine(data => {
     if (data.referralCode && data.referralCode.length > 0) {
-        return /^AETH-\d{6}$/.test(data.referralCode);
+        return /^AETH-[A-Z]{2}\d{3}$/.test(data.referralCode);
     }
     return true;
 }, {
-    message: 'Invalid referral code. Please use another member\'s Aether ID (e.g., AETH-123456).',
+    message: 'Invalid referral code format.',
     path: ['referralCode'],
 });
 
@@ -88,8 +88,8 @@ export default function JoinPage() {
         <main className="container py-12 md:py-24 lg:py-32 animate-in fade-in duration-500">
             <div className="text-center max-w-2xl mx-auto space-y-8">
                  <div>
-                    <h1 className="text-3xl font-bold">You're in. Welcome to Aether.</h1>
-                    <p className="text-muted-foreground mt-2">Your journey into the future of design starts now. Here is your personalized welcome card.</p>
+                    <h1 className="text-3xl font-bold font-headline">You're in. Welcome to Aether.</h1>
+                    <p className="text-muted-foreground mt-2">Your journey into the future of design starts now. Here is your personalized Aether ID card.</p>
                 </div>
 
                 <WelcomeCard fullName={fullName} aetherId={aetherId} />
@@ -99,12 +99,14 @@ export default function JoinPage() {
                         <CardTitle>What's Next?</CardTitle>
                         <CardDescription>Use your Aether ID to access courses, events, and more within the ecosystem.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-4">
+                        <p className="text-sm text-muted-foreground">Join our community channels to connect with other members:</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <Button asChild><Link href="#">Join Discord</Link></Button>
                             <Button asChild><Link href="#">Join WhatsApp</Link></Button>
                             <Button asChild><Link href="#">Join Telegram</Link></Button>
                         </div>
+                         <p className="text-sm text-muted-foreground mt-4">And follow us for inspiration and updates:</p>
                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <Button asChild variant="outline"><Link href="#">Follow on Instagram</Link></Button>
                             <Button asChild variant="outline"><Link href="#">Follow on X</Link></Button>
@@ -146,15 +148,15 @@ export default function JoinPage() {
                         </div>
                         
                         <FormField control={form.control} name="role" render={({ field }) => (
-                            <FormItem><FormLabel>Which best describes you?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Student" id="r1" /></FormControl><FormLabel htmlFor="r1" className="font-normal">Student</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Graduate" id="r2" /></FormControl><FormLabel htmlFor="r2" className="font-normal">Graduate</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Professional" id="r3" /></FormControl><FormLabel htmlFor="r3" className="font-normal">Professional</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Which best describes you?</FormLabel><FormControl><RadioGroup onValuechange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Student" id="r1" /></FormControl><FormLabel htmlFor="r1" className="font-normal">Student</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Graduate" id="r2" /></FormControl><FormLabel htmlFor="r2" className="font-normal">Graduate</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Professional" id="r3" /></FormControl><FormLabel htmlFor="r3" className="font-normal">Professional</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
                         )}/>
                         
                         <FormField control={form.control} name="mainInterest" render={({ field }) => (
-                            <FormItem><FormLabel>What are you most interested in?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Courses" id="i1" /></FormControl><FormLabel htmlFor="i1" className="font-normal">Courses</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Studio" id="i2" /></FormControl><FormLabel htmlFor="i2" className="font-normal">Studio</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Community" id="i3" /></FormControl><FormLabel htmlFor="i3" className="font-normal">Community</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Mentorship" id="i4" /></FormControl><FormLabel htmlFor="i4" className="font-normal">Mentorship</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>What are you most interested in?</FormLabel><FormControl><RadioGroup onValuechange={field.onChange} defaultValue={field.value} className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Courses" id="i1" /></FormControl><FormLabel htmlFor="i1" className="font-normal">Courses</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Studio" id="i2" /></FormControl><FormLabel htmlFor="i2" className="font-normal">Studio</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Community" id="i3" /></FormControl><FormLabel htmlFor="i3" className="font-normal">Community</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Mentorship" id="i4" /></FormControl><FormLabel htmlFor="i4" className="font-normal">Mentorship</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
                         )}/>
 
                         <FormField control={form.control} name="preferredPlatform" render={({ field }) => (
-                            <FormItem><FormLabel>Preferred Community Platform</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Discord" id="p1" /></FormControl><FormLabel htmlFor="p1" className="font-normal">Discord</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="WhatsApp" id="p2" /></FormControl><FormLabel htmlFor="p2" className="font-normal">WhatsApp</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Telegram" id="p3" /></FormControl><FormLabel htmlFor="p3" className="font-normal">Telegram</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Preferred Community Platform</FormLabel><FormControl><RadioGroup onValuechange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Discord" id="p1" /></FormControl><FormLabel htmlFor="p1" className="font-normal">Discord</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="WhatsApp" id="p2" /></FormControl><FormLabel htmlFor="p2" className="font-normal">WhatsApp</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Telegram" id="p3" /></FormControl><FormLabel htmlFor="p3" className="font-normal">Telegram</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
                         )}/>
                         
                         <FormField control={form.control} name="socialHandle" render={({ field }) => (
