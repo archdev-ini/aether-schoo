@@ -12,18 +12,17 @@ export default function Home() {
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-4">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
-                    Build the Future of African Design
+                  <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
+                    Build the Future of African Design.
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Join a global learning ecosystem for ambitious architects and designers — with open-access courses, immersive studios, and a thriving creative community.
+                    Join a global ecosystem for ambitious architects and designers — free courses, immersive studios, and a vibrant creative community.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button asChild size="lg">
                     <Link href="/join">
-                      Get Your Aether ID
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      Join the Ecosystem
                     </Link>
                   </Button>
                 </div>
@@ -33,7 +32,7 @@ export default function Home() {
                 width="600"
                 height="600"
                 alt="Hero"
-                data-ai-hint="african architecture abstract"
+                data-ai-hint="african architecture students"
                 className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
               />
             </div>
