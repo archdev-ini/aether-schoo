@@ -1,12 +1,13 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageCircle, Users, Bell, Camera, Twitter, Book } from "lucide-react";
 import Link from "next/link";
 
 const communityPlatforms = [
-  { name: "Discord", icon: MessageCircle, description: "For live chats, Q&As, and project collaboration.", href: "#" },
-  { name: "WhatsApp", icon: Users, description: "For daily updates and regional group discussions.", href: "#" },
-  { name: "Telegram", icon: Bell, description: "For announcements and key information.", href: "#" },
+  { name: "Discord", icon: MessageCircle, description: "For live chats, Q&As, and project collaboration.", href: "/join" },
+  { name: "WhatsApp", icon: Users, description: "For daily updates and regional group discussions.", href: "/join" },
+  { name: "Telegram", icon: Bell, description: "For announcements and key information.", href: "/join" },
   { name: "Instagram", icon: Camera, description: "For visual inspiration and community highlights.", href: "#" },
   { name: "X (Twitter)", icon: Twitter, description: "For industry news and real-time conversations.", href: "#" },
   { name: "Facebook", icon: Book, description: "For long-form content and community stories.", href: "#" },
@@ -36,13 +37,17 @@ export default function CommunityPage() {
                 </CardContent>
                 <div className="p-6 pt-0">
                     <Button asChild className="w-full">
-                        <Link href={platform.href}>Join on {platform.name}</Link>
+                        <Link href={platform.href}>
+                            {platform.href === "/join" ? "Get ID to Join" : `Follow on ${platform.name}`}
+                        </Link>
                     </Button>
                 </div>
             </Card>
         ))}
       </div>
        <div className="text-center mt-16">
+            <h2 className="text-2xl font-bold font-headline">Ready to join?</h2>
+            <p className="text-muted-foreground mt-2 mb-4">Get your Aether ID to unlock our community spaces.</p>
             <Button size="lg" asChild>
                 <Link href="/join">Join the Community</Link>
             </Button>
