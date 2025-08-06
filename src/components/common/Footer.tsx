@@ -15,7 +15,7 @@ export function Footer() {
         <div className="container py-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                  <div className="text-center md:text-left">
-                     <Link href="/" className="font-bold text-lg">Aether</Link>
+                     <Link href="/" className="font-logo text-lg font-medium">Aether</Link>
                      <p className="text-sm text-muted-foreground mt-2">
                         Part of the Buildr Africa Network
                     </p>

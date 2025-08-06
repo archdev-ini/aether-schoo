@@ -22,6 +22,7 @@ export default {
         sans: ['var(--font-sans)', ...fontFamily.sans],
         body: ['Work Sans', 'sans-serif'],
         headline: ['Sora', 'sans-serif'],
+        logo: ['Neue Haas Grotesk Display Pro', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

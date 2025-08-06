@@ -55,7 +55,7 @@ export function Header() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">Aether</span>
+            <span className="hidden font-logo text-lg font-medium sm:inline-block">Aether</span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             {navLinks.map((link) => (
@@ -81,7 +81,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="left" className="pr-6">
                 <Link href="/" className="mb-8 flex items-center space-x-2">
-                  <span className="font-bold text-lg">Aether</span>
+                  <span className="font-logo text-xl font-medium">Aether</span>
                 </Link>
                 <div className="flex flex-col space-y-4">
                     {navLinks.map((link) => (
