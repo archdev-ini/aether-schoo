@@ -56,31 +56,30 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     const newAetherId = generateAetherId(parsedData.data.fullName);
 
-    // Ensure your Airtable columns match these field names exactly (case-sensitive)
+    // Using Field IDs instead of names for a more robust integration.
     const fields = {
-        'aetherId': newAetherId,
-        'fullName': parsedData.data.fullName,
-        'email': parsedData.data.email,
-        'ageRange': parsedData.data.ageRange,
-        'location': parsedData.data.location,
-        'role': parsedData.data.role,
-        'mainInterest': parsedData.data.mainInterest,
-        'preferredPlatform': parsedData.data.preferredPlatform,
-        'socialHandle': parsedData.data.socialHandle,
-        'reasonToJoin': parsedData.data.reason,
-        'referralCode': parsedData.data.referralCode,
+        'fld7hoOSkHYaZrPr7': newAetherId, // aetherId
+        'fldcoLSWA6ntjtlYV': parsedData.data.fullName, // fullName
+        'fld2EoTnv3wjIHhNX': parsedData.data.email, // Email
+        'flddZjhBPq5z7Gtir': parsedData.data.ageRange, // ageRange
+        'fldP5VgkLoOGwFkb3': parsedData.data.location, // location
+        'fldjnwoJZkpsRvtEN': parsedData.data.role, // role
+        'fldBZageF70cMVzMQ': parsedData.data.mainInterest, // mainInterest
+        'fldq6gxxBsjMWJCM4': parsedData.data.preferredPlatform, // preferredPlatform
+        'fldbUPQ54FwaYZ5Qx': parsedData.data.socialHandle, // socialHandle
+        'flda3C3jBfgZ4aikj': parsedData.data.reason, // reasonToJoin
     };
 
     try {
         await base(AIRTABLE_MEMBERS_TABLE_ID).create([
             { fields },
-        ]);
+        ], { typecast: true }); // Using typecast to handle single select fields gracefully
         return { success: true, aetherId: newAetherId };
     } catch (error: any) {
         console.error('Airtable API submission error:', error);
         // Provide a more specific error message if Airtable returns one
-        const errorMessage = error.message && error.message.includes('UNKNOWN_FIELD_NAME')
-            ? `Airtable error: One or more fields in your form do not match the columns in your Airtable base. Please check your column names. (Details: ${error.message})`
+        const errorMessage = error.message
+            ? `Airtable error: ${error.message}`
             : 'Failed to submit form to Airtable. Please try again later.';
             
         return { success: false, error: errorMessage };
