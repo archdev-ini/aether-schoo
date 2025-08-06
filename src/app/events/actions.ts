@@ -58,4 +58,10 @@ export async function getEvents(): Promise<Event[]> {
             };
         });
         
-        return EventSchema.array().parse(events.filter(e => e
+        return EventSchema.array().parse(events.filter(e => e.title && e.date && e.status));
+
+    } catch (error) {
+        console.error('Airtable API error:', error);
+        return [];
+    }
+}
