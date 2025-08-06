@@ -16,7 +16,7 @@ export function Footer() {
             <div className="grid md:grid-cols-3 gap-8">
                 <div className="space-y-4">
                     <Link href="/" className="flex items-center gap-2">
-                         <p className="font-bold">Aether Ecosystem</p>
+                         <p className="font-bold">Aether</p>
                     </Link>
                     <p className="text-sm text-muted-foreground">
                         Part of the Buildr Africa Network
@@ -53,7 +53,7 @@ export function Footer() {
                 </div>
             </div>
              <div className="mt-8 pt-8 border-t border-border/40 text-center text-sm text-muted-foreground">
-                <p>&copy; {new Date().getFullYear()} Aether Ecosystem. All rights reserved.</p>
+                <p>&copy; {new Date().getFullYear()} Aether. All rights reserved.</p>
             </div>
         </div>
     </footer>
