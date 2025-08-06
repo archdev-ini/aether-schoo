@@ -33,11 +33,11 @@ export default function AboutPage() {
         </div>
         <div>
             <Image
-                src="https://placehold.co/600x600.png"
+                src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=600&h=600&auto=format&fit=crop"
                 width={600}
                 height={600}
                 alt="Ecosystem Diagram"
-                data-ai-hint="ecosystem diagram community"
+                data-ai-hint="modern house exterior"
                 className="rounded-lg object-cover shadow-2xl"
             />
         </div>

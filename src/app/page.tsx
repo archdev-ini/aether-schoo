@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -22,13 +22,13 @@ export default function Home() {
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button asChild size="lg">
                     <Link href="/join">
-                      Join the Ecosystem
+                      Join the Ecosystem <ArrowRight className="ml-2" />
                     </Link>
                   </Button>
                 </div>
               </div>
               <Image
-                src="https://placehold.co/600x600.png"
+                src="https://images.unsplash.com/photo-1581351639996-f9fd9b45e2a2?q=80&w=600&h=600&auto=format&fit=crop"
                 width="600"
                 height="600"
                 alt="Hero"
@@ -74,41 +74,26 @@ export default function Home() {
 
         <section id="about" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
-            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12">
+            <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-12">
               <div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Aether Ecosystem</h2>
                 <p className="mt-4 text-muted-foreground md:text-xl/relaxed">Aether is a digital-first architecture and design school creating the next generation of African design leaders.</p>
                 <div className="mt-6 space-y-4">
-                  <div className="flex items-start gap-4">
-                    <CheckCircle className="w-6 h-6 text-primary mt-1" />
-                    <div>
-                      <h3 className="font-semibold">Aether School</h3>
-                      <p className="text-muted-foreground">Open access to skill-building.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <CheckCircle className="w-6 h-6 text-primary mt-1" />
-                    <div>
-                      <h3 className="font-semibold">Horizon Studio</h3>
-                      <p className="text-muted-foreground">Immersive studio learning.</p>
-                    </div>
-                  </div>
-                   <div className="flex items-start gap-4">
-                    <CheckCircle className="w-6 h-6 text-primary mt-1" />
-                    <div>
-                      <h3 className="font-semibold">Aether Community</h3>
-                      <p className="text-muted-foreground">Peer learning, events, and mentorship.</p>
-                    </div>
-                  </div>
+                   <p className="font-semibold">We offer:</p>
+                   <ul className="list-disc list-inside space-y-2">
+                        <li>Aether School – open access to skill-building</li>
+                        <li>Horizon Studio – immersive studio learning</li>
+                        <li>Aether Community – peer learning, events, and mentorship</li>
+                   </ul>
                 </div>
                  <p className="mt-6 text-sm text-muted-foreground">We’re backed by Buildr Africa and committed to decentralizing opportunity for African creatives.</p>
               </div>
                <Image
-                src="https://placehold.co/600x400.png"
+                src="https://images.unsplash.com/photo-1618221118493-9cfa1a1202c1?q=80&w=600&h=400&auto=format&fit=crop"
                 width="600"
                 height="400"
                 alt="Ecosystem Diagram"
-                data-ai-hint="ecosystem diagram simple"
+                data-ai-hint="modern architecture interior"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover"
               />
             </div>
