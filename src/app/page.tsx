@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { School, Users, Waypoints } from "lucide-react";
+
 
 export default function Home() {
   return (
@@ -43,31 +46,40 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">How It Works</h2>
+                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">How It Works</h2>
+                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                    Aether is more than a platform—it's a three-part journey designed to take you from learner to leader.
+                </p>
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:gap-12 lg:grid-cols-3 mt-12">
-              <div className="grid gap-1 text-center">
-                  <div className="flex justify-center items-center mb-4">
-                    <div className="bg-primary text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">1</div>
-                  </div>
-                  <h3 className="text-lg font-bold">Join the Ecosystem</h3>
-                  <p className="text-sm text-muted-foreground">Fill out a short form and receive your unique Aether ID. This is your key to learning, access, and recognition.</p>
-              </div>
-              <div className="grid gap-1 text-center">
-                 <div className="flex justify-center items-center mb-4">
-                    <div className="bg-primary text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">2</div>
-                  </div>
-                <h3 className="text-lg font-bold">Choose Your Space</h3>
-                <p className="text-sm text-muted-foreground">Join our growing community on Discord, WhatsApp, or Telegram. Follow us on Instagram, X, or Facebook to stay in the loop.</p>
-              </div>
-              <div className="grid gap-1 text-center">
-                 <div className="flex justify-center items-center mb-4">
-                    <div className="bg-primary text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">3</div>
-                  </div>
-                <h3 className="text-lg font-bold">Start Learning, Growing, and Building</h3>
-                <p className="text-sm text-muted-foreground">Take beginner-friendly courses, join live sessions, or apply to our flagship Horizon Studio.</p>
-              </div>
+              <Card>
+                <CardHeader>
+                    <School className="w-8 h-8 text-primary mb-2" />
+                    <CardTitle>1. Learn</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">Start with free, open-access courses in Aether School to build foundational skills at your own pace.</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                    <Users className="w-8 h-8 text-primary mb-2" />
+                    <CardTitle>2. Connect</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <p className="text-muted-foreground">Join our global community on Discord, WhatsApp, or Telegram to collaborate, share, and grow with peers.</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                    <Waypoints className="w-8 h-8 text-primary mb-2" />
+                    <CardTitle>3. Build</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">Apply your skills in Horizon Studio, our immersive cohort program for creating portfolio-worthy projects.</p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
