@@ -77,22 +77,22 @@ export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
   };
 
   return (
-    <div className="space-y-4">
-        <div ref={cardRef} className="relative bg-card text-card-foreground rounded-lg border shadow-sm p-8 overflow-hidden">
+    <div className="space-y-4 w-full max-w-lg mx-auto">
+        <div ref={cardRef} className="relative bg-card text-card-foreground rounded-lg border shadow-sm p-6 sm:p-8 overflow-hidden">
             <ParametricBackground />
             <div className="relative z-10 text-center space-y-6">
                 <div>
                     <p className="font-bold text-sm text-primary tracking-widest uppercase font-logo">WELCOME TO THE ECOSYSTEM</p>
-                    <h2 className="text-4xl font-bold font-headline mt-2">{fullName}</h2>
+                    <h2 className="text-3xl sm:text-4xl font-bold font-headline mt-2 break-words">{fullName}</h2>
                 </div>
 
                 <div className="bg-muted/50 dark:bg-muted/20 p-4 rounded-lg">
                     <p className="text-sm text-muted-foreground font-logo">YOUR AETHER ID</p>
-                    <p className="text-2xl font-bold tracking-widest text-primary font-mono">{aetherId}</p>
+                    <p className="text-xl sm:text-2xl font-bold tracking-widest text-primary font-mono">{aetherId}</p>
                 </div>
                 
                 {randomQuote && (
-                  <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
+                  <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground text-sm sm:text-base">
                       "{randomQuote}"
                   </blockquote>
                 )}
@@ -101,7 +101,7 @@ export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
       <div className="flex justify-center gap-4">
         <Button onClick={handleDownload} variant="outline">
           <Download className="mr-2" />
-          Download Card
+          Download
         </Button>
         <Button onClick={handleShare}>
           <Share2 className="mr-2" />

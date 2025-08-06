@@ -1,21 +1,16 @@
 
+import { Suspense } from 'react';
 import { WorldMap } from '@/components/common/WorldMap';
 import { getUserLocations, UserLocation } from './actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default async function MapPage() {
+async function MapData() {
   const userLocations = await getUserLocations();
 
   return (
-    <main className="container py-12 md:py-24 animate-in fade-in duration-500">
-       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">One Global Ecosystem</h1>
-        <p className="mt-4 max-w-2xl mx-auto text-muted-foreground md:text-xl">
-            Aether is a borderless community. See where our members are learning, building, and dreaming from.
-        </p>
-      </div>
-      
+    <>
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           <div className="aspect-[16/9] w-full">
@@ -43,6 +38,52 @@ export default async function MapPage() {
           ))}
         </div>
       </div>
+    </>
+  );
+}
+
+function MapSkeleton() {
+  return (
+    <>
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <Skeleton className="aspect-[16/9] w-full" />
+        </CardContent>
+      </Card>
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-center mb-6 font-headline">Recent Members</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <Card key={i} className="p-4">
+              <div className="flex items-start gap-3">
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24 mt-1" />
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default async function MapPage() {
+  return (
+    <main className="container py-12 md:py-24 animate-in fade-in duration-500">
+       <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">One Global Ecosystem</h1>
+        <p className="mt-4 max-w-2xl mx-auto text-muted-foreground md:text-xl">
+            Aether is a borderless community. See where our members are learning, building, and dreaming from.
+        </p>
+      </div>
+      
+      <Suspense fallback={<MapSkeleton />}>
+        <MapData />
+      </Suspense>
     </main>
   );
 }
