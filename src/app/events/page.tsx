@@ -1,65 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, MapPin, Tag } from "lucide-react";
+import { Calendar, Clock, MapPin, Tag, User } from "lucide-react";
 import Link from "next/link";
+import { getEvents, Event } from './actions';
+import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 
-const sampleEvents = [
-  {
-    api_id: "evt-1",
-    name: "Intro to Parametric Design",
-    description: "A hands-on workshop covering the fundamentals of parametric and computational design using popular industry tools.",
-    url: "#",
-    start_at: "2024-08-15T10:00:00Z",
-    end_at: "2024-08-15T12:00:00Z",
-    location_type: "online",
-    location_address: "Online",
-    series_info: { title: "Aether School Workshop" },
-  },
-  {
-    api_id: "evt-2",
-    name: "Fireside Chat with African Arch-Tech Leaders",
-    description: "Join us for an inspiring conversation with leading architects and technologists shaping the future of design in Africa.",
-    url: "#",
-    start_at: "2024-08-22T17:00:00Z",
-    end_at: "2024-08-22T18:30:00Z",
-    location_type: "online",
-    location_address: "Online",
-    series_info: { title: "Community Meetup" },
-  },
-    {
-    api_id: "evt-3",
-    name: "Horizon Studio: Cohort 3 Kick-off",
-    description: "The official start of our third Horizon Studio cohort. Meet your mentors and fellow studio members.",
-    url: "#",
-    start_at: "2024-09-01T16:00:00Z",
-    end_at: "2024-09-01T17:00:00Z",
-    location_type: "online",
-    location_address: "Online",
-    series_info: { title: "Horizon Studio" },
-  },
-];
-
-
-function formatEventTime(start_at: string, end_at: string) {
-    const startDate = new Date(start_at);
-    const endDate = new Date(end_at);
-
+function formatEventTime(dateStr: string) {
+    const date = new Date(dateStr);
     const dateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
     
-    const date = startDate.toLocaleDateString('en-US', dateOptions);
-    const startTime = startDate.toLocaleTimeString('en-US', timeOptions);
-    const endTime = endDate.toLocaleTimeString('en-US', timeOptions);
-
     return {
-        date,
-        time: `${startTime} - ${endTime}`
+        date: date.toLocaleDateString('en-US', dateOptions),
+        time: date.toLocaleTimeString('en-US', timeOptions)
     }
 }
 
-
-export default function EventsPage() {
-  const events = sampleEvents;
+export default async function EventsPage() {
+  const events = await getEvents();
 
   return (
     <main className="container py-12 md:py-24 animate-in fade-in duration-500">
@@ -71,37 +30,58 @@ export default function EventsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto space-y-8">
+        {events.length === 0 && (
+            <Card className="text-center p-8">
+                <CardTitle>No Upcoming Events</CardTitle>
+                <CardDescription className="mt-2">
+                    Please check back later, or follow our community channels for updates.
+                </CardDescription>
+            </Card>
+        )}
         {events.map((event) => {
-          const { date, time } = formatEventTime(event.start_at, event.end_at);
+          const { date, time } = formatEventTime(event.date);
           return (
-            <Card key={event.api_id} className="flex flex-col md:flex-row overflow-hidden transition-all hover:shadow-lg">
-                <div className="p-6 flex-1">
-                    <CardHeader className="p-0 mb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Tag className="w-4 h-4 text-primary" />
-                            <p className="text-primary font-semibold text-sm">{event.series_info?.title || 'Standalone Event'}</p>
-                        </div>
-                        <CardTitle className="text-2xl font-headline">{event.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0 space-y-4">
-                        <p className="text-muted-foreground line-clamp-3">{event.description}</p>
-                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /> <span>{date}</span></div>
-                            <div className="flex items-center gap-2"><Clock className="w-4 h-4" /> <span>{time}</span></div>
-                            <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /> <span>{event.location_type === 'online' ? 'Online' : event.location_address}</span></div>
-                        </div>
-                    </CardContent>
+            <Card key={event.id} className="grid md:grid-cols-[250px_1fr] overflow-hidden transition-all hover:shadow-lg">
+                <div className="relative h-48 md:h-full">
+                    <Image
+                        src={event.coverImage || 'https://placehold.co/600x400.png'}
+                        alt={event.title}
+                        fill
+                        data-ai-hint="event cover"
+                        className="object-cover"
+                    />
                 </div>
-                 <div className="p-6 bg-muted/50 flex flex-col justify-center items-center md:w-56">
-                    <Button asChild className="w-full">
-                        <Link href={event.url} target="_blank">View Event</Link>
-                    </Button>
+                <div className="flex flex-col">
+                    <div className="p-6 flex-1">
+                        <CardHeader className="p-0 mb-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Badge variant="secondary">{event.type}</Badge>
+                                <Badge variant="outline">{event.status}</Badge>
+                            </div>
+                            <CardTitle className="text-2xl font-headline">{event.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0 space-y-4">
+                            <p className="text-muted-foreground line-clamp-3">{event.description}</p>
+                            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2"><User className="w-4 h-4 flex-shrink-0" /> <span>Speaker: <strong>{event.speaker}</strong></span></div>
+                                <div className="flex items-center gap-2"><Calendar className="w-4 h-4 flex-shrink-0" /> <span>{date}</span></div>
+                                <div className="flex items-center gap-2"><Clock className="w-4 h-4 flex-shrink-0" /> <span>{time}</span></div>
+                            </div>
+                        </CardContent>
+                    </div>
+                    <div className="p-6 pt-0 mt-auto">
+                        <Button asChild className="w-full" disabled={!event.registrationUrl}>
+                            <Link href={event.registrationUrl || '#'} target="_blank">
+                                {event.registrationUrl ? 'Register Now' : 'Registration Closed'}
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
             </Card>
           )
         })}
          <div className="text-center pt-8">
-            <p className="text-muted-foreground">More events coming soon. Follow our community channels to stay updated!</p>
+            <p className="text-muted-foreground">Follow our community channels to stay updated!</p>
         </div>
       </div>
     </main>
