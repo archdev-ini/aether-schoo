@@ -9,13 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { submitJoinForm } from './actions';
+import { WelcomeCard } from '@/components/common/WelcomeCard';
 
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
@@ -44,6 +45,7 @@ export type FormValues = z.infer<typeof FormSchema>;
 export default function JoinPage() {
   const [submitted, setSubmitted] = useState(false);
   const [aetherId, setAetherId] = useState('');
+  const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -65,6 +67,7 @@ export default function JoinPage() {
         const result = await submitJoinForm(data);
         if (result.success && result.aetherId) {
             setAetherId(result.aetherId);
+            setFullName(data.fullName);
             setSubmitted(true);
         } else {
             throw new Error(result.error || 'An unexpected error occurred.');
@@ -83,17 +86,20 @@ export default function JoinPage() {
   if (submitted) {
     return (
         <main className="container py-12 md:py-24 lg:py-32 animate-in fade-in duration-500">
-            <div className="text-center max-w-2xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto space-y-8">
+                 <div>
+                    <h1 className="text-3xl font-bold">You're in. Welcome to Aether.</h1>
+                    <p className="text-muted-foreground mt-2">Your journey into the future of design starts now. Here is your personalized welcome card.</p>
+                </div>
+
+                <WelcomeCard fullName={fullName} aetherId={aetherId} />
+
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-3xl font-bold">You're in. Welcome to Aether.</CardTitle>
-                        <CardDescription>Your unique Aether ID is:</CardDescription>
+                        <CardTitle>What's Next?</CardTitle>
+                        <CardDescription>Use your Aether ID to access courses, events, and more within the ecosystem.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="bg-muted p-4 rounded-lg text-center">
-                            <p className="text-2xl font-bold tracking-widest text-primary">{aetherId}</p>
-                        </div>
-                        <p className="text-muted-foreground">Use this ID to access courses, events, and more within the ecosystem.</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <Button asChild><Link href="#">Join Discord</Link></Button>
                             <Button asChild><Link href="#">Join WhatsApp</Link></Button>
@@ -175,5 +181,3 @@ export default function JoinPage() {
     </main>
   );
 }
-
-    
