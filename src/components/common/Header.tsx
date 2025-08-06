@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const navLinks = [
-  { href: '/programs', label: 'Learn' },
-  { href: '/programs', label: 'Studio' },
+  { href: '/programs', label: 'Programs' },
   { href: '/community', label: 'Community' },
   { href: '/events', label: 'Events' },
   { href: '/map', label: 'Map' },
