@@ -1,13 +1,48 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, MapPin, Tag, Users } from "lucide-react";
+import { Calendar, Clock, MapPin, Tag } from "lucide-react";
 import Link from "next/link";
-import { getLumaEvents, type LumaEvent } from './actions';
 
-function formatEventTime(event: LumaEvent) {
-    const startDate = new Date(event.start_at);
-    const endDate = new Date(event.end_at);
+const sampleEvents = [
+  {
+    api_id: "evt-1",
+    name: "Intro to Parametric Design",
+    description: "A hands-on workshop covering the fundamentals of parametric and computational design using popular industry tools.",
+    url: "#",
+    start_at: "2024-08-15T10:00:00Z",
+    end_at: "2024-08-15T12:00:00Z",
+    location_type: "online",
+    location_address: "Online",
+    series_info: { title: "Aether School Workshop" },
+  },
+  {
+    api_id: "evt-2",
+    name: "Fireside Chat with African Arch-Tech Leaders",
+    description: "Join us for an inspiring conversation with leading architects and technologists shaping the future of design in Africa.",
+    url: "#",
+    start_at: "2024-08-22T17:00:00Z",
+    end_at: "2024-08-22T18:30:00Z",
+    location_type: "online",
+    location_address: "Online",
+    series_info: { title: "Community Meetup" },
+  },
+    {
+    api_id: "evt-3",
+    name: "Horizon Studio: Cohort 3 Kick-off",
+    description: "The official start of our third Horizon Studio cohort. Meet your mentors and fellow studio members.",
+    url: "#",
+    start_at: "2024-09-01T16:00:00Z",
+    end_at: "2024-09-01T17:00:00Z",
+    location_type: "online",
+    location_address: "Online",
+    series_info: { title: "Horizon Studio" },
+  },
+];
+
+
+function formatEventTime(start_at: string, end_at: string) {
+    const startDate = new Date(start_at);
+    const endDate = new Date(end_at);
 
     const dateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     const timeOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
@@ -23,8 +58,8 @@ function formatEventTime(event: LumaEvent) {
 }
 
 
-export default async function EventsPage() {
-  const events = await getLumaEvents();
+export default function EventsPage() {
+  const events = sampleEvents;
 
   return (
     <main className="container py-12 md:py-24 animate-in fade-in duration-500">
@@ -37,7 +72,7 @@ export default async function EventsPage() {
 
       <div className="max-w-4xl mx-auto space-y-8">
         {events.map((event) => {
-          const { date, time } = formatEventTime(event);
+          const { date, time } = formatEventTime(event.start_at, event.end_at);
           return (
             <Card key={event.api_id} className="flex flex-col md:flex-row overflow-hidden transition-all hover:shadow-lg">
                 <div className="p-6 flex-1">
@@ -59,7 +94,7 @@ export default async function EventsPage() {
                 </div>
                  <div className="p-6 bg-muted/50 flex flex-col justify-center items-center md:w-56">
                     <Button asChild className="w-full">
-                        <Link href={event.url} target="_blank">Register on Luma</Link>
+                        <Link href={event.url} target="_blank">View Event</Link>
                     </Button>
                 </div>
             </Card>
