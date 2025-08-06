@@ -9,8 +9,26 @@ import { ThemeProvider } from '@/components/common/ThemeProvider';
 import { CookieConsentBanner } from '@/components/common/CookieConsentBanner';
 
 export const metadata: Metadata = {
-  title: 'Aether Ecosystem',
-  description: 'Build the Future of African Design',
+  title: 'Aether | Architecture School & Creative Ecosystem',
+  description: 'Aether is a global-facing, Africa-rooted architecture learning ecosystem. Join courses, studios, and community spaces built for future designers.',
+  openGraph: {
+    title: 'Aether Ecosystem – Learn. Build. Belong.',
+    description: 'Explore a creative architecture school and studio space rooted in Africa, open to the world.',
+    images: [{
+      url: 'https://images.unsplash.com/photo-1581351639996-f9fd9b45e2a2?q=80&w=1200&h=630&auto=format&fit=crop',
+      width: 1200,
+      height: 630,
+      alt: 'Aether Ecosystem Hero Image',
+    }],
+    url: 'https://aether.build',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Aether Ecosystem – Learn. Build. Belong.',
+    description: 'A digital-first architecture school and creative community for the future.',
+    images: ['https://images.unsplash.com/photo-1581351639996-f9fd9b45e2a2?q=80&w=1200&h=600&auto=format&fit=crop'],
+  }
 };
 
 export default function RootLayout({

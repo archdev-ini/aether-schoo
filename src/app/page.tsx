@@ -20,7 +20,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button asChild size="lg">
+                  <Button asChild size="lg" id="join-ecosystem-hero">
                     <Link href="/join">
                       Join the Ecosystem <ArrowRight className="ml-2" />
                     </Link>
@@ -34,6 +34,7 @@ export default function Home() {
                 alt="Hero"
                 data-ai-hint="african architecture students"
                 className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
+                priority
               />
             </div>
           </div>

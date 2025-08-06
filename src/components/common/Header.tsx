@@ -98,7 +98,7 @@ export function Header() {
           </div>
           <div className="flex items-center gap-2">
              <ThemeToggle />
-            <Button asChild>
+            <Button asChild id="get-aether-id-header">
               <Link href="/join">Get Your Aether ID</Link>
             </Button>
           </div>
