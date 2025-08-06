@@ -31,11 +31,11 @@ export default function Home() {
                 </div>
               </div>
               <Image
-                src="https://images.unsplash.com/photo-1581351639996-f9fd9b45e2a2?q=80&w=600&h=600&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1558006287-953b05a769f8?q=80&w=600&h=600&auto=format&fit=crop"
                 width="600"
                 height="600"
                 alt="Hero"
-                data-ai-hint="african architecture students"
+                data-ai-hint="modern architecture building"
                 className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
               />
             </div>
