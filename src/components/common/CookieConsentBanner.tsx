@@ -32,15 +32,20 @@ export function CookieConsentBanner() {
       <div className="container py-4 px-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            We use cookies to enhance your experience and analyze our traffic. By clicking "Accept," you agree to our use of cookies. Read our{' '}
+            We use cookies to understand how our site is used and improve your experience. By continuing to use Aether, you agree to our {' '}
             <Link href="/privacy-policy" className="underline hover:text-foreground">
-              Privacy Policy
+             Privacy Policy
             </Link>
             .
           </p>
-          <Button onClick={handleAccept} size="sm">
-            Accept
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={handleAccept} size="sm">
+              Accept
+            </Button>
+            <Button variant="link" size="sm" asChild>
+                <Link href="/privacy-policy">Learn More</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
