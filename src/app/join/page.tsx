@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { submitJoinForm } from './actions';
 
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
@@ -37,16 +38,8 @@ const FormSchema = z.object({
     path: ['referralCode'],
 });
 
-type FormValues = z.infer<typeof FormSchema>;
+export type FormValues = z.infer<typeof FormSchema>;
 
-function generateAetherId() {
-  const chars = '0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return `AETH-${result}`;
-}
 
 export default function JoinPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -68,17 +61,18 @@ export default function JoinPage() {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
-    // Here you would typically send the data to your backend.
-    // For this prototype, we'll just simulate a successful submission.
     try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        const newId = generateAetherId();
-        setAetherId(newId);
-        setSubmitted(true);
-    } catch(error) {
+        const result = await submitJoinForm(data);
+        if (result.success && result.aetherId) {
+            setAetherId(result.aetherId);
+            setSubmitted(true);
+        } else {
+            throw new Error(result.error || 'An unexpected error occurred.');
+        }
+    } catch(error: any) {
          toast({
             title: 'Error',
-            description: 'There was a problem with your submission. Please try again.',
+            description: error.message || 'There was a problem with your submission. Please try again.',
             variant: 'destructive',
         });
     } finally {
