@@ -3,7 +3,14 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Rocket } from 'lucide-react';
+import { Menu, Rocket, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const navLinks = [
   { href: '/programs', label: 'Learn' },
@@ -12,9 +19,37 @@ const navLinks = [
   { href: '/about', label: 'About' },
 ];
 
+function ThemeToggle() {
+  const { setTheme } = useTheme()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
@@ -43,7 +78,7 @@ export function Header() {
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="p-6">
+              <SheetContent side="left" className="pr-6">
                 <Link href="/" className="mb-8 flex items-center space-x-2">
                   <Rocket className="h-6 w-6" />
                   <span className="font-bold text-lg">Aether Ecosystem</span>
@@ -62,11 +97,12 @@ export function Header() {
               </SheetContent>
             </Sheet>
           </div>
-          <nav className="flex items-center">
+          <div className="flex items-center gap-2">
+             <ThemeToggle />
             <Button asChild>
               <Link href="/join">Get Your Aether ID</Link>
             </Button>
-          </nav>
+          </div>
         </div>
       </div>
     </header>

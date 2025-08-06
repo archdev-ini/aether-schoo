@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/common/Header';
 import { Footer } from '@/components/common/Footer';
+import { ThemeProvider } from '@/components/common/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Aether Ecosystem',
@@ -16,18 +17,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://api.fontshare.com" />
         <link href="https://api.fontshare.com/v2/css?f[]=clash-display@700,600,500&f[]=satoshi@700,500,400&display=swap" rel="stylesheet" />
       </head>
       <body className={cn('min-h-screen bg-background font-body antialiased')}>
-        <div className="relative flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
-        <Toaster />
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+            <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
