@@ -45,10 +45,10 @@ export async function submitJoinForm(data: FormValues) {
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_TABLE_NAME
+        AIRTABLE_MEMBERS_TABLE_ID
     } = process.env;
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_TABLE_NAME) {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
         console.error('Airtable credentials are not set in environment variables.');
         return { success: false, error: 'Server configuration error. Please contact support.' };
     }
@@ -56,27 +56,33 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     const newAetherId = generateAetherId(parsedData.data.fullName);
 
+    // Ensure your Airtable columns match these field names exactly (case-sensitive)
+    const fields = {
+        'aetherId': newAetherId,
+        'fullName': parsedData.data.fullName,
+        'email': parsedData.data.email,
+        'ageRange': parsedData.data.ageRange,
+        'location': parsedData.data.location,
+        'role': parsedData.data.role,
+        'mainInterest': parsedData.data.mainInterest,
+        'preferredPlatform': parsedData.data.preferredPlatform,
+        'socialHandle': parsedData.data.socialHandle,
+        'reasonToJoin': parsedData.data.reason,
+        'referralCode': parsedData.data.referralCode,
+    };
+
     try {
-        await base(AIRTABLE_TABLE_NAME).create([
-        {
-            fields: {
-                'Aether ID': newAetherId,
-                'Full Name': parsedData.data.fullName,
-                'Email': parsedData.data.email,
-                'Age Range': parsedData.data.ageRange,
-                'City + Country': parsedData.data.location,
-                'Role': parsedData.data.role,
-                'Main Interest': parsedData.data.mainInterest,
-                'Preferred Platform': parsedData.data.preferredPlatform,
-                'Social Handle': parsedData.data.socialHandle,
-                'Reason to Join': parsedData.data.reason,
-                'Referral Code': parsedData.data.referralCode,
-            },
-        },
+        await base(AIRTABLE_MEMBERS_TABLE_ID).create([
+            { fields },
         ]);
         return { success: true, aetherId: newAetherId };
-    } catch (error) {
-        console.error('Airtable API error:', error);
-        return { success: false, error: 'Failed to submit form to Airtable.' };
+    } catch (error: any) {
+        console.error('Airtable API submission error:', error);
+        // Provide a more specific error message if Airtable returns one
+        const errorMessage = error.message && error.message.includes('UNKNOWN_FIELD_NAME')
+            ? `Airtable error: One or more fields in your form do not match the columns in your Airtable base. Please check your column names. (Details: ${error.message})`
+            : 'Failed to submit form to Airtable. Please try again later.';
+            
+        return { success: false, error: errorMessage };
     }
 }

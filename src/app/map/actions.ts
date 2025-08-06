@@ -55,11 +55,11 @@ export async function getUserLocations(): Promise<UserLocation[]> {
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_TABLE_NAME,
+        AIRTABLE_MEMBERS_TABLE_ID,
         GOOGLE_MAPS_API_KEY
     } = process.env;
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_TABLE_NAME) {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
         console.error('Airtable credentials are not set in environment variables.');
         return [];
     }
@@ -67,12 +67,12 @@ export async function getUserLocations(): Promise<UserLocation[]> {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const records = await base(AIRTABLE_TABLE_NAME).select({
-            fields: ['Full Name', 'City + Country', 'Main Interest'],
+        const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
+            fields: ['fullName', 'location', 'mainInterest'],
         }).all();
 
         const locationsPromises = records.map(async (record) => {
-            const locationString = record.get('City + Country');
+            const locationString = record.get('location');
             let coords = null;
             if (locationString && typeof locationString === 'string') {
                  coords = await geocodeLocation(locationString, GOOGLE_MAPS_API_KEY || '');
@@ -80,9 +80,9 @@ export async function getUserLocations(): Promise<UserLocation[]> {
 
             return {
                 id: record.id,
-                fullName: record.get('Full Name') || 'An Aether Member',
+                fullName: record.get('fullName') || 'An Aether Member',
                 location: locationString || 'Parts Unknown',
-                mainInterest: record.get('Main Interest') || 'Exploring',
+                mainInterest: record.get('mainInterest') || 'Exploring',
                 lat: coords?.lat,
                 lng: coords?.lng,
             };
