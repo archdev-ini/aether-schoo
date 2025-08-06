@@ -14,17 +14,14 @@ export default function ProgramsPage() {
                         <GraduationCap className="w-10 h-10 text-primary" />
                         <CardTitle className="text-3xl">Aether School</CardTitle>
                     </div>
-                    <CardDescription>Learn on Your Terms</CardDescription>
+                    <CardDescription>Free. Open. Always on.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-4">
-                    <p>Access open, beginner-friendly courses in architecture, design, and tools like Revit. Learn at your pace, track your progress, and unlock badges and certificates.</p>
-                    <p className="font-semibold">What You’ll Get:</p>
+                    <p>Available to all with an Aether ID, the school provides access to beginner architecture/design courses.</p>
                     <ul className="space-y-2 text-muted-foreground">
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Free access to curated beginner courses</li>
                         <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Progress tracking</li>
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Limited live sessions and replays</li>
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Bookmark content</li>
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Badges + optional certificate</li>
+                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Limited live sessions</li>
+                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Completion unlocks badges, optional certificates</li>
                     </ul>
                 </CardContent>
                 <div className="p-6 pt-0 mt-4">
@@ -40,24 +37,22 @@ export default function ProgramsPage() {
                         <Lightbulb className="w-10 h-10 text-primary" />
                         <CardTitle className="text-3xl">Horizon Studio</CardTitle>
                     </div>
-                    <CardDescription>A 6-week immersive studio for African designers ready to level up.</CardDescription>
+                    <CardDescription>A 6-week cohort studio for ambitious designers.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-4">
-                    <p className="font-semibold">What’s Inside:</p>
-                    <ul className="space-y-2 text-muted-foreground">
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Cohort-based experience</li>
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Live mentorship from practicing architects</li>
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Studio critiques + reviews</li>
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> A final portfolio-worthy project</li>
-                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Certificate + ecosystem showcase access</li>
+                     <ul className="space-y-2 text-muted-foreground">
+                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Live mentorship with architects</li>
+                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Critique, review, and studio projects</li>
+                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Final portfolio-worthy project</li>
+                        <li className="flex items-start"><Check className="w-5 h-5 mr-2 text-primary flex-shrink-0" /> Certificate & ecosystem showcase access</li>
                     </ul>
                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-center font-semibold">Applications for the next cohort open soon.</p>
+                        <p className="text-center font-semibold text-muted-foreground">Applications for the next cohort open soon.</p>
                     </div>
                 </CardContent>
                 <div className="p-6 pt-0 mt-4">
                     <Button asChild className="w-full">
-                         <Link href="/join">Apply to Join</Link>
+                         <Link href="/join">Apply to Studio</Link>
                     </Button>
                 </div>
             </Card>
