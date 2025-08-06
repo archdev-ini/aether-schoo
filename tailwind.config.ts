@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 import {fontFamily} from 'tailwindcss/defaultTheme';
 
@@ -19,8 +20,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
-        body: ['Inter', 'sans-serif'],
-        headline: ['Space Grotesk', 'sans-serif'],
+        body: ['Work Sans', 'sans-serif'],
+        headline: ['Sora', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
