@@ -1,16 +1,14 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, Users, Bell, Camera, Twitter, Book, ShieldCheck } from "lucide-react";
+import { MessageCircle, Users, Bell, Twitter } from "lucide-react";
 import Link from "next/link";
 
 const communityPlatforms = [
   { name: "Discord", icon: MessageCircle, description: "For live chats, Q&As, and project collaboration.", href: "/join" },
   { name: "WhatsApp", icon: Users, description: "For daily updates and regional group discussions.", href: "/join" },
-  { name: "Telegram", icon: Bell, description: "For announcements and key information.", href: "https://t.me/aethercommunity1" },
-  { name: "Instagram", icon: Camera, description: "For visual inspiration and community highlights.", href: "#" },
+  { name: "Telegram", icon: Bell, description: "For announcements and key information.", href: "https://t.me/+MdYqlhI_Z2g2ZDA0" },
   { name: "X (Twitter)", icon: Twitter, description: "For industry news and real-time conversations.", href: "#" },
-  { name: "Facebook", icon: Book, description: "For long-form content and community stories.", href: "#" },
 ]
 
 export default function CommunityPage() {
@@ -40,7 +38,7 @@ export default function CommunityPage() {
             </CardHeader>
         </Card>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
         {communityPlatforms.map((platform) => (
             <Card key={platform.name} className="flex flex-col text-center">
                 <CardHeader>
@@ -55,7 +53,7 @@ export default function CommunityPage() {
                 <div className="p-6 pt-0">
                     <Button asChild className="w-full">
                         <Link href={platform.href} target={platform.href.startsWith('http') ? '_blank' : '_self'}>
-                            {platform.href === "/join" ? "Get ID to Join" : `Follow on ${platform.name}`}
+                            {platform.href === "/join" ? "Get ID to Join" : `Join on ${platform.name}`}
                         </Link>
                     </Button>
                 </div>
