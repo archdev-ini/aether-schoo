@@ -4,6 +4,7 @@ import { ArrowRight, School, Users, Waypoints } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CountdownTimer } from "@/components/common/CountdownTimer";
 
 function HeroImage() {
   return (
@@ -20,6 +21,8 @@ function HeroImage() {
 
 
 export default function Home() {
+  const launchDate = "2025-10-06T00:00:00Z";
+  
   return (
     <div className="flex flex-col animate-in fade-in duration-500">
       <main className="flex-1">
@@ -50,6 +53,20 @@ export default function Home() {
           </div>
         </section>
         
+        <section className="w-full py-12 md:py-24 border-y">
+            <div className="container">
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Ecosystem Launch: October 6, 2025</h2>
+                    <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
+                        The countdown to a new era of creative collaboration has begun.
+                    </p>
+                </div>
+                <div className="mt-8 max-w-4xl mx-auto">
+                    <CountdownTimer targetDate={launchDate} />
+                </div>
+            </div>
+        </section>
+
         <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
