@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, School, Users, Waypoints } from "lucide-react";
 import Image from "next/image";
@@ -28,14 +29,16 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
-              <Image
-                src="https://images.unsplash.com/photo-1519994548239-50239534547f?q=80&w=600&h=600&auto=format&fit=crop"
-                width="600"
-                height="600"
-                alt="Hero"
-                data-ai-hint="modern architecture building white"
-                className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
-              />
+              <div className="mx-auto aspect-square overflow-hidden rounded-xl sm:w-full lg:order-last">
+                <Image
+                    src="https://images.unsplash.com/photo-1582211:3-4803-b09b0b4a4c6a?q=80&w=600&auto=format&fit=crop"
+                    width="600"
+                    height="600"
+                    alt="Hero"
+                    data-ai-hint="modern architecture building white"
+                    className="object-cover w-full h-full"
+                />
+              </div>
             </div>
           </div>
         </section>
