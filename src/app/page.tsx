@@ -31,9 +31,9 @@ export default function Home() {
               </div>
               <div className="mx-auto aspect-square overflow-hidden rounded-xl sm:w-full lg:order-last">
                 <Image
-                    src="https://images.unsplash.com/photo-1582211:3-4803-b09b0b4a4c6a?q=80&w=600&auto=format&fit=crop"
-                    width="600"
-                    height="600"
+                    src="https://images.unsplash.com/photo-1579952528907-dba219a16999?q=80&w=600&auto=format&fit=crop"
+                    width={600}
+                    height={600}
                     alt="Hero"
                     data-ai-hint="modern architecture building white"
                     className="object-cover w-full h-full"
