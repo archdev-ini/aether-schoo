@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, School, Users, Waypoints } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { School, Users, Waypoints } from "lucide-react";
-
 
 export default function Home() {
   return (
@@ -31,11 +29,11 @@ export default function Home() {
                 </div>
               </div>
               <Image
-                src="https://images.unsplash.com/photo-1558006287-953b05a769f8?q=80&w=600&h=600&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1519994548239-50239534547f?q=80&w=600&h=600&auto=format&fit=crop"
                 width="600"
                 height="600"
                 alt="Hero"
-                data-ai-hint="modern architecture building"
+                data-ai-hint="modern architecture building white"
                 className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
               />
             </div>
