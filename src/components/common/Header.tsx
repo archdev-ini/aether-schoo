@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Moon, Sun } from 'lucide-react';
+import { Menu, Moon, Sun, ShieldCheck } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Separator } from '@/components/ui/separator';
 
 const navLinks = [
   { href: '/programs', label: 'Programs' },
@@ -93,6 +94,14 @@ export function Header() {
                         {link.label}
                       </Link>
                     ))}
+                    <Separator className="my-2"/>
+                     <Link
+                        href="/confirm-id"
+                        className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        <ShieldCheck className="w-5 h-5"/>
+                        Confirm ID
+                      </Link>
                 </div>
               </SheetContent>
             </Sheet>

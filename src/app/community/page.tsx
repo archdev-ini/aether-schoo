@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, Users, Bell, Camera, Twitter, Book } from "lucide-react";
+import { MessageCircle, Users, Bell, Camera, Twitter, Book, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 const communityPlatforms = [
@@ -22,6 +22,23 @@ export default function CommunityPage() {
           Aether is powered by a vibrant community of architects, designers, and educators building new futures together.
         </p>
       </div>
+
+       <Card className="mb-12 bg-primary/5 text-center">
+            <CardHeader>
+                <div className="flex justify-center mb-2">
+                    <ShieldCheck className="w-12 h-12 text-primary" />
+                </div>
+                <CardTitle className="font-headline text-2xl">Verify Your Aether ID</CardTitle>
+                 <CardContent>
+                    <p className="text-muted-foreground max-w-xl mx-auto mt-2">
+                        Already have an Aether ID? Confirm your membership to get access to private community channels and resources.
+                    </p>
+                    <Button asChild className="mt-4" size="lg">
+                        <Link href="/confirm-id">Confirm My ID</Link>
+                    </Button>
+                </CardContent>
+            </CardHeader>
+        </Card>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {communityPlatforms.map((platform) => (
