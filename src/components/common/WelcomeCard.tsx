@@ -48,9 +48,15 @@ export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
 
   const handleDownload = () => {
     if (cardRef.current) {
-      toPng(cardRef.current, { cacheBust: true, pixelRatio: 2, style: {
-        backgroundColor: 'hsl(var(--background))',
-      }})
+      // Check if dark mode is active on the html element
+      const isDarkMode = document.documentElement.classList.contains('dark');
+      const backgroundColor = isDarkMode ? '#0a0a0a' : '#ffffff';
+
+      toPng(cardRef.current, { 
+        cacheBust: true, 
+        pixelRatio: 2, 
+        backgroundColor: backgroundColor,
+      })
         .then((dataUrl) => {
           const link = document.createElement('a');
           link.download = `aether-id-card-${aetherId}.png`;
