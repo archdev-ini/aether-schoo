@@ -147,7 +147,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-3 mt-12">
+            <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-2 mt-12">
                 <Card>
                     <CardHeader>
                         <Zap className="w-8 h-8 text-primary mb-2" />
@@ -164,15 +164,6 @@ export default function Home() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground">Get a first look at our asynchronous courses and creative challenges.</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <Milestone className="w-8 h-8 text-primary mb-2" />
-                        <CardTitle>Creative Challenge</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">We'll kick things off with our first design prompt: "Beyond the Studio."</p>
                     </CardContent>
                 </Card>
             </div>
