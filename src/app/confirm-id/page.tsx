@@ -75,14 +75,14 @@ export default function ConfirmIdPage() {
                 <Card className="text-center animate-in fade-in duration-300">
                     <CardHeader>
                         <UserCheck className="w-16 h-16 mx-auto text-primary" />
-                        <CardTitle className="text-3xl font-bold mt-4">ID Verified!</CardTitle>
+                        <CardTitle className="text-3xl font-bold mt-4">You're Verified!</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <p className="text-xl font-semibold">Welcome back, {verifiedName}!</p>
-                        <p className="text-muted-foreground text-sm">Your ID has been successfully verified.</p>
+                        <p className="text-muted-foreground text-sm">Click the button below to join our private Discord and complete the final step.</p>
                         <Button asChild size="lg" className="mt-4 w-full">
-                            {/* Replace with your actual Discord invite link */}
-                            <Link href="https://discord.gg/YOUR-INVITE">Return to Discord</Link>
+                            {/* Replace with your actual Discord server and channel IDs */}
+                            <Link href="https://discord.com/channels/YOUR_SERVER_ID/YOUR_CHANNEL_ID" target="_blank">Join the Aether Discord</Link>
                         </Button>
                     </CardContent>
                 </Card>
