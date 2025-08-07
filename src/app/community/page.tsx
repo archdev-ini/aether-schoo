@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, Users, Bell, Twitter } from "lucide-react";
+import { MessageCircle, Users, Bell, Twitter, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 const communityPlatforms = [
