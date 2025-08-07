@@ -4,8 +4,10 @@
 import { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, Share2 } from 'lucide-react';
+import { Download, Share2, ClipboardCopy } from 'lucide-react';
 import { toPng } from 'html-to-image';
+import { useToast } from '@/hooks/use-toast';
+
 
 interface WelcomeCardProps {
   fullName: string;
@@ -38,6 +40,7 @@ function ParametricBackground() {
 export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [randomQuote, setRandomQuote] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
     // This check ensures this code only runs on the client
@@ -68,6 +71,22 @@ export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
         });
     }
   };
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(aetherId).then(() => {
+        toast({
+            title: 'Copied!',
+            description: 'Your Aether ID has been copied to your clipboard.',
+        });
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+         toast({
+            title: 'Error',
+            description: 'Failed to copy ID. Please try again.',
+            variant: 'destructive'
+        });
+    });
+  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -94,7 +113,12 @@ export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
 
                 <div className="bg-muted/50 dark:bg-muted/20 p-4 rounded-lg">
                     <p className="text-sm text-muted-foreground font-logo">YOUR AETHER ID</p>
-                    <p className="text-xl sm:text-2xl font-bold tracking-widest text-primary font-mono">{aetherId}</p>
+                    <div className="flex items-center justify-center gap-2">
+                         <p className="text-xl sm:text-2xl font-bold tracking-widest text-primary font-mono">{aetherId}</p>
+                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleCopy} aria-label="Copy Aether ID">
+                            <ClipboardCopy className="w-4 h-4" />
+                         </Button>
+                    </div>
                 </div>
                 
                 {randomQuote && (
@@ -114,6 +138,9 @@ export function WelcomeCard({ fullName, aetherId }: WelcomeCardProps) {
           Share
         </Button>
       </div>
+       <p className="text-xs text-center text-muted-foreground pt-2 max-w-sm mx-auto">
+            Please save your Aether ID. You will need it to verify your identity and access exclusive community spaces.
+        </p>
     </div>
   );
 }
