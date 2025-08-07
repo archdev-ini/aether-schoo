@@ -81,8 +81,7 @@ export default function ConfirmIdPage() {
                         <p className="text-xl font-semibold">Welcome back, {verifiedName}!</p>
                         <p className="text-muted-foreground text-sm">Click the button below to join our private Discord and complete the final step.</p>
                         <Button asChild size="lg" className="mt-4 w-full">
-                            {/* Replace with your actual Discord server and channel IDs */}
-                            <Link href="https://discord.com/channels/YOUR_SERVER_ID/YOUR_CHANNEL_ID" target="_blank">Join the Aether Discord</Link>
+                            <Link href="https://discord.gg/D8g8dSf7GE" target="_blank">Join the Aether Discord</Link>
                         </Button>
                     </CardContent>
                 </Card>
