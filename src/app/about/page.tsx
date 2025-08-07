@@ -1,3 +1,4 @@
+
 import { CheckCircle } from "lucide-react";
 import Image from "next/image";
 
@@ -11,23 +12,23 @@ export default function AboutPage() {
       <div className="grid md:grid-cols-2 gap-16 max-w-6xl mx-auto items-center">
         <div className="space-y-6">
           <p className="text-xl text-muted-foreground">
-            Aether is a digital-first architecture and design school creating new futures for African creatives. Backed by Buildr Africa, it combines learning, community, and projects in a single space.
+            Aether is a digital-first architecture and design school redefining education for African creatives. It’s a vibrant ecosystem fostering learning, collaboration, and creative empowerment.
           </p>
           <p className="text-xl text-muted-foreground">
-            We’re reimagining how designers learn, connect, and build meaningful work — together.
+            Our mission is to empower culturally grounded, globally connected designers who start where they are, with what they have.
           </p>
           <div className="space-y-4 pt-4">
             <div className="flex items-center gap-3">
               <CheckCircle className="w-6 h-6 text-primary flex-shrink-0" />
-              <p className="font-medium">Aether School – open access to skill-building</p>
+              <p className="font-medium">Aether School – Open-access, asynchronous courses for skill-building.</p>
             </div>
             <div className="flex items-center gap-3">
               <CheckCircle className="w-6 h-6 text-primary flex-shrink-0" />
-              <p className="font-medium">Horizon Studio – immersive studio learning</p>
+              <p className="font-medium">Horizon Studio – Immersive, cohort-based learning for real-world projects.</p>
             </div>
             <div className="flex items-center gap-3">
               <CheckCircle className="w-6 h-6 text-primary flex-shrink-0" />
-              <p className="font-medium">Aether Community – peer learning, events, and mentorship</p>
+              <p className="font-medium">Aether Community – A decentralized network for peer learning, events, and mentorship.</p>
             </div>
           </div>
         </div>
