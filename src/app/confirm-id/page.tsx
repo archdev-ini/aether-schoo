@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,6 +35,16 @@ export default function ConfirmIdPage() {
       aetherId: '',
     },
   });
+
+  useEffect(() => {
+    if (verified) {
+      // Redirect to Discord after a short delay to allow the user to read the message.
+      const timer = setTimeout(() => {
+        window.location.href = 'https://discord.gg/D8g8dSf7GE';
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [verified]);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
@@ -79,10 +89,8 @@ export default function ConfirmIdPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <p className="text-xl font-semibold">Welcome back, {verifiedName}!</p>
-                        <p className="text-muted-foreground text-sm">Click the button below to join our private Discord and complete the final step.</p>
-                        <Button asChild size="lg" className="mt-4 w-full">
-                            <Link href="https://discord.gg/D8g8dSf7GE" target="_blank">Join the Aether Discord</Link>
-                        </Button>
+                        <p className="text-muted-foreground text-sm">Redirecting you to our private Discord server to complete the final step...</p>
+                        <Loader2 className="mx-auto mt-4 h-8 w-8 animate-spin text-primary" />
                     </CardContent>
                 </Card>
             </div>
