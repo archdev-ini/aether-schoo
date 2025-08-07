@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 function HeroImage() {
   return (
     <Image
-      src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=800&h=800&auto=format&fit=crop"
       width={800}
       height={800}
       alt="Abstract architectural design"
@@ -109,7 +109,7 @@ export default function Home() {
                  <p className="mt-6 text-sm text-muted-foreground">We’re backed by Buildr Africa and committed to decentralizing opportunity for African creatives.</p>
               </div>
                <Image
-                src="https://images.unsplash.com/photo-1618221118493-9cfa1a1202c1?q=80&w=600&h=400&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1570577086840-d7e07d89fbee?q=80&w=600&h=400&auto=format&fit=crop"
                 width="600"
                 height="400"
                 alt="Ecosystem Diagram"
