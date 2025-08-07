@@ -4,14 +4,22 @@
 import { z } from 'zod';
 const Airtable = require('airtable');
 
-const MemberDetailsSchema = z.object({
-  fullName: z.string(),
-  aetherId: z.string(),
+const VerifyMemberSchema = z.object({
+  fullName: z.string().min(2, 'Please enter your full name.'),
+  aetherId: z.string().min(5, 'Please enter a valid Aether ID.'),
 });
 
-export type MemberDetails = z.infer<typeof MemberDetailsSchema>;
+export type VerifyMemberInput = z.infer<typeof VerifyMemberSchema>;
 
-export async function findMemberById(aetherId: string): Promise<{ success: boolean; data?: MemberDetails; error?: string }> {
+export async function verifyMember(input: VerifyMemberInput): Promise<{ success: boolean; data?: { fullName: string }; error?: string }> {
+    const parsedInput = VerifyMemberSchema.safeParse(input);
+
+    if (!parsedInput.success) {
+        return { success: false, error: 'Invalid data provided.' };
+    }
+
+    const { fullName, aetherId } = parsedInput.data;
+
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
@@ -23,38 +31,26 @@ export async function findMemberById(aetherId: string): Promise<{ success: boole
         return { success: false, error: 'Server configuration error.' };
     }
 
-    if (!aetherId || typeof aetherId !== 'string') {
-        return { success: false, error: 'Invalid Aether ID provided.' };
-    }
-
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 
     try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            // Find the record where the Aether ID field matches the input
-            filterByFormula: `({aetherId} = "${aetherId}")`,
+            // Find the record where BOTH the Aether ID and Full Name match.
+            filterByFormula: `AND({aetherId} = "${aetherId.toUpperCase()}", {fullName} = "${fullName}")`,
             maxRecords: 1,
-            fields: ['fullName', 'aetherId'] // Fetch only the fields we need
+            fields: ['fullName'] // We only need to confirm the name exists.
         }).firstPage();
 
         if (records.length === 0) {
-            return { success: false, error: 'Member not found.' };
+            return { success: false, error: 'Member not found. Please check your details and try again.' };
         }
 
         const record = records[0];
         const memberDetails = {
             fullName: record.get('fullName'),
-            aetherId: record.get('aetherId'),
         };
 
-        const parsedData = MemberDetailsSchema.safeParse(memberDetails);
-
-        if (!parsedData.success) {
-            console.error('Mismatched data structure from Airtable:', parsedData.error);
-            return { success: false, error: 'Could not retrieve member details.' };
-        }
-
-        return { success: true, data: parsedData.data };
+        return { success: true, data: memberDetails };
 
     } catch (error: any) {
         console.error('Airtable API error:', error);
