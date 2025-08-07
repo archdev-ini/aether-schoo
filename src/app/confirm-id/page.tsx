@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, UserCheck, Search, ShieldX } from 'lucide-react';
+import { Loader2, UserCheck, Search, ShieldX, MessageCircle, Send } from 'lucide-react';
 import Link from 'next/link';
 import { verifyMember } from './actions';
 
@@ -35,16 +35,6 @@ export default function ConfirmIdPage() {
       aetherId: '',
     },
   });
-
-  useEffect(() => {
-    if (verified) {
-      // Redirect to Discord after a short delay to allow the user to read the message.
-      const timer = setTimeout(() => {
-        window.location.href = 'https://discord.gg/D8g8dSf7GE';
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [verified]);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
@@ -81,16 +71,29 @@ export default function ConfirmIdPage() {
   if (verified) {
      return (
         <main className="container py-12 md:py-24 animate-in fade-in duration-500">
-            <div className="max-w-md mx-auto">
+            <div className="max-w-lg mx-auto">
                 <Card className="text-center animate-in fade-in duration-300">
                     <CardHeader>
                         <UserCheck className="w-16 h-16 mx-auto text-primary" />
-                        <CardTitle className="text-3xl font-bold mt-4">You're Verified!</CardTitle>
+                        <CardTitle className="text-3xl font-bold mt-4">You're Verified, {verifiedName.split(' ')[0]}!</CardTitle>
+                        <CardDescription>Welcome to the inner circle. Use the links below to join our private community spaces and get involved.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <p className="text-xl font-semibold">Welcome back, {verifiedName}!</p>
-                        <p className="text-muted-foreground text-sm">Redirecting you to our private Discord server to complete the final step...</p>
-                        <Loader2 className="mx-auto mt-4 h-8 w-8 animate-spin text-primary" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Button asChild size="lg" variant="outline">
+                                <Link href="https://discord.gg/D8g8dSf7GE" target="_blank">
+                                    <MessageCircle className="mr-2" />
+                                    Join Discord
+                                </Link>
+                            </Button>
+                             <Button asChild size="lg" variant="outline">
+                                <Link href="https://t.me/+MdYqlhI_Z2g2ZDA0" target="_blank">
+                                    <Send className="mr-2" />
+                                    Join Telegram
+                                </Link>
+                            </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground pt-4">You now have access to all community features. Introduce yourself!</p>
                     </CardContent>
                 </Card>
             </div>
