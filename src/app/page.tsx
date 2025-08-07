@@ -7,35 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function HeroImage() {
   return (
-    <div className="relative aspect-square w-full h-full overflow-hidden rounded-xl bg-muted">
-       <svg width="100%" height="100%" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0">
-          <defs>
-            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(var(--primary) / 0.2)" />
-              <stop offset="100%" stopColor="hsl(var(--accent))" />
-            </linearGradient>
-            <filter id="glow">
-                <feGaussianBlur stdDeviation="5" result="coloredBlur" />
-                <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                </feMerge>
-            </filter>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grad1)" />
-          <g stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" filter="url(#glow)" opacity="0.5">
-            <path d="M100 100 Q 300 200 500 100" fill="none" />
-            <path d="M100 200 Q 200 400 100 500" fill="none" />
-            <path d="M500 200 Q 400 400 500 500" fill="none" />
-            <path d="M200 100 Q 300 50 400 100" fill="none" />
-            <path d="M200 500 Q 300 550 400 500" fill="none" />
-          </g>
-           <g stroke="hsl(var(--foreground))" strokeWidth="1" opacity="0.3">
-                <path d="M 50,50 L 550,550" />
-                <path d="M 550,50 L 50,550" />
-            </g>
-        </svg>
-    </div>
+    <Image
+      src="https://images.unsplash.com/photo-1563274944-9e334344e5bc?q=80&w=1200&h=1200&auto=format&fit=crop"
+      width={600}
+      height={600}
+      alt="Abstract architectural design"
+      data-ai-hint="modern architecture"
+      className="mx-auto aspect-square overflow-hidden rounded-xl object-cover"
+    />
   );
 }
 
