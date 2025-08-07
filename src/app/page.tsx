@@ -21,7 +21,7 @@ function HeroImage() {
 
 
 export default function Home() {
-  const launchDate = "2025-10-06T00:00:00Z";
+  const launchDate = "2025-12-08T00:00:00Z";
   
   return (
     <div className="flex flex-col animate-in fade-in duration-500">
@@ -59,9 +59,9 @@ export default function Home() {
         <section className="w-full py-12 md:py-24 border-y bg-muted">
             <div className="container">
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Launch Event: Beyond the Studio</h2>
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">Ecosystem Launch: December 8, 2025</h2>
                     <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                        World Architecture Day: October 6, 2025. The countdown has begun.
+                        Our full ecosystem launches soon. Join our pre-launch event on World Architecture Day, October 6, 2025.
                     </p>
                 </div>
                 <div className="mt-8 max-w-4xl mx-auto">
@@ -141,9 +141,9 @@ export default function Home() {
           <div className="container px-4 md:px-6">
              <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">What’s Launching October 6, 2025</h2>
+                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">What’s Coming: Pre-Launch on Oct 6</h2>
                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                    On launch day, you'll get access to the foundational pillars of our ecosystem.
+                    On World Architecture Day, you'll get access to the foundational pillars of our ecosystem.
                 </p>
               </div>
             </div>
