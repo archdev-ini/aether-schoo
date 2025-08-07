@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { submitJoinForm } from './actions';
 import { WelcomeCard } from '@/components/common/WelcomeCard';
@@ -96,22 +96,18 @@ export default function JoinPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>What's Next?</CardTitle>
-                        <CardDescription>Use your Aether ID to access courses, events, and more within the ecosystem.</CardDescription>
+                        <ShieldCheck className="w-10 h-10 mx-auto text-primary" />
+                        <CardTitle>Next Step: Verify Your ID</CardTitle>
+                        <CardDescription>To unlock private community channels and get full access, you need to verify your new ID.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <p className="text-sm text-muted-foreground">Join our community channels to connect with other members:</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <Button asChild><Link href="#">Join Discord</Link></Button>
-                            <Button asChild><Link href="#">Join WhatsApp</Link></Button>
-                            <Button asChild><Link href="#">Join Telegram</Link></Button>
-                        </div>
-                         <p className="text-sm text-muted-foreground mt-4">And follow us for inspiration and updates:</p>
-                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <Button asChild variant="outline"><Link href="#">Follow on Instagram</Link></Button>
-                            <Button asChild variant="outline"><Link href="#">Follow on X</Link></Button>
-                            <Button asChild variant="outline"><Link href="#">Follow on Facebook</Link></Button>
-                        </div>
+                        <p className="text-sm text-muted-foreground">Click the button below to complete the final step.</p>
+                        <Button asChild size="lg" className="w-full">
+                            <Link href="/confirm-id">
+                                Verify My ID & Join Community
+                                <ArrowRight className="ml-2" />
+                            </Link>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
