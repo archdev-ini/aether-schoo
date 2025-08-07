@@ -9,8 +9,8 @@ function HeroImage() {
   return (
     <Image
       src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      width={600}
-      height={600}
+      width={800}
+      height={800}
       alt="Abstract architectural design"
       data-ai-hint="modern architecture"
       className="mx-auto aspect-square overflow-hidden rounded-xl object-cover"
@@ -25,7 +25,7 @@ export default function Home() {
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6">
-            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:grid-cols-[1fr_600px]">
+            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:grid-cols-[1fr_800px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-4">
                   <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
