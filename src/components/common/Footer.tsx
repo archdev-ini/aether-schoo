@@ -5,7 +5,7 @@ import Link from 'next/link';
 const socialLinks = [
     { href: "#", icon: MessageCircle, name: "Discord" },
     { href: "#", icon: Camera, name: "Instagram" },
-    { href: "#", icon: Twitter, name: "X" },
+    { href: "https://x.com/aetherxafrica", icon: Twitter, name: "X" },
     { href: "#", icon: Book, name: "Facebook" },
 ]
 
@@ -27,7 +27,7 @@ export function Footer() {
                  </div>
                  <div className="flex items-center gap-4">
                     {socialLinks.map(link => (
-                        <Link key={link.name} href={link.href} className="text-muted-foreground hover:text-foreground">
+                        <Link key={link.name} href={link.href} className="text-muted-foreground hover:text-foreground" target={link.href.startsWith('http') ? '_blank' : '_self'}>
                             <link.icon className="h-5 w-5" />
                             <span className="sr-only">{link.name}</span>
                         </Link>

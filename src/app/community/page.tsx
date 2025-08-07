@@ -8,7 +8,7 @@ const communityPlatforms = [
   { name: "Discord", icon: MessageCircle, description: "For live chats, Q&As, and project collaboration.", href: "/join" },
   { name: "WhatsApp", icon: Users, description: "For daily updates and regional group discussions.", href: "/join" },
   { name: "Telegram", icon: Bell, description: "For announcements and key information.", href: "https://t.me/+MdYqlhI_Z2g2ZDA0" },
-  { name: "X (Twitter)", icon: Twitter, description: "For industry news and real-time conversations.", href: "#" },
+  { name: "X (Twitter)", icon: Twitter, description: "For industry news and real-time conversations.", href: "https://x.com/aetherxafrica" },
 ]
 
 export default function CommunityPage() {
