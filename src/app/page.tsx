@@ -162,15 +162,35 @@ export default function Home() {
 
         <section id="social-proof" className="w-full py-12 md:py-24 lg:py-32 bg-muted animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
-                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Built by African architects, for African architects.</h2>
-                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
-                    Founded within the design studio, shaped by research, powered by community.
-                </p>
+                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">From Studio Desk to Global Vision</h2>
               </div>
             </div>
-             <div className="text-center mt-8 text-muted-foreground">[Founder story, partner logos, and testimonials will appear here]</div>
+            <div className="max-w-4xl mx-auto grid md:grid-cols-[1fr_3fr] gap-8 md:gap-12 items-start">
+                <div className="flex flex-col items-center text-center">
+                     <Image
+                        src="https://placehold.co/400x400.png"
+                        width={150}
+                        height={150}
+                        alt="Inioluwa Oladipupo"
+                        data-ai-hint="portrait man"
+                        className="rounded-full object-cover mb-4 shadow-lg"
+                    />
+                    <h3 className="font-bold font-headline text-lg">Inioluwa Oladipupo</h3>
+                    <p className="text-sm text-muted-foreground">Founder, Aether</p>
+                </div>
+                <div className="prose prose-lg max-w-none text-muted-foreground">
+                    <p>I’m Inioluwa Oladipupo, an architecture student with a restless curiosity and an unshakable belief: Africa’s spaces should tell Africa’s stories.</p>
+                    <p>The spark for Aether came during countless late nights in the studio — staring at drawings, wrestling with design briefs, and asking myself why so many of our buildings felt disconnected from our people, climates, and cultures.</p>
+                    <p>I realized the problem wasn’t just in practice — it was in how we learn architecture. Too often, we inherit foreign design models that overlook the genius in our own traditions. At the same time, many young architects lack access to global opportunities that could elevate their craft.</p>
+                    <p>I wanted to change that.</p>
+                    <p className="font-semibold text-foreground">So, I imagined Aether:</p>
+                    <p>A community where African architects and designers could learn, collaborate, and prove their skills on a world stage — without losing sight of our heritage. A place where your designs are as relevant in Lagos as they are in London.</p>
+                    <p>Aether is not just a platform. It’s a movement. It’s the bridge between our roots and our future. And it’s built for people like you — visionaries who believe that architecture can do more than shelter us. It can shape who we are.</p>
+                    <p>Let’s build that future together.</p>
+                </div>
+            </div>
           </div>
         </section>
 
