@@ -20,19 +20,15 @@ const FormSchema = z.object({
 });
 
 function generateAetherId(fullName: string) {
+  const year = new Date().getFullYear().toString().slice(-2);
   const initials = fullName
-    .split(' ')
-    .map(name => name[0])
-    .join('')
-    .toUpperCase()
-    .substring(0, 2);
+    .trim()
+    .slice(0, 2)
+    .toUpperCase();
   
-  const timestamp = Date.now().toString();
-  const lastTwoDigits = timestamp.substring(timestamp.length - 2);
-  
-  const randomDigit = Math.floor(Math.random() * 10);
+  const randomNumber = Math.floor(100 + Math.random() * 900); // 3-digit random number
 
-  return `AETH-${initials}${lastTwoDigits}${randomDigit}`;
+  return `A${year}-${initials}${randomNumber}`;
 }
 
 export async function submitJoinForm(data: FormValues) {
