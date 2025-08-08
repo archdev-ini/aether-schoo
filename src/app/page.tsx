@@ -32,19 +32,21 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-4">
                   <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
-                    Empowering the Next Generation of African Design Leaders
+                    Africa’s Future is Built by Designers. We’re Building Them.
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Aether is a digital-first architecture and design school reimagining how African creatives learn, connect, and build. More than a platform, it’s a living ecosystem—where culture meets craft, and local ideas meet global relevance.
-                  </p>
-                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    We believe design belongs to communities, cultures, and everyday life—not just institutions or elite studios.
+                    Aether is the first Africa-first design learning community — connecting creatives to skills, tools, and networks that power global impact.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button asChild size="lg" id="join-ecosystem-hero">
+                  <Button asChild size="lg" id="join-waitlist-hero">
                     <Link href="/join">
-                      Join the Aether Community <ArrowRight className="ml-2" />
+                      Join the Pre-Launch Waitlist <ArrowRight className="ml-2" />
+                    </Link>
+                  </Button>
+                   <Button asChild size="lg" variant="outline">
+                    <Link href="/about">
+                      Discover the Vision
                     </Link>
                   </Button>
                 </div>
@@ -56,7 +58,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="why-aether" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section id="problem-pain-point" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
           <div className="container px-4 md:px-6">
             <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-12">
                <Image
@@ -68,83 +70,25 @@ export default function Home() {
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover"
               />
               <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">🌍 Why Aether?</h2>
-                <p className="text-muted-foreground md:text-xl/relaxed">Traditional design education often feels disconnected—isolated from real-world needs, local culture, and community. Aether changes that.</p>
-                <p className="font-semibold">We’re building an ecosystem that:</p>
-                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                    <li>Uses decentralized tools to enable experimental, accessible learning</li>
-                    <li>Promotes peer-to-peer knowledge sharing</li>
-                    <li>Fosters culturally grounded, globally conscious design practice</li>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Africa is rich in creativity, but…</h2>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground md:text-xl/relaxed">
+                    <li>Access to world-class design training is limited.</li>
+                    <li>Our cultural context is missing in global design narratives.</li>
+                    <li>Young talent is disconnected from real opportunities.</li>
                 </ul>
-                <p className="mt-4 font-semibold">If you're ready to lead from where you are, with what you have—Aether is for you.</p>
+                <p className="mt-4 font-semibold text-xl">We’re changing that — permanently.</p>
               </div>
             </div>
           </div>
         </section>
         
-        <section className="w-full py-12 md:py-24 border-y">
-            <div className="container text-center">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">🚀 Launch Timeline</h2>
-                <div className="mt-4 max-w-2xl mx-auto grid gap-2 text-muted-foreground md:text-lg">
-                    <p>🌐 <span className="font-semibold text-foreground">Full Ecosystem Launch:</span> December 8, 2025</p>
-                    <p>🎉 <span className="font-semibold text-foreground">Pre-Launch Event:</span> World Architecture Day — October 6, 2025</p>
-                </div>
-                 <h3 className="text-2xl font-bold tracking-tighter sm:text-3xl font-headline mt-12">⏳ Countdown to Pre-Launch</h3>
-                <div className="mt-8 max-w-4xl mx-auto">
-                    <CountdownTimer targetDate={preLaunchDate} />
-                </div>
-            </div>
-        </section>
-
-        <section id="pre-launch" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-            <div className="container px-4 md:px-6">
-                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                    <div className="space-y-2">
-                        <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">👀 Coming on October 6</h2>
-                        <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                            Join us on World Architecture Day for a virtual event that marks the beginning of the Aether movement.
-                        </p>
-                    </div>
-                </div>
-                <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:gap-12 lg:grid-cols-3 mt-12">
-                     <Card>
-                        <CardHeader>
-                            <Calendar className="w-8 h-8 text-primary mb-2" />
-                            <CardTitle>Pre-Launch Virtual Event</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">Celebrate with us as we share the Aether vision, connect across borders, and build momentum for what’s to come.</p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <MessageSquare className="w-8 h-8 text-primary mb-2" />
-                            <CardTitle>Community Hubs Go Live</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">Be among the first to join our Telegram and Discord communities—designed for meaningful dialogue, peer collaboration, and design challenges.</p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <Eye className="w-8 h-8 text-primary mb-2" />
-                            <CardTitle>Sneak Peek: Aether School</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">Get a behind-the-scenes look at our upcoming self-paced courses and creative pathways. Full course access begins in December.</p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        </section>
-
-        <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32">
+         <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">🔁 How Aether Works</h2>
+                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Aether: Learn. Connect. Build.</h2>
                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                    Aether is a 3-step journey—from learner to leader:
+                    This isn’t just a school. It’s a movement for design independence.
                 </p>
               </div>
             </div>
@@ -152,77 +96,101 @@ export default function Home() {
               <Card>
                 <CardHeader>
                     <School className="w-8 h-8 text-primary mb-2" />
-                    <CardTitle>1. Learn</CardTitle>
+                    <CardTitle>Learn</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">Explore free, self-paced courses in design, architecture, and creative tech through Aether School.</p>
+                    <p className="text-muted-foreground">Culturally grounded, globally relevant design courses.</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
                     <Users className="w-8 h-8 text-primary mb-2" />
-                    <CardTitle>2. Connect</CardTitle>
+                    <CardTitle>Connect</CardTitle>
                 </CardHeader>
                 <CardContent>
-                     <p className="text-muted-foreground">Join our Telegram, Discord, or WhatsApp spaces to collaborate, get feedback, and grow alongside a global peer network.</p>
+                     <p className="text-muted-foreground">A pan-African network of architects, designers, and builders.</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
                     <Waypoints className="w-8 h-8 text-primary mb-2" />
-                    <CardTitle>3. Build</CardTitle>
+                    <CardTitle>Build</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">Apply your skills through Horizon Studio, our immersive cohort program where you’ll work on real projects and build a standout portfolio.</p>
+                    <p className="text-muted-foreground">Apply skills in real projects, earn proof-of-skill credentials, and unlock global work.</p>
                 </CardContent>
               </Card>
             </div>
           </div>
         </section>
-        
-        <section id="for-who" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+
+        <section id="why-us" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+            <div className="container px-4 md:px-6 text-center">
+                 <div className="space-y-4">
+                    <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Other platforms teach skills.<br/>We build futures.</h2>
+                </div>
+                <div className="mx-auto grid max-w-5xl gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 mt-12">
+                    <div className="text-center space-y-2">
+                        <h3 className="text-lg font-bold">Africa-first curriculum</h3>
+                    </div>
+                    <div className="text-center space-y-2">
+                        <h3 className="text-lg font-bold">Community-powered learning</h3>
+                    </div>
+                    <div className="text-center space-y-2">
+                        <h3 className="text-lg font-bold">Decentralized credentials (proof-of-skill)</h3>
+                    </div>
+                     <div className="text-center space-y-2">
+                        <h3 className="text-lg font-bold">Learn-to-earn opportunities</h3>
+                    </div>
+                     <div className="text-center space-y-2">
+                        <h3 className="text-lg font-bold">Global exposure, local empowerment</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section className="w-full py-12 md:py-24 border-y">
+            <div className="container text-center">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">We Launch in 2 Waves</h2>
+                <div className="mt-4 max-w-2xl mx-auto grid gap-2 text-muted-foreground md:text-lg">
+                    <p>🚀 <span className="font-semibold text-foreground">October 6, 2025:</span> World Architecture Day Pre-Launch Event</p>
+                    <p>🌐 <span className="font-semibold text-foreground">December 8, 2025:</span> Full Platform Rollout</p>
+                </div>
+                 <p className="mt-6 max-w-2xl mx-auto md:text-xl">Join now to be part of the Founding 500 — the first to access our community, courses, and collaborations.</p>
+                <div className="mt-8 max-w-4xl mx-auto">
+                    <CountdownTimer targetDate={preLaunchDate} />
+                </div>
+            </div>
+        </section>
+
+        <section id="social-proof" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">👥 Who Aether is For</h2>
+                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Built by Designers, for Designers.</h2>
                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                    Aether is your home if you’re building outside the box.
+                    Founded by African creatives, backed by global collaborators.
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl items-center gap-8 sm:grid-cols-1 md:gap-12 lg:grid-cols-3 mt-12">
-              <div className="text-center space-y-2">
-                <CircleDot className="w-10 h-10 text-primary mx-auto"/>
-                <h3 className="text-lg font-bold">Students & Creatives</h3>
-                <p className="text-muted-foreground">Those studying architecture, urbanism, design, or art—seeking experimentation and community.</p>
-              </div>
-              <div className="text-center space-y-2">
-                <Users2 className="w-10 h-10 text-primary mx-auto"/>
-                <h3 className="text-lg font-bold">Educators & Thinkers</h3>
-                <p className="text-muted-foreground">Leaders and disruptors reimagining design education in Africa and beyond.</p>
-              </div>
-              <div className="text-center space-y-2">
-                <Waypoints className="w-10 h-10 text-primary mx-auto"/>
-                <h3 className="text-lg font-bold">Local Builders</h3>
-                <p className="text-muted-foreground">Creatives deeply rooted in place—ready to design with cultural and contextual relevance.</p>
-              </div>
-            </div>
+            {/* Placeholder for founder story, partners, testimonials */}
+             <div className="text-center mt-8 text-muted-foreground">[Founder story, partner logos, and testimonials will appear here]</div>
           </div>
         </section>
 
         <section className="w-full py-12 md:py-24 lg:py-32">
             <div className="container text-center">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">🌱 Join the Ecosystem</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Your design journey doesn’t start someday. It starts now.</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                    The future of African design is decentralized, collaborative, and culturally rooted.
+                    Be part of the next generation of African designers shaping the world.
                 </p>
-                <p className="max-w-2xl mx-auto mt-2 text-muted-foreground md:text-xl">
-                   Be part of the movement from day one.
+                 <p className="max-w-2xl mx-auto mt-2 text-muted-foreground md:text-xl">
+                   Founding 500 spots are limited.
                 </p>
                 <div className="mt-8">
                     <Button asChild size="lg">
                         <Link href="/join">
-                           👉 Join the Aether Community
+                           Join the Waitlist Now
                         </Link>
                     </Button>
                 </div>
