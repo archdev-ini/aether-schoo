@@ -32,16 +32,16 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-6">
                 <div className="space-y-4">
                   <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none font-headline">
-                    Africa’s Future is Built by Architects. We’re Building Them.
+                    From Africa to the World — Building Architects Who Shape the Future
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Aether is the first Africa-first architecture learning community — equipping the next generation to design spaces that are culturally rooted, climate-responsive, and globally relevant.
+                    Aether is a global architecture learning community — born in Africa — equipping the next generation to design spaces that are culturally rooted, climate-responsive, and globally relevant.
                   </p>
                 </div>
                 <div className="flex flex-col gap-4 min-[400px]:flex-row">
                   <Button asChild size="lg" id="join-waitlist-hero">
                     <Link href="/join">
-                      Join the Pre-Launch Waitlist <ArrowRight className="ml-2" />
+                      Join the Founding 500 <ArrowRight className="ml-2" />
                     </Link>
                   </Button>
                    <Button asChild size="lg" variant="outline">
@@ -70,22 +70,21 @@ export default function Home() {
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover shadow-lg"
               />
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Africa’s cities are growing. Our architecture education isn’t keeping up.</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">The world’s cities are expanding fast — but architecture education isn’t keeping pace.</h2>
                 <ul className="grid gap-4 text-muted-foreground md:text-lg">
                     <li className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Outdated curricula miss climate realities.</span>
+                        <span>Curricula often overlook urgent climate realities.</span>
                     </li>
                     <li className="flex items-start gap-3">
                          <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Local heritage is sidelined in favor of imported templates.</span>
+                        <span>Local heritage is sidelined in favor of one-size-fits-all templates.</span>
                     </li>
                     <li className="flex items-start gap-3">
                          <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Young architects lack networks to collaborate globally.</span>
+                        <span>Young architects lack the networks to collaborate and compete globally.</span>
                     </li>
                 </ul>
-                <p className="mt-4 font-semibold text-xl">We’re here to change the blueprint.</p>
               </div>
             </div>
           </div>
@@ -97,7 +96,7 @@ export default function Home() {
               <div className="space-y-4">
                  <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Aether: Learn. Collaborate. Build.</h2>
                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
-                    This is more than a platform. It’s a studio without walls.
+                    Aether is more than a platform — it’s a studio without walls.
                 </p>
               </div>
             </div>
@@ -105,12 +104,12 @@ export default function Home() {
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><School className="w-10 h-10 text-primary mb-2" /></div>
                   <h3 className="text-xl font-bold">Learn</h3>
-                  <p className="text-muted-foreground">Contemporary, Africa-centered architecture training.</p>
+                  <p className="text-muted-foreground">Contemporary, context-driven architecture training.</p>
               </div>
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><Users className="w-10 h-10 text-primary mb-2" /></div>
                   <h3 className="text-xl font-bold">Collaborate</h3>
-                  <p className="text-muted-foreground">Work with peers and mentors across the continent.</p>
+                  <p className="text-muted-foreground">Work with peers and mentors across regions.</p>
               </div>
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><Waypoints className="w-10 h-10 text-primary mb-2" /></div>
@@ -124,23 +123,23 @@ export default function Home() {
         <section id="why-us" className="w-full py-12 md:py-24 lg:py-32 bg-muted animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
             <div className="container px-4 md:px-6 text-center">
                  <div className="space-y-4 mb-12">
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Other platforms teach theory.<br/>We build architects who can shape Africa’s built environment.</h2>
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Other platforms focus on theory. <br/>Aether develops architects who can shape cities and communities.</h2>
                 </div>
                 <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-5">
                     <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Africa-first architectural curriculum</h3>
+                        <h3 className="text-lg font-bold">Architecture curriculum rooted in place, adaptable worldwide</h3>
                     </div>
                     <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Integration of vernacular + modern design approaches</h3>
+                        <h3 className="text-lg font-bold">Integration of vernacular wisdom with modern innovation</h3>
                     </div>
                     <div className="text-center space-y-2 p-4">
                         <h3 className="text-lg font-bold">Decentralized proof-of-skill credentials</h3>
                     </div>
                      <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Learn-to-earn project opportunities</h3>
+                        <h3 className="text-lg font-bold">Learn-to-earn project pathways</h3>
                     </div>
                      <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Global exposure, rooted in local context</h3>
+                        <h3 className="text-lg font-bold">Global exposure anchored in local identity</h3>
                     </div>
                 </div>
             </div>
@@ -153,7 +152,7 @@ export default function Home() {
                     <p>🚀 <span className="font-semibold text-foreground">October 6, 2025:</span> World Architecture Day Pre-Launch Event</p>
                     <p>🌐 <span className="font-semibold text-foreground">December 8, 2025:</span> Full Platform Rollout</p>
                 </div>
-                 <p className="mt-6 max-w-2xl mx-auto md:text-xl">Join now to be part of the Founding 500 — the first architects and architecture students to shape the community.</p>
+                 <p className="mt-6 max-w-2xl mx-auto md:text-xl">Join the Founding 500 — the first architects and students shaping the community.</p>
                 <div className="mt-8 max-w-4xl mx-auto">
                     <CountdownTimer targetDate={preLaunchDate} />
                 </div>
@@ -181,14 +180,11 @@ export default function Home() {
                     <p className="text-sm text-muted-foreground">Founder, Aether</p>
                 </div>
                 <div className="prose prose-lg max-w-none text-muted-foreground">
-                    <p>I’m Inioluwa Oladipupo, an architecture student with a restless curiosity and an unshakable belief: Africa’s spaces should tell Africa’s stories.</p>
-                    <p>The spark for Aether came during countless late nights in the studio — staring at drawings, wrestling with design briefs, and asking myself why so many of our buildings felt disconnected from our people, climates, and cultures.</p>
-                    <p>I realized the problem wasn’t just in practice — it was in how we learn architecture. Too often, we inherit foreign design models that overlook the genius in our own traditions. At the same time, many young architects lack access to global opportunities that could elevate their craft.</p>
-                    <p>I wanted to change that.</p>
-                    <p className="font-semibold text-foreground">So, I imagined Aether:</p>
-                    <p>A community where African architects and designers could learn, collaborate, and prove their skills on a world stage — without losing sight of our heritage. A place where your designs are as relevant in Lagos as they are in London.</p>
-                    <p>Aether is not just a platform. It’s a movement. It’s the bridge between our roots and our future. And it’s built for people like you — visionaries who believe that architecture can do more than shelter us. It can shape who we are.</p>
-                    <p>Let’s build that future together.</p>
+                    <p>I’m Inioluwa Oladipupo, an architecture student with a simple belief: every place should tell its own story.</p>
+                    <p>Aether began as an idea during countless late nights in the studio — working on design briefs and wondering why so many buildings felt disconnected from their climate, culture, and community.</p>
+                    <p>I realized the problem was deeper than individual projects. Many schools relied on foreign models that overlooked local genius, while young architects struggled to gain recognition beyond their borders.</p>
+                    <p>Aether was created to change that — to give architects and designers a space to learn, collaborate, and prove their skills on the world stage, while staying connected to their roots.</p>
+                    <p>Our journey starts in Africa, but our vision is global. We believe architecture can shape identity and community anywhere — if it’s grounded in the people and places it serves.</p>
                 </div>
             </div>
           </div>
@@ -196,11 +192,8 @@ export default function Home() {
 
         <section className="w-full py-12 md:py-24 lg:py-32 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-600">
            <div className="container text-center bg-primary/5 rounded-lg p-10 md:p-16">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Architecture doesn’t just happen. It’s imagined, learned, and built.</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Architecture doesn’t just happen — it’s imagined, learned, and built.</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                    Join the architects redefining Africa’s future.
-                </p>
-                 <p className="max-w-2xl mx-auto mt-2 text-muted-foreground md:text-xl">
                    Founding 500 spots are limited.
                 </p>
                 <div className="mt-8">
