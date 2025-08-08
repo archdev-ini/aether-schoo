@@ -1,28 +1,26 @@
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Users, Heart, GitBranch, Globe, Star } from "lucide-react";
+import { CheckCircle, Users, Lightbulb, GitBranch, Globe, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const missionPoints = [
-    { text: "Honor local culture and history." },
-    { text: "Work with, not against, the climate." },
-    { text: "Stand the test of time — structurally, socially, and economically." },
+const challenges = [
+    { text: "Africa’s urban growth is among the fastest in the world, yet architectural training often lags behind the realities of modern cities." },
+    { text: "Many curricula rely heavily on imported models that overlook local heritage, climate, and materials." },
+    { text: "Young architects frequently lack the networks, mentorship, and real-world projects needed to thrive in a competitive global industry." },
 ];
 
-const approachPoints = [
-    { title: "Africa-first Curriculum", description: "Courses on vernacular design, sustainable materials, urban resilience." },
-    { title: "Global Connectivity", description: "Access to mentors, projects, and ideas from around the world." },
-    { title: "Proof-of-Skill Credentials", description: "Verifiable digital badges that prove what you can do, not just what you’ve studied." },
-    { title: "Learn-to-Earn Projects", description: "Opportunities to design, build, and get rewarded." },
+const solutions = [
+    { text: "Teach through a contemporary, Africa-first curriculum that blends vernacular wisdom with modern design principles." },
+    { text: "Connect members to peers, mentors, and collaborators across countries and continents." },
+    { text: "Empower architects to work on real projects, earn verifiable proof-of-skill credentials, and access opportunities both locally and internationally." },
 ];
 
-const values = [
-    { icon: Globe, title: "Context Matters", description: "Good design starts with understanding people and place." },
-    { icon: Users, title: "Collaboration Over Competition", description: "We rise together as a community." },
-    { icon: GitBranch, title: "Heritage as Innovation", description: "Africa’s past inspires our future." },
-    { icon: Heart, title: "Sustainability First", description: "Design with the climate, not against it." },
-    { icon: Star, title: "Access for All", description: "Talent shouldn’t be limited by geography or privilege." },
+const differentiators = [
+    { icon: Globe, title: "Global by Design", description: "An Africa-first design approach adaptable to any global context." },
+    { icon: GitBranch, title: "Integrated Practice", description: "Integration of culture, climate, and technology in every project." },
+    { icon: Star, title: "Learn-to-Earn Model", description: "Rewards members for applying their skills in real-world scenarios." },
+    { icon: Users, title: "Proof-of-Skill", description: "Verifiable credentials to showcase expertise beyond traditional degrees." },
 ];
 
 
@@ -33,58 +31,57 @@ export default function AboutPage() {
         <section className="w-full py-20 md:py-32 bg-muted">
             <div className="container px-4 md:px-6 text-center">
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-headline">
-                    Shaping Africa’s Future, One Space at a Time.
+                    Shaping the Architects Who Will Shape the Future
                 </h1>
                 <p className="max-w-3xl mx-auto mt-6 text-muted-foreground md:text-xl">
-                    Aether is a pan-African architecture learning community, empowering architects and students to design spaces that are culturally rooted, climate-responsive, and globally competitive.
+                    Aether is the first architecture learning community that starts in Africa and scales to the world. We are building a new path for architecture education — one that equips emerging architects to design spaces that are culturally grounded, climate-responsive, and globally competitive.
                 </p>
             </div>
         </section>
 
-        {/* Our Story Section */}
+        {/* The Challenge Section */}
         <section className="w-full py-16 md:py-24">
             <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6">
-                    <h2 className="text-3xl font-bold tracking-tight font-headline">We started Aether with a simple belief: Africa’s architecture should reflect Africa’s soul.</h2>
-                    <div className="space-y-4 text-muted-foreground text-lg">
-                        <p>For decades, the continent’s architectural education has been shaped by imported templates that don’t always work in our climates, cultures, or communities. We saw a gap — between what’s taught in school and what’s needed to build resilient, relevant cities.</p>
-                        <p className="font-semibold text-foreground">So we built Aether:</p>
-                         <ul className="space-y-3">
-                            <li className="flex items-start"><CheckCircle className="w-5 h-5 mr-3 mt-1 text-primary flex-shrink-0" /><span>A place to learn contemporary architectural practice without losing our heritage.</span></li>
-                            <li className="flex items-start"><CheckCircle className="w-5 h-5 mr-3 mt-1 text-primary flex-shrink-0" /><span>A place where students, graduates, and practitioners can collaborate beyond borders.</span></li>
-                            <li className="flex items-start"><CheckCircle className="w-5 h-5 mr-3 mt-1 text-primary flex-shrink-0" /><span>A place where proof-of-skill matters as much as a degree.</span></li>
-                        </ul>
-                    </div>
+                    <h2 className="text-3xl font-bold tracking-tight font-headline">The challenge is clear:</h2>
+                    <ul className="space-y-4 text-muted-foreground text-lg">
+                        {challenges.map((challenge, index) => (
+                            <li key={index} className="flex items-start">
+                                <CheckCircle className="w-5 h-5 mr-3 mt-1 text-primary flex-shrink-0" />
+                                <span>{challenge.text}</span>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
                  <Image
-                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=600&h=700&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=600&h=700&auto=format&fit=crop"
                     width={600}
                     height={700}
-                    alt="Team collaborating"
-                    data-ai-hint="team collaboration"
+                    alt="Architects reviewing blueprints"
+                    data-ai-hint="architects planning"
                     className="rounded-lg object-cover shadow-2xl"
                 />
             </div>
         </section>
         
-        {/* Our Mission Section */}
+        {/* Our Solution Section */}
         <section className="w-full py-16 md:py-24 bg-muted">
             <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-12 items-center">
                 <Image
                     src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=600&h=600&auto=format&fit=crop"
                     width={600}
                     height={600}
-                    alt="Blueprint of a building"
-                    data-ai-hint="architecture blueprint"
+                    alt="A modern, well-designed building"
+                    data-ai-hint="modern architecture"
                     className="rounded-lg object-cover shadow-2xl"
                 />
                 <div className="space-y-6">
-                    <h2 className="text-3xl font-bold tracking-tight font-headline">Our Mission</h2>
-                    <p className="text-lg text-muted-foreground">To equip Africa’s next generation of architects to create spaces that:</p>
+                    <h2 className="text-3xl font-bold tracking-tight font-headline">Our Solution — A Studio Without Walls</h2>
+                    <p className="text-lg text-muted-foreground">Aether is not just another online course platform. It’s a dynamic ecosystem where learning, collaboration, and practice happen seamlessly. We:</p>
                     <ul className="space-y-4">
-                        {missionPoints.map((point, index) => (
+                        {solutions.map((point, index) => (
                         <li key={index} className="flex items-start text-lg">
-                            <CheckCircle className="w-6 h-6 mr-3 text-primary flex-shrink-0 mt-1" />
+                            <Lightbulb className="w-6 h-6 mr-3 text-primary flex-shrink-0 mt-1" />
                             <span className="flex-1">{point.text}</span>
                         </li>
                         ))}
@@ -93,16 +90,20 @@ export default function AboutPage() {
             </div>
         </section>
 
-        {/* Our Approach Section */}
+        {/* What Makes Aether Different Section */}
         <section className="w-full py-16 md:py-24">
             <div className="container px-4 md:px-6">
                  <div className="text-center max-w-3xl mx-auto mb-12">
-                    <h2 className="text-3xl font-bold tracking-tight font-headline">Our Approach</h2>
-                    <p className="mt-4 text-lg text-muted-foreground">We blend:</p>
+                    <h2 className="text-3xl font-bold tracking-tight font-headline">What Makes Aether Different</h2>
                  </div>
                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {approachPoints.map((point) => (
-                        <div key={point.title} className="bg-muted/50 p-6 rounded-lg">
+                    {differentiators.map((point) => (
+                        <div key={point.title} className="bg-muted/50 p-6 rounded-lg text-center">
+                             <div className="flex justify-center mb-4">
+                                <div className="bg-primary/10 text-primary p-4 rounded-full">
+                                    <point.icon className="w-8 h-8"/>
+                                </div>
+                            </div>
                             <h3 className="text-xl font-bold font-headline">{point.title}</h3>
                             <p className="mt-2 text-muted-foreground">{point.description}</p>
                         </div>
@@ -110,46 +111,17 @@ export default function AboutPage() {
                  </div>
             </div>
         </section>
-
-        {/* The Aether Experience */}
+        
+        {/* Vision and Mission Section */}
         <section className="w-full py-16 md:py-24 bg-primary text-primary-foreground">
-            <div className="container px-4 md:px-6 text-center">
-                <h2 className="text-3xl font-bold tracking-tight font-headline">In Aether, you’re not just a member — you’re part of a studio without walls.</h2>
-                 <div className="max-w-4xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
-                    <div className="space-y-2">
-                        <h3 className="text-xl font-bold">Learn from peers and professionals.</h3>
-                    </div>
-                     <div className="space-y-2">
-                        <h3 className="text-xl font-bold">Take on real design challenges.</h3>
-                    </div>
-                     <div className="space-y-2">
-                        <h3 className="text-xl font-bold">Build your portfolio with projects that matter.</h3>
-                    </div>
-                     <div className="space-y-2">
-                        <h3 className="text-xl font-bold">Connect to the future of African architecture.</h3>
-                    </div>
-                 </div>
-            </div>
-        </section>
-
-        {/* Our Values Section */}
-        <section className="w-full py-16 md:py-24">
-            <div className="container px-4 md:px-6">
-                <div className="text-center max-w-3xl mx-auto mb-12">
-                    <h2 className="text-3xl font-bold tracking-tight font-headline">Our Values</h2>
+            <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-12 items-center">
+                <div className="space-y-4">
+                    <h2 className="text-3xl font-bold font-headline">Our Vision</h2>
+                    <p className="text-lg opacity-90">Aether begins in Africa because we believe the continent’s design stories and solutions can inspire the world. But our approach is borderless. As we grow, Aether will serve as a hub for architects everywhere who want to design with cultural intelligence and environmental responsibility.</p>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    {values.map((value) => (
-                    <div key={value.title} className="text-center">
-                        <div className="flex justify-center mb-4">
-                            <div className="bg-primary/10 text-primary p-4 rounded-full">
-                                <value.icon className="w-8 h-8"/>
-                            </div>
-                        </div>
-                        <h3 className="text-xl font-bold font-headline">{value.title}</h3>
-                        <p className="mt-2 text-muted-foreground">{value.description}</p>
-                    </div>
-                    ))}
+                 <div className="space-y-4">
+                    <h2 className="text-3xl font-bold font-headline">Our Mission</h2>
+                    <p className="text-lg opacity-90">To nurture a generation of architects who can confidently design for their communities — whether those communities are in Lagos, London, or Lima — while staying connected to the roots of their craft.</p>
                 </div>
             </div>
         </section>
