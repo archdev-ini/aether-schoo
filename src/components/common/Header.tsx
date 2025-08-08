@@ -18,7 +18,6 @@ const navLinks = [
   { href: '/programs', label: 'Programs' },
   { href: '/community', label: 'Community' },
   { href: '/events', label: 'Events' },
-  { href: '/map', label: 'Map' },
   { href: '/about', label: 'About' },
 ];
 
