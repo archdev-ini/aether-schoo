@@ -20,7 +20,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
-        body: ['Work Sans', 'sans-serif'],
+        body: ['Satoshi', 'sans-serif'],
         headline: ['Sora', 'sans-serif'],
         logo: ['Satoshi', 'sans-serif'],
       },
