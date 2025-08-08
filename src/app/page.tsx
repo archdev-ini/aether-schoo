@@ -26,16 +26,16 @@ export default function Home() {
   return (
     <div className="flex flex-col animate-in fade-in duration-500">
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-40">
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-40 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="container px-4 md:px-6">
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-16">
               <div className="flex flex-col justify-center space-y-6">
                 <div className="space-y-4">
                   <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none font-headline">
-                    Africa’s Future is Built by Designers. We’re Building Them.
+                    Africa’s Future is Built by Architects. We’re Building Them.
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Aether is the first Africa-first design learning community — connecting creatives to skills, tools, and networks that power global impact.
+                    Aether is the first Africa-first architecture learning community — equipping the next generation to design spaces that are culturally rooted, climate-responsive, and globally relevant.
                   </p>
                 </div>
                 <div className="flex flex-col gap-4 min-[400px]:flex-row">
@@ -46,7 +46,7 @@ export default function Home() {
                   </Button>
                    <Button asChild size="lg" variant="outline">
                     <Link href="/about">
-                      Discover the Vision
+                      See How We’re Building the Future
                     </Link>
                   </Button>
                 </div>
@@ -58,7 +58,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="problem-pain-point" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section id="problem-pain-point" className="w-full py-12 md:py-24 lg:py-32 bg-muted animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
           <div className="container px-4 md:px-6">
             <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
                <Image
@@ -70,34 +70,34 @@ export default function Home() {
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover shadow-lg"
               />
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Africa is rich in creativity, but…</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Africa’s cities are growing. Our architecture education isn’t keeping up.</h2>
                 <ul className="grid gap-4 text-muted-foreground md:text-lg">
                     <li className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Access to world-class design training is limited.</span>
+                        <span>Outdated curricula miss climate realities.</span>
                     </li>
                     <li className="flex items-start gap-3">
                          <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Our cultural context is missing in global design narratives.</span>
+                        <span>Local heritage is sidelined in favor of imported templates.</span>
                     </li>
                     <li className="flex items-start gap-3">
                          <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Young talent is disconnected from real opportunities.</span>
+                        <span>Young architects lack networks to collaborate globally.</span>
                     </li>
                 </ul>
-                <p className="mt-4 font-semibold text-xl">We’re changing that — permanently.</p>
+                <p className="mt-4 font-semibold text-xl">We’re here to change the blueprint.</p>
               </div>
             </div>
           </div>
         </section>
         
-         <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32">
+         <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-4">
-                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Aether: Learn. Connect. Build.</h2>
+                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Aether: Learn. Collaborate. Build.</h2>
                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
-                    This isn’t just a school. It’s a movement for design independence.
+                    This is more than a platform. It’s a studio without walls.
                 </p>
               </div>
             </div>
@@ -105,68 +105,68 @@ export default function Home() {
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><School className="w-10 h-10 text-primary mb-2" /></div>
                   <h3 className="text-xl font-bold">Learn</h3>
-                  <p className="text-muted-foreground">Culturally grounded, globally relevant design courses.</p>
+                  <p className="text-muted-foreground">Contemporary, Africa-centered architecture training.</p>
               </div>
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><Users className="w-10 h-10 text-primary mb-2" /></div>
-                  <h3 className="text-xl font-bold">Connect</h3>
-                  <p className="text-muted-foreground">A pan-African network of architects, designers, and builders.</p>
+                  <h3 className="text-xl font-bold">Collaborate</h3>
+                  <p className="text-muted-foreground">Work with peers and mentors across the continent.</p>
               </div>
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><Waypoints className="w-10 h-10 text-primary mb-2" /></div>
                   <h3 className="text-xl font-bold">Build</h3>
-                  <p className="text-muted-foreground">Apply skills in real projects, earn proof-of-skill credentials, and unlock global work.</p>
+                  <p className="text-muted-foreground">Apply skills in real projects, earn verifiable proof-of-skill credentials, and access opportunities.</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="why-us" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section id="why-us" className="w-full py-12 md:py-24 lg:py-32 bg-muted animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
             <div className="container px-4 md:px-6 text-center">
                  <div className="space-y-4 mb-12">
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Other platforms teach skills.<br/>We build futures.</h2>
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Other platforms teach theory.<br/>We build architects who can shape Africa’s built environment.</h2>
                 </div>
                 <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-5">
                     <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Africa-first curriculum</h3>
+                        <h3 className="text-lg font-bold">Africa-first architectural curriculum</h3>
                     </div>
                     <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Community-powered learning</h3>
+                        <h3 className="text-lg font-bold">Integration of vernacular + modern design approaches</h3>
                     </div>
                     <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Decentralized credentials (proof-of-skill)</h3>
+                        <h3 className="text-lg font-bold">Decentralized proof-of-skill credentials</h3>
                     </div>
                      <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Learn-to-earn opportunities</h3>
+                        <h3 className="text-lg font-bold">Learn-to-earn project opportunities</h3>
                     </div>
                      <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Global exposure, local empowerment</h3>
+                        <h3 className="text-lg font-bold">Global exposure, rooted in local context</h3>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section className="w-full py-12 md:py-24 border-y">
+        <section className="w-full py-12 md:py-24 border-y animate-in fade-in slide-in-from-bottom-8 duration-700 delay-400">
             <div className="container text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">We Launch in 2 Waves</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">We Launch in 2 Phases</h2>
                 <div className="mt-4 max-w-2xl mx-auto grid gap-2 text-muted-foreground md:text-lg">
                     <p>🚀 <span className="font-semibold text-foreground">October 6, 2025:</span> World Architecture Day Pre-Launch Event</p>
                     <p>🌐 <span className="font-semibold text-foreground">December 8, 2025:</span> Full Platform Rollout</p>
                 </div>
-                 <p className="mt-6 max-w-2xl mx-auto md:text-xl">Join now to be part of the Founding 500 — the first to access our community, courses, and collaborations.</p>
+                 <p className="mt-6 max-w-2xl mx-auto md:text-xl">Join now to be part of the Founding 500 — the first architects and architecture students to shape the community.</p>
                 <div className="mt-8 max-w-4xl mx-auto">
                     <CountdownTimer targetDate={preLaunchDate} />
                 </div>
             </div>
         </section>
 
-        <section id="social-proof" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+        <section id="social-proof" className="w-full py-12 md:py-24 lg:py-32 bg-muted animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Built by Designers, for Designers.</h2>
+                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Built by African architects, for African architects.</h2>
                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
-                    Founded by African creatives, backed by global collaborators.
+                    Founded within the design studio, shaped by research, powered by community.
                 </p>
               </div>
             </div>
@@ -174,11 +174,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        <section className="w-full py-12 md:py-24 lg:py-32 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-600">
            <div className="container text-center bg-primary/5 rounded-lg p-10 md:p-16">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Your design journey doesn’t start someday. It starts now.</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Architecture doesn’t just happen. It’s imagined, learned, and built.</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                    Be part of the next generation of African designers shaping the world.
+                    Join the architects redefining Africa’s future.
                 </p>
                  <p className="max-w-2xl mx-auto mt-2 text-muted-foreground md:text-xl">
                    Founding 500 spots are limited.
@@ -197,5 +197,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
