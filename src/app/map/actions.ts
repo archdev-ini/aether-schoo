@@ -24,8 +24,7 @@ async function geocodeLocation(location: string, apiKey: string): Promise<{ lat:
     }
 
     if (!apiKey) {
-        console.warn('Geocoding API key is not set. Skipping geocoding.');
-        return null;
+        throw new Error('Geocoding API key is not set. The map feature will not work.');
     }
     
     const encodedLocation = encodeURIComponent(location);
@@ -41,7 +40,7 @@ async function geocodeLocation(location: string, apiKey: string): Promise<{ lat:
             geocodeCache.set(location, result);
             return result;
         } else {
-            console.error(`Geocoding failed for "${location}": ${data.status} - ${data.error_message || ''}`);
+            console.warn(`Geocoding failed for "${location}": ${data.status} - ${data.error_message || ''}`);
             return null;
         }
     } catch (error) {
@@ -94,6 +93,6 @@ export async function getUserLocations(): Promise<UserLocation[]> {
 
     } catch (error) {
         console.error('Airtable API error:', error);
-        return [];
+        throw new Error('Failed to fetch locations from the database.');
     }
 }

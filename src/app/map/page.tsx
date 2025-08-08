@@ -3,11 +3,31 @@ import { Suspense } from 'react';
 import { WorldMap } from '@/components/common/WorldMap';
 import { getUserLocations, UserLocation } from './actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Globe } from 'lucide-react';
+import { Globe, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 async function MapData() {
-  const userLocations = await getUserLocations();
+  let userLocations: UserLocation[] = [];
+  let error = null;
+
+  try {
+    userLocations = await getUserLocations();
+  } catch (e: any) {
+    console.error(e);
+    error = e.message || 'An unknown error occurred.';
+  }
+
+  if (error) {
+    return (
+        <Card className="text-center p-8 border-destructive">
+            <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-4" />
+            <CardTitle>Could Not Load Map Data</CardTitle>
+            <CardDescription className="mt-2">
+                There was a problem fetching member locations. This may be due to a server configuration issue. Please try again later.
+            </CardDescription>
+        </Card>
+    )
+  }
 
   return (
     <>
@@ -21,22 +41,26 @@ async function MapData() {
 
       <div className="mt-12">
         <h2 className="text-2xl font-bold text-center mb-6 font-headline">Recent Members</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {userLocations.slice(0, 8).map((user, index) => (
-            <Card key={user.id} className="p-4" style={{ animationDelay: `${index * 100}ms`}}>
-                <div className="flex items-start gap-3">
-                    <div className="bg-primary/10 text-primary rounded-full p-2">
-                        <Globe className="w-5 h-5" />
+        {userLocations.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {userLocations.slice(0, 8).map((user, index) => (
+                <Card key={user.id} className="p-4" style={{ animationDelay: `${index * 100}ms`}}>
+                    <div className="flex items-start gap-3">
+                        <div className="bg-primary/10 text-primary rounded-full p-2">
+                            <Globe className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="font-bold">{user.fullName.split(' ')[0]}</p>
+                            <p className="text-sm text-muted-foreground">{user.location}</p>
+                            <p className="text-xs text-muted-foreground mt-1">Interested in {user.mainInterest}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="font-bold">{user.fullName.split(' ')[0]}</p>
-                        <p className="text-sm text-muted-foreground">{user.location}</p>
-                         <p className="text-xs text-muted-foreground mt-1">Interested in {user.mainInterest}</p>
-                    </div>
-                </div>
-            </Card>
-          ))}
-        </div>
+                </Card>
+            ))}
+            </div>
+        ) : (
+            <p className="text-center text-muted-foreground">No member locations to display yet.</p>
+        )}
       </div>
     </>
   );
