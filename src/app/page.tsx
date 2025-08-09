@@ -3,21 +3,32 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, School, Users, Waypoints, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { CountdownTimer } from "@/components/common/CountdownTimer";
 
-function HeroImage() {
-  return (
-    <Image
-      src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=800&h=800&auto=format&fit=crop"
-      width={800}
-      height={800}
-      alt="Abstract architectural design"
-      data-ai-hint="modern architecture"
-      className="mx-auto aspect-square overflow-hidden rounded-xl object-cover shadow-2xl"
-    />
-  );
-}
+const featuredFaqs = [
+  {
+    question: "What exactly is Aether?",
+    answer: "Aether is a global-facing, locally empowering platform for architects, designers, and students. We provide learning programs, project opportunities, and a vibrant community focused on culturally rooted, climate-conscious design.",
+  },
+  {
+    question: "Who can join the Aether Community?",
+    answer: "Anyone passionate about architecture, urban design, or creative problem-solving is welcome — whether you’re a student, practicing professional, or an enthusiast exploring the field.",
+  },
+  {
+    question: "What’s the difference between Aether School and Horizon Studio?",
+    answer: "Aether School is our learning arm, offering courses and workshops. Horizon Studio is our project lab, where members collaborate on real-world challenges.",
+  },
+   {
+    question: "Do I need to be in Nigeria to join?",
+    answer: "No. While our roots are in Nigeria and Africa, Aether is built to connect designers worldwide. Our community and programs are accessible online.",
+  },
+];
 
 
 export default function Home() {
@@ -41,7 +52,7 @@ export default function Home() {
                 <div className="flex flex-col gap-4 min-[400px]:flex-row">
                   <Button asChild size="lg" id="join-waitlist-hero">
                     <Link href="/join">
-                      Join the Founding 500 <ArrowRight className="ml-2" />
+                      Join the Founding 500
                     </Link>
                   </Button>
                    <Button asChild size="lg" variant="outline">
@@ -52,7 +63,14 @@ export default function Home() {
                 </div>
               </div>
               <div className="mx-auto aspect-square overflow-hidden rounded-xl sm:w-full lg:order-last">
-                <HeroImage />
+                 <Image
+                  src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=800&h=800&auto=format&fit=crop"
+                  width={800}
+                  height={800}
+                  alt="Abstract architectural design"
+                  data-ai-hint="modern architecture"
+                  className="mx-auto aspect-square overflow-hidden rounded-xl object-cover shadow-2xl"
+                />
               </div>
             </div>
           </div>
@@ -190,7 +208,35 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="w-full py-12 md:py-24 lg:py-32 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-600">
+        <section id="faq" className="w-full py-12 md:py-24 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-600">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Frequently Asked Questions</h2>
+            </div>
+            <div className="max-w-3xl mx-auto">
+              <Accordion type="single" collapsible className="w-full">
+                {featuredFaqs.map((faq, index) => (
+                  <AccordionItem key={index} value={`item-${index}`}>
+                    <AccordionTrigger className="text-lg text-left">{faq.question}</AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground text-base whitespace-pre-line">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+             <div className="text-center mt-12">
+                <Button asChild variant="outline">
+                  <Link href="/faq">
+                    See All FAQs
+                    <ArrowRight className="ml-2"/>
+                  </Link>
+                </Button>
+            </div>
+          </div>
+        </section>
+
+        <section className="w-full py-12 md:py-24 lg:py-32 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700">
            <div className="container text-center bg-primary/5 rounded-lg p-10 md:p-16">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Architecture doesn’t just happen — it’s imagined, learned, and built.</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
