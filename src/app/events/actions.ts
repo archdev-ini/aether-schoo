@@ -35,7 +35,7 @@ export async function getEvents(): Promise<Event[]> {
     try {
         const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
             filterByFormula: "({Published} = 1)",
-            sort: [{field: "Date", direction: "asc"}],
+            sort: [{field: "Date", direction: "desc"}], // Fetch newest first
         }).all();
 
         const now = new Date();
@@ -63,14 +63,18 @@ export async function getEvents(): Promise<Event[]> {
             };
         });
         
-        // Sort events by status (upcoming first) then by date
-        events.sort((a, b) => {
-            if (a.status === 'Upcoming' && b.status === 'Past') return -1;
-            if (a.status === 'Past' && b.status === 'Upcoming') return 1;
-            return new Date(a.date).getTime() - new Date(b.date).getTime();
-        });
+        // Separate upcoming and past events
+        const upcomingEvents = events.filter(e => e.status === 'Upcoming');
+        const pastEvents = events.filter(e => e.status === 'Past');
 
-        return EventSchema.array().parse(events.filter(e => e.title && e.date));
+        // Sort upcoming events from soonest to latest
+        upcomingEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        // Past events are already sorted from newest to oldest due to initial fetch sort
+
+        // Combine them so upcoming are always first
+        const sortedEvents = [...upcomingEvents, ...pastEvents];
+
+        return EventSchema.array().parse(sortedEvents.filter(e => e.title && e.date));
 
     } catch (error) {
         console.error('Airtable API error:', error);
