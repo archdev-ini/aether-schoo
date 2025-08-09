@@ -7,26 +7,47 @@ import {
 
 const faqs = [
   {
-    question: "What is the Aether Ecosystem?",
-    answer: "The Aether Ecosystem is a community and platform dedicated to fostering innovation. It comprises Aether School for education, Horizon Studio for project incubation, and a network of partners and collaborators.",
+    question: "What exactly is Aether?",
+    answer: "Aether is a global-facing, locally empowering platform for architects, designers, and students. We provide learning programs, project opportunities, and a vibrant community focused on culturally rooted, climate-conscious design.",
   },
   {
-    question: "Who is eligible to join Aether School?",
-    answer: "Aether School is open to individuals from all backgrounds who are passionate about technology and innovation. We look for curiosity, a collaborative spirit, and a drive to build. Specific cohorts may have prerequisites, which will be listed in the application materials.",
+    question: "Who can join the Aether Community?",
+    answer: "Anyone passionate about architecture, urban design, or creative problem-solving is welcome — whether you’re a student, practicing professional, or an enthusiast exploring the field.",
   },
   {
-    question: "How does Horizon Studio select projects?",
-    answer: "Horizon Studio has a competitive application process. We evaluate projects based on their potential for impact, technical feasibility, team strength, and alignment with the Aether mission. We are particularly interested in projects in AI, decentralized systems, and biotechnology.",
+    question: "What’s the difference between Aether School and Horizon Studio?",
+    answer: "Aether School → Our learning arm, offering courses, workshops, and resources to help you grow your skills. \n\n Horizon Studio → Our project lab, where members collaborate on real-world challenges, competitions, and commissions.",
   },
   {
-    question: "Is there a cost to participate?",
-    answer: "Aether School has a tuition fee, with scholarship and financing options available. Horizon Studio typically invests in projects in exchange for equity, and does not charge a fee for participation.",
+    question: "How do I start learning with Aether School?",
+    answer: "Join the waitlist on our website, confirm your email, and create your Basic Plan account. Once inside, you’ll get access to course previews, schedules, and upcoming enrollment dates.",
   },
-    {
-    question: "Can I participate remotely?",
-    answer: "Yes, both Aether School and Horizon Studio offer remote and hybrid participation models to accommodate a global community of innovators.",
+  {
+    question: "I’m a student. Can Aether help me with my portfolio?",
+    answer: "Yes. Our courses and studio challenges are designed to help you produce strong, culturally informed, and climate-conscious work you can showcase in your portfolio.",
+  },
+  {
+    question: "I’m a practicing architect. What’s in it for me?",
+    answer: "You can: \n- Join high-level project collaborations \n- Network with other professionals \n- Mentor emerging designers \n- Access resources and research to stay ahead in sustainable and locally relevant architecture.",
+  },
+  {
+    question: "Does Aether offer certifications?",
+    answer: "Yes — we provide Proof-of-Skill Credentials for selected programs and studio projects, which you can showcase in your portfolio or LinkedIn profile.",
+  },
+  {
+    question: "Do I need to be in Nigeria to join?",
+    answer: "No. While our roots are in Nigeria and Africa, Aether is built to connect designers worldwide. Our community and programs are accessible online, and our roadmap includes physical chapters in multiple regions.",
+  },
+  {
+    question: "How does Horizon Studio select its projects?",
+    answer: "Projects come from: \n- Industry partners \n- Design competitions \n- Internal Aether initiatives \n- Member proposals that align with our mission.",
+  },
+  {
+    question: "Is there a membership fee?",
+    answer: "The community is free to join. Some advanced courses, studio programs, and exclusive events may require a paid plan.",
   },
 ];
+
 
 export default function FaqPage() {
   return (
@@ -43,7 +64,7 @@ export default function FaqPage() {
           {faqs.map((faq, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
               <AccordionTrigger className="text-lg text-left">{faq.question}</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-base">
+              <AccordionContent className="text-muted-foreground text-base whitespace-pre-line">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
