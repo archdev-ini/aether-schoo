@@ -32,11 +32,11 @@ const FormSchema = z.object({
   referralCode: z.string().optional(),
 }).refine(data => {
     if (data.referralCode && data.referralCode.length > 0) {
-        return /^AETH-[A-Z]{2}\d{3}$/.test(data.referralCode.toUpperCase());
+        return /^AETH-[A-Z]{2}\d{2}$/.test(data.referralCode.toUpperCase());
     }
     return true;
 }, {
-    message: 'Invalid referral code format. Must be AETH-XX123.',
+    message: 'Invalid referral code format. Must be AETH-XX12.',
     path: ['referralCode'],
 });
 

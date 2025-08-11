@@ -19,16 +19,12 @@ const FormSchema = z.object({
   referralCode: z.string().optional(),
 });
 
-function generateAetherId(fullName: string) {
-  const year = new Date().getFullYear().toString().slice(-2);
-  const initials = fullName
-    .trim()
-    .slice(0, 2)
-    .toUpperCase();
-  
-  const randomNumber = Math.floor(100 + Math.random() * 900); // 3-digit random number
+function generateAetherId() {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const randomLetters = Array.from({ length: 2 }, () => letters.charAt(Math.floor(Math.random() * letters.length))).join('');
+  const randomNumber = Math.floor(Math.random() * 100).toString().padStart(2, '0');
 
-  return `A${year}-${initials}${randomNumber}`;
+  return `AETH-${randomLetters}${randomNumber}`;
 }
 
 export async function submitJoinForm(data: FormValues) {
@@ -50,7 +46,7 @@ export async function submitJoinForm(data: FormValues) {
     }
 
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
-    const newAetherId = generateAetherId(parsedData.data.fullName);
+    const newAetherId = generateAetherId();
 
     // Using Field IDs for a more robust integration.
     const fields = {
