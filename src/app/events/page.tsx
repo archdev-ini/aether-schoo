@@ -39,6 +39,8 @@ async function EventsList() {
       <>
         {events.map((event) => {
           const { date, time } = formatEventTime(event.date);
+          const speakers = event.speaker.split(';').map(s => s.trim());
+
           return (
             <Card key={event.id} className="grid md:grid-cols-[300px_1fr] overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 duration-300">
                 <div className="relative h-48 md:h-full">
@@ -61,7 +63,12 @@ async function EventsList() {
                     <CardContent className="px-6 space-y-4">
                         <p className="text-muted-foreground line-clamp-3">{event.description}</p>
                         <div className="flex flex-col gap-2 text-sm text-muted-foreground pt-2">
-                            <div className="flex items-center gap-3"><User className="w-4 h-4 flex-shrink-0 text-primary" /> <span>Speaker: <strong>{event.speaker}</strong></span></div>
+                            <div className="flex items-start gap-3">
+                                <User className="w-4 h-4 flex-shrink-0 text-primary mt-0.5" /> 
+                                <div>
+                                    Speaker{speakers.length > 1 ? 's' : ''}: <strong>{speakers.length > 0 && speakers[0] !== 'TBA' ? speakers.join(', ') : 'TBA'}</strong>
+                                </div>
+                            </div>
                             <div className="flex items-center gap-3"><Calendar className="w-4 h-4 flex-shrink-0 text-primary" /> <span>{date}</span></div>
                             <div className="flex items-center gap-3"><Clock className="w-4 h-4 flex-shrink-0 text-primary" /> <span>{time}</span></div>
                         </div>
