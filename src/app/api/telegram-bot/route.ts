@@ -1,46 +1,190 @@
 
-import {NextRequest, NextResponse} from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import Airtable from 'airtable';
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+// --- CONFIGURATION ---
+const {
+    TELEGRAM_BOT_TOKEN,
+    AIRTABLE_API_KEY,
+    AIRTABLE_BASE_ID,
+    AIRTABLE_MEMBERS_TABLE_ID,
+    AIRTABLE_EVENTS_TABLE_ID,
+    AIRTABLE_QUESTIONS_TABLE_ID,
+} = process.env;
+
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
-// This function will handle incoming webhooks from Telegram
-export async function POST(req: NextRequest) {
-  if (!TELEGRAM_BOT_TOKEN) {
-    console.error('TELEGRAM_BOT_TOKEN is not set.');
-    return NextResponse.json({ error: 'Bot not configured.' }, { status: 500 });
-  }
+if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID || !AIRTABLE_EVENTS_TABLE_ID || !AIRTABLE_QUESTIONS_TABLE_ID) {
+    console.error('Airtable environment variables are not fully set.');
+}
 
-  try {
-    const body = await req.json();
+const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID!);
 
-    // Check if the update contains a message
-    if (body.message) {
-      const message = body.message;
-      const chatId = message.chat.id;
-      const text = message.text;
 
-      // For this example, we'll just echo the message back
-      // You can replace this with more complex logic (e.g., using Genkit AI)
-      const responseText = `You said: "${text}"`;
+// --- HELPER FUNCTIONS ---
 
-      // Send the response back to the user via the Telegram API
-      await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+// Send a message back to the user
+async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
+    const payload: any = {
+        chat_id: chatId,
+        text,
+        parse_mode: 'Markdown',
+    };
+    if (replyMarkup) {
+        payload.reply_markup = replyMarkup;
+    }
+    await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: responseText,
-        }),
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+}
+
+// Verify a member's Aether ID
+async function verifyMember(aetherId: string): Promise<boolean> {
+    try {
+        const records = await base(AIRTABLE_MEMBERS_TABLE_ID!).select({
+            filterByFormula: `{aetherId} = "${aetherId.toUpperCase()}"`,
+            maxRecords: 1,
+        }).firstPage();
+        return records.length > 0;
+    } catch (error) {
+        console.error('Airtable verification error:', error);
+        return false;
+    }
+}
+
+// Fetch upcoming events
+async function getUpcomingEvents(): Promise<any[]> {
+    try {
+        const records = await base(AIRTABLE_EVENTS_TABLE_ID!).select({
+            filterByFormula: "IS_AFTER({Date}, TODAY())",
+            sort: [{field: "Date", direction: "asc"}],
+        }).all();
+        
+        return records.map(record => ({
+            id: record.id,
+            title: record.get('Title'),
+            date: record.get('Date'),
+            registrationUrl: record.get('Registration URL'),
+        }));
+    } catch (error) {
+        console.error('Airtable event fetching error:', error);
+        return [];
+    }
+}
+
+// Log a question or suggestion
+async function logSubmission(telegramUserId: number, submissionText: string, type: 'Question' | 'Suggestion') {
+    try {
+        await base(AIRTABLE_QUESTIONS_TABLE_ID!).create([
+            {
+                fields: {
+                    'Submission': submissionText,
+                    'Type': type,
+                    'Status': 'New',
+                    'Telegram User ID': String(telegramUserId),
+                    'Submitted At': new Date().toISOString(),
+                }
+            }
+        ]);
+        return true;
+    } catch(error) {
+        console.error('Airtable submission error:', error);
+        return false;
+    }
+}
+
+// --- MAIN HANDLER ---
+export async function POST(req: NextRequest) {
+    if (!TELEGRAM_BOT_TOKEN) {
+        return NextResponse.json({ error: 'Bot not configured.' }, { status: 500 });
     }
 
-    // Acknowledge receipt of the webhook to Telegram
-    return NextResponse.json({ status: 'ok' });
-  } catch (error) {
-    console.error('Error processing webhook:', error);
-    return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
-  }
+    try {
+        const body = await req.json();
+
+        // We only care about messages for now
+        if (body.message) {
+            const { message } = body;
+            const chatId = message.chat.id;
+            const userId = message.from.id;
+            const text = message.text || '';
+
+            // Command handling
+            if (text.startsWith('/')) {
+                const [command, ...args] = text.split(' ');
+
+                switch (command) {
+                    case '/start':
+                        await sendMessage(chatId, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID in the format: `/verify AETH-XX12`');
+                        break;
+                    
+                    case '/verify':
+                        const aetherId = args[0];
+                        if (!aetherId) {
+                            await sendMessage(chatId, 'Please provide your Aether ID. Usage: `/verify AETH-XX12`');
+                            break;
+                        }
+                        const isVerified = await verifyMember(aetherId);
+                        if (isVerified) {
+                             await sendMessage(chatId, `✅ Verification successful! Welcome to the Aether community.\n\nHere's what you can do:\n\n\`/events\` - View and register for upcoming events.\n\`/ask [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion for the community.`);
+                        } else {
+                            await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at [aether.build/join](https://aether.build/join).');
+                        }
+                        break;
+
+                    case '/events':
+                        const events = await getUpcomingEvents();
+                        if (events.length > 0) {
+                            let eventList = '📅 *Upcoming Events:*\n\n';
+                            events.forEach(event => {
+                                eventList += `*${event.title}*\n`;
+                                if (event.registrationUrl) {
+                                    eventList += `[Register Here](${event.registrationUrl})\n\n`;
+                                } else {
+                                    eventList += `Registration opening soon.\n\n`;
+                                }
+                            });
+                            await sendMessage(chatId, eventList);
+                        } else {
+                            await sendMessage(chatId, 'No upcoming events right now. Check back soon!');
+                        }
+                        break;
+                    
+                    case '/ask':
+                        const question = args.join(' ');
+                        if (!question) {
+                            await sendMessage(chatId, 'Please type your question after the command. Usage: `/ask How do I join Horizon Studio?`');
+                            break;
+                        }
+                        await logSubmission(userId, question, 'Question');
+                        await sendMessage(chatId, 'Thanks! Your question has been submitted to the panel.');
+                        break;
+
+                    case '/suggest':
+                        const suggestion = args.join(' ');
+                        if (!suggestion) {
+                            await sendMessage(chatId, 'Please type your suggestion after the command. Usage: `/suggest We should have a portfolio review session.`');
+                            break;
+                        }
+                        await logSubmission(userId, suggestion, 'Suggestion');
+                        await sendMessage(chatId, 'Great idea! Your suggestion has been recorded for the team to review.');
+                        break;
+
+                    default:
+                        await sendMessage(chatId, 'Sorry, I don\'t recognize that command. Type `/start` to see what I can do.');
+                }
+            } else {
+                // Handle non-command messages
+                await sendMessage(chatId, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
+            }
+        }
+
+        return NextResponse.json({ status: 'ok' });
+
+    } catch (error) {
+        console.error('Error processing webhook:', error);
+        return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
+    }
 }
