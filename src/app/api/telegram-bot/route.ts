@@ -118,6 +118,19 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
     }
 }
 
+async function handleVerification(chatId: number, aetherId: string) {
+    if (!aetherId || !/AETH-[A-Z]{2}\d{2}/i.test(aetherId)) {
+        await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12`.');
+        return;
+    }
+    const isVerified = await verifyMember(aetherId);
+    if (isVerified) {
+         await sendMessage(chatId, `✅ Verification successful! Welcome to the Aether community.\n\nHere's what you can do:\n\n\`/events\` - View and register for upcoming events.\n\`/ask [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion for the community.`);
+    } else {
+        await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at [aether.build/join](https://aether.build/join).');
+    }
+}
+
 // --- MAIN HANDLER ---
 export async function POST(req: NextRequest) {
     if (!TELEGRAM_BOT_TOKEN) {
@@ -132,28 +145,19 @@ export async function POST(req: NextRequest) {
             const { message } = body;
             const chatId = message.chat.id;
             const userId = message.from.id;
-            const text = message.text || '';
+            const text = (message.text || '').trim();
 
             if (text.startsWith('/')) {
                 const [command, ...args] = text.split(' ');
 
                 switch (command) {
                     case '/start':
-                        await sendMessage(chatId, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID in the format: `/verify AETH-XX12`');
+                        await sendMessage(chatId, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID (e.g., `AETH-XX12`).');
                         break;
                     
                     case '/verify':
                         const aetherId = args[0];
-                        if (!aetherId) {
-                            await sendMessage(chatId, 'Please provide your Aether ID. Usage: `/verify AETH-XX12`');
-                            break;
-                        }
-                        const isVerified = await verifyMember(aetherId);
-                        if (isVerified) {
-                             await sendMessage(chatId, `✅ Verification successful! Welcome to the Aether community.\n\nHere's what you can do:\n\n\`/events\` - View and register for upcoming events.\n\`/ask [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion for the community.`);
-                        } else {
-                            await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at [aether.build/join](https://aether.build/join).');
-                        }
+                        await handleVerification(chatId, aetherId);
                         break;
 
                     case '/events':
@@ -197,6 +201,8 @@ export async function POST(req: NextRequest) {
                     default:
                         await sendMessage(chatId, 'Sorry, I don\'t recognize that command. Type `/start` to see what I can do.');
                 }
+            } else if (/AETH-[A-Z]{2}\d{2}/i.test(text)) {
+                 await handleVerification(chatId, text);
             } else {
                 await sendMessage(chatId, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
             }
