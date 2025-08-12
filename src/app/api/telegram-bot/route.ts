@@ -111,11 +111,11 @@ async function getAllSubmissions(): Promise<any[]> {
         }).all();
         
         return records.map(record => ({
-            submission: record.get('Submission'),
-            type: record.get('Type'),
-            status: record.get('Status'),
-            submittedAt: record.get('Submitted At'),
-            context: record.get('Context') || 'General', // Default to General if context is missing
+            submission: record.get('Submission'), // fldzGkktA5C06rZzq
+            type: record.get('Type'),             // fldnHAjQMoMSu7qtd
+            status: record.get('Status'),           // This seems to be mapped to Type in the schema
+            submittedAt: record.get('Submitted At'), // fldBBXne24R0iqZFL
+            context: record.get('Context') || 'General', // fldR3R8fZ6ZrHWI9e
         }));
     } catch (error) {
         console.error('Airtable submission fetching error:', error);
@@ -134,14 +134,15 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
         await base(AIRTABLE_QUESTIONS_TABLE_ID).create([
             {
                 fields: {
-                    'Submission': submissionText,
-                    'Type': type,
-                    'Status': 'New',
-                    'Telegram User ID': String(telegramUserId),
-                    'Context': context,
+                    'fldzGkktA5C06rZzq': submissionText, // Submission
+                    'fldnHAjQMoMSu7qtd': 'New',            // Status, using your 'Type' field which acts as status
+                    'fld75Mt7o7JJj57Oi': String(telegramUserId), // Telegram User ID
+                    'fldR3R8fZ6ZrHWI9e': context,       // Context
+                    // The schema does not seem to have a dedicated 'Type' field for "Question" vs "Suggestion"
+                    // So we are logging the content and context. We can add a 'Type' field later if needed.
                 }
             }
-        ]);
+        ], { typecast: true });
         return true;
     } catch(error) {
         console.error('Airtable submission error:', error);
@@ -158,7 +159,7 @@ async function handleVerification(chatId: number, aetherId: string) {
     if (isVerified) {
          await sendMessage(chatId, `✅ Verification successful! Welcome to the Aether community.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question to the community.\n\`/asklive [event_code] [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion.`);
     } else {
-        await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at [aether.build/join](https://aether.build/join).');
+        await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at aether.build/join.');
     }
 }
 
@@ -251,7 +252,9 @@ export async function POST(req: NextRequest) {
                     let report = '📝 *All Community Submissions:*\n\n';
                     submissions.forEach(sub => {
                         const date = new Date(sub.submittedAt).toLocaleDateString('en-US');
-                        report += `*${sub.type}* | Context: *${sub.context}* | Status: ${sub.status} (${date})\n`;
+                        // Based on the provided schema, 'Type' field holds the status.
+                        const status = sub.type || 'N/A'; 
+                        report += `Context: *${sub.context}* | Status: ${status} (${date})\n`;
                         report += `> ${sub.submission}\n\n`;
                     });
                     // Telegram has a message character limit of 4096
