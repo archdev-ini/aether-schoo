@@ -3,13 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import Airtable from 'airtable';
 
 // --- CONFIGURATION ---
-const { TELEGRAM_BOT_TOKEN } = process.env;
+const { TELEGRAM_BOT_TOKEN, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, TELEGRAM_ADMIN_ID } = process.env;
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 // --- HELPER FUNCTIONS ---
 
 function getAirtableBase() {
-    const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID } = process.env;
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
         console.error('Airtable API Key or Base ID is not set.');
         throw new Error('Airtable configuration is missing.');
@@ -91,6 +90,33 @@ async function getUpcomingEvents(): Promise<any[]> {
         return [];
     }
 }
+
+// Fetch recent submissions for admin
+async function getRecentSubmissions(): Promise<any[]> {
+    const { AIRTABLE_QUESTIONS_TABLE_ID } = process.env;
+    if (!AIRTABLE_QUESTIONS_TABLE_ID) {
+        console.error('Airtable Questions Table ID is not set.');
+        return [];
+    }
+    try {
+        const base = getAirtableBase();
+        const records = await base(AIRTABLE_QUESTIONS_TABLE_ID).select({
+            maxRecords: 5,
+            sort: [{field: "Submitted At", direction: "desc"}],
+        }).all();
+        
+        return records.map(record => ({
+            submission: record.get('Submission'),
+            type: record.get('Type'),
+            status: record.get('Status'),
+            submittedAt: record.get('Submitted At'),
+        }));
+    } catch (error) {
+        console.error('Airtable submission fetching error:', error);
+        return [];
+    }
+}
+
 
 // Log a question or suggestion
 async function logSubmission(telegramUserId: number, submissionText: string, type: 'Question' | 'Suggestion') {
@@ -200,6 +226,20 @@ export async function POST(req: NextRequest) {
 
                     default:
                         await sendMessage(chatId, 'Sorry, I don\'t recognize that command. Type `/start` to see what I can do.');
+                }
+            } else if (TELEGRAM_ADMIN_ID && text.toUpperCase() === TELEGRAM_ADMIN_ID.toUpperCase()) {
+                await sendMessage(chatId, '🔑 Admin authentication successful. Fetching recent submissions...');
+                const submissions = await getRecentSubmissions();
+                if (submissions.length > 0) {
+                    let report = '📝 *Recent Community Submissions:*\n\n';
+                    submissions.forEach(sub => {
+                        const date = new Date(sub.submittedAt).toLocaleDateString('en-US');
+                        report += `*${sub.type}* - ${sub.status} (${date})\n`;
+                        report += `> ${sub.submission}\n\n`;
+                    });
+                    await sendMessage(chatId, report);
+                } else {
+                    await sendMessage(chatId, 'No submissions found.');
                 }
             } else if (/AETH-[A-Z]{2}\d{2}/i.test(text)) {
                  await handleVerification(chatId, text);
