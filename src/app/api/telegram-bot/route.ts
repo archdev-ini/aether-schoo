@@ -10,7 +10,9 @@ const {
     TELEGRAM_ADMIN_ID,
     AIRTABLE_MEMBERS_TABLE_ID,
     AIRTABLE_EVENTS_TABLE_ID,
-    AIRTABLE_QUESTIONS_TABLE_ID
+    AIRTABLE_QUESTIONS_TABLE_ID,
+    TELEGRAM_GROUP_CHAT_ID,
+    TELEGRAM_ANNOUNCEMENT_CHANNEL_ID,
 } = process.env;
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
@@ -41,7 +43,7 @@ interface Message {
 // --- CORE API HELPERS ---
 
 // Send a message back to the user or group
-async function sendMessage(chatId: number, text: string, replyToMessageId?: number) {
+async function sendMessage(chatId: number, text: string, replyToMessageId?: number, replyMarkup?: any) {
     if (!TELEGRAM_BOT_TOKEN) {
         console.error('Telegram Bot Token is not configured.');
         return;
@@ -53,6 +55,9 @@ async function sendMessage(chatId: number, text: string, replyToMessageId?: numb
     };
     if (replyToMessageId) {
         payload.reply_to_message_id = replyToMessageId;
+    }
+    if (replyMarkup) {
+        payload.reply_markup = replyMarkup;
     }
     try {
         await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
@@ -82,6 +87,29 @@ async function isUserAdmin(chatId: number, userId: number): Promise<boolean> {
     }
 }
 
+// Create a single-use invite link to a chat
+async function createInviteLink(chatId: string | number): Promise<string | null> {
+    try {
+        const response = await fetch(`${TELEGRAM_API_URL}/createChatInviteLink`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                member_limit: 1, // Only one person can use this link
+                expire_date: Math.floor(Date.now() / 1000) + 86400, // Expires in 24 hours
+            }),
+        });
+        const data = await response.json();
+        if (data.ok) {
+            return data.result.invite_link;
+        }
+        console.error('Failed to create invite link:', data.description);
+        return null;
+    } catch (error) {
+        console.error('Error creating invite link:', error);
+        return null;
+    }
+}
 
 // --- MODERATION ACTIONS ---
 
@@ -166,17 +194,12 @@ function parseMuteDuration(durationStr: string): number {
 
 // --- AIRTABLE HELPERS ---
 
-function getAirtableBase() {
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
-        console.error('Airtable API Key or Base ID is not set.');
-        throw new Error('Airtable configuration is missing.');
-    }
-    return new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
-}
-
 async function verifyMember(aetherId: string): Promise<{ verified: boolean; fullName?: string }> {
-    if (!AIRTABLE_MEMBERS_TABLE_ID) return { verified: false };
-    const base = getAirtableBase();
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+        console.error('Airtable credentials are not set in environment variables.');
+        return { verified: false };
+    }
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             filterByFormula: `{aetherId} = "${aetherId.toUpperCase()}"`,
@@ -194,8 +217,11 @@ async function verifyMember(aetherId: string): Promise<{ verified: boolean; full
 }
 
 async function getUpcomingEvents(): Promise<any[]> {
-    if (!AIRTABLE_EVENTS_TABLE_ID) return [];
-    const base = getAirtableBase();
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_EVENTS_TABLE_ID) {
+        console.error('Airtable credentials for events are not set in environment variables.');
+        return [];
+    }
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     try {
         const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
             filterByFormula: "IS_AFTER({Date}, TODAY())",
@@ -214,11 +240,14 @@ async function getUpcomingEvents(): Promise<any[]> {
 }
 
 async function getAllSubmissions(): Promise<any[]> {
-    if (!AIRTABLE_QUESTIONS_TABLE_ID) return [];
-    const base = getAirtableBase();
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_QUESTIONS_TABLE_ID) {
+        console.error('Airtable credentials for questions are not set in environment variables.');
+        return [];
+    }
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     try {
         const records = await base(AIRTABLE_QUESTIONS_TABLE_ID).select({
-            sort: [{field: "Submitted At", direction: "desc"}],
+            sort: [{field: "fldBBXne24R0iqZFL", direction: "desc"}],
         }).all();
         
         return records.map(record => ({
@@ -234,8 +263,11 @@ async function getAllSubmissions(): Promise<any[]> {
 }
 
 async function logSubmission(telegramUserId: number, submissionText: string, type: 'Questions' | 'Suggestions', context: string = 'General') {
-    if (!AIRTABLE_QUESTIONS_TABLE_ID) return false;
-    const base = getAirtableBase();
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_QUESTIONS_TABLE_ID) {
+        console.error('Airtable credentials for questions are not set in environment variables.');
+        return false;
+    }
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     try {
         await base(AIRTABLE_QUESTIONS_TABLE_ID).create([
             {
@@ -260,8 +292,22 @@ async function handleVerification(chatId: number, aetherId: string) {
         return;
     }
     const result = await verifyMember(aetherId);
-    if (result.verified) {
-         await sendMessage(chatId, `✅ Verification successful! Welcome, ${result.fullName}.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question.\n\`/asklive [event_code] [your question]\` - Ask a question during an event.\n\`/suggest [your idea]\` - Submit a suggestion.`);
+    if (result.verified && result.fullName) {
+        let successMessage = `✅ Verification successful! Welcome, ${result.fullName}.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question.\n\`/asklive [event_code] [your question]\` - Ask a question during an event.\n\`/suggest [your idea]\` - Submit a suggestion.`;
+        let replyMarkup = undefined;
+
+        if (TELEGRAM_GROUP_CHAT_ID) {
+            const inviteLink = await createInviteLink(TELEGRAM_GROUP_CHAT_ID);
+            if (inviteLink) {
+                 successMessage = `✅ Verification successful! Welcome, ${result.fullName}.`;
+                 replyMarkup = {
+                    inline_keyboard: [
+                        [{ text: 'Join the Community Group', url: inviteLink }]
+                    ]
+                };
+            }
+        }
+         await sendMessage(chatId, successMessage, undefined, replyMarkup);
     } else {
         await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at aether.build/join.');
     }
