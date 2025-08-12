@@ -14,18 +14,34 @@ const {
 } = process.env;
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
-// --- HELPER FUNCTIONS ---
-
-function getAirtableBase() {
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
-        console.error('Airtable API Key or Base ID is not set.');
-        throw new Error('Airtable configuration is missing.');
-    }
-    return new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+// --- TYPE DEFINITIONS ---
+interface TelegramUser {
+    id: number;
+    is_bot: boolean;
+    first_name: string;
+    last_name?: string;
+    username?: string;
 }
 
-// Send a message back to the user
-async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
+interface Chat {
+    id: number;
+    type: 'private' | 'group' | 'supergroup' | 'channel';
+    title?: string;
+}
+
+interface Message {
+    message_id: number;
+    from: TelegramUser;
+    chat: Chat;
+    date: number;
+    text?: string;
+    reply_to_message?: Message;
+}
+
+// --- CORE API HELPERS ---
+
+// Send a message back to the user or group
+async function sendMessage(chatId: number, text: string, replyToMessageId?: number) {
     if (!TELEGRAM_BOT_TOKEN) {
         console.error('Telegram Bot Token is not configured.');
         return;
@@ -35,32 +51,133 @@ async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
         text,
         parse_mode: 'Markdown',
     };
-    if (replyMarkup) {
-        payload.reply_markup = replyMarkup;
+    if (replyToMessageId) {
+        payload.reply_to_message_id = replyToMessageId;
     }
     try {
-        const response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
-        if (!response.ok) {
-            const errorBody = await response.json();
-            console.error('Failed to send message:', errorBody);
-        }
     } catch (error) {
         console.error('Error sending Telegram message:', error);
     }
 }
 
-// Verify a member's Aether ID
-async function verifyMember(aetherId: string): Promise<{ verified: boolean; fullName?: string }> {
-    if (!AIRTABLE_MEMBERS_TABLE_ID) {
-        console.error('Airtable Members Table ID is not set.');
-        return { verified: false };
-    }
+// Check if a user is an admin in a specific chat
+async function isUserAdmin(chatId: number, userId: number): Promise<boolean> {
+    if (chatId > 0) return false; // Not a group chat
     try {
-        const base = getAirtableBase();
+        const response = await fetch(`${TELEGRAM_API_URL}/getChatMember`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, user_id: userId }),
+        });
+        const data = await response.json();
+        return data.ok && ['creator', 'administrator'].includes(data.result.status);
+    } catch (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+    }
+}
+
+
+// --- MODERATION ACTIONS ---
+
+async function banUser(chatId: number, userId: number, reason?: string) {
+    await fetch(`${TELEGRAM_API_URL}/banChatMember`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, user_id: userId }),
+    });
+    await sendMessage(chatId, `User has been banned. ${reason ? `Reason: ${reason}` : ''}`);
+}
+
+async function unbanUser(chatId: number, userId: number) {
+    await fetch(`${TELEGRAM_API_URL}/unbanChatMember`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, user_id: userId, only_if_banned: true }),
+    });
+    await sendMessage(chatId, `User has been unbanned.`);
+}
+
+async function muteUser(chatId: number, userId: number, durationSeconds: number, reason?: string) {
+     const until_date = Math.floor(Date.now() / 1000) + durationSeconds;
+     await fetch(`${TELEGRAM_API_URL}/restrictChatMember`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            chat_id: chatId, 
+            user_id: userId,
+            permissions: { can_send_messages: false },
+            until_date
+        }),
+    });
+    const durationText = durationSeconds > 86400 ? `${Math.floor(durationSeconds/86400)} days` : `${Math.floor(durationSeconds/3600)} hours`;
+    await sendMessage(chatId, `User has been muted for ${durationText}. ${reason ? `Reason: ${reason}` : ''}`);
+}
+
+async function unmuteUser(chatId: number, userId: number) {
+     await fetch(`${TELEGRAM_API_URL}/restrictChatMember`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            chat_id: chatId, 
+            user_id: userId,
+            permissions: { 
+                can_send_messages: true,
+                can_send_media_messages: true,
+                can_send_polls: true,
+                can_send_other_messages: true,
+                can_add_web_page_previews: true,
+                can_change_info: true,
+                can_invite_users: true,
+                can_pin_messages: true,
+            }
+        }),
+    });
+    await sendMessage(chatId, `User has been unmuted.`);
+}
+
+async function deleteMessage(chatId: number, messageId: number) {
+    await fetch(`${TELEGRAM_API_URL}/deleteMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, message_id: messageId }),
+    });
+}
+
+function parseMuteDuration(durationStr: string): number {
+    const match = durationStr.match(/^(\d+)([hdm])$/); // e.g., 1h, 7d, 1m
+    if (!match) return 0;
+
+    const value = parseInt(match[1]);
+    const unit = match[2];
+
+    switch (unit) {
+        case 'h': return value * 3600;
+        case 'd': return value * 86400;
+        case 'm': return value * 60; // Though Telegram uses minutes for longer durations usually.
+        default: return 0;
+    }
+}
+
+// --- AIRTABLE HELPERS ---
+
+function getAirtableBase() {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+        console.error('Airtable API Key or Base ID is not set.');
+        throw new Error('Airtable configuration is missing.');
+    }
+    return new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+}
+
+async function verifyMember(aetherId: string): Promise<{ verified: boolean; fullName?: string }> {
+    if (!AIRTABLE_MEMBERS_TABLE_ID) return { verified: false };
+    const base = getAirtableBase();
+    try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             filterByFormula: `{aetherId} = "${aetherId.toUpperCase()}"`,
             maxRecords: 1,
@@ -70,30 +187,23 @@ async function verifyMember(aetherId: string): Promise<{ verified: boolean; full
             return { verified: true, fullName: records[0].get('fullName') as string };
         }
         return { verified: false };
-
     } catch (error) {
         console.error('Airtable verification error:', error);
         return { verified: false };
     }
 }
 
-// Fetch upcoming events
 async function getUpcomingEvents(): Promise<any[]> {
-    if (!AIRTABLE_EVENTS_TABLE_ID) {
-        console.error('Airtable Events Table ID is not set.');
-        return [];
-    }
+    if (!AIRTABLE_EVENTS_TABLE_ID) return [];
+    const base = getAirtableBase();
     try {
-        const base = getAirtableBase();
         const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
             filterByFormula: "IS_AFTER({Date}, TODAY())",
             sort: [{field: "Date", direction: "asc"}],
         }).all();
         
         return records.map(record => ({
-            id: record.id,
             title: record.get('Title'),
-            date: record.get('Date'),
             registrationUrl: record.get('Registration URL'),
             eventCode: record.get('EventCode'),
         }));
@@ -103,14 +213,10 @@ async function getUpcomingEvents(): Promise<any[]> {
     }
 }
 
-// Fetch all submissions for admin
 async function getAllSubmissions(): Promise<any[]> {
-    if (!AIRTABLE_QUESTIONS_TABLE_ID) {
-        console.error('Airtable Questions Table ID is not set.');
-        return [];
-    }
+    if (!AIRTABLE_QUESTIONS_TABLE_ID) return [];
+    const base = getAirtableBase();
     try {
-        const base = getAirtableBase();
         const records = await base(AIRTABLE_QUESTIONS_TABLE_ID).select({
             sort: [{field: "Submitted At", direction: "desc"}],
         }).all();
@@ -127,21 +233,17 @@ async function getAllSubmissions(): Promise<any[]> {
     }
 }
 
-// Log a question or suggestion
 async function logSubmission(telegramUserId: number, submissionText: string, type: 'Questions' | 'Suggestions', context: string = 'General') {
-     if (!AIRTABLE_QUESTIONS_TABLE_ID) {
-        console.error('Airtable Questions Table ID is not set.');
-        return false;
-    }
+    if (!AIRTABLE_QUESTIONS_TABLE_ID) return false;
+    const base = getAirtableBase();
     try {
-        const base = getAirtableBase();
         await base(AIRTABLE_QUESTIONS_TABLE_ID).create([
             {
                 fields: {
-                    'fldzGkktA5C06rZzq': submissionText,      // Submission
-                    'fldnHAjQMoMSu7qtd': type,                // Type
-                    'fld75Mt7o7JJj57Oi': String(telegramUserId), // Telegram User ID
-                    'fldR3R8fZ6ZrHWI9e': context,            // Context
+                    'fldzGkktA5C06rZzq': submissionText,
+                    'fldnHAjQMoMSu7qtd': type,
+                    'fld75Mt7o7JJj57Oi': String(telegramUserId),
+                    'fldR3R8fZ6ZrHWI9e': context,
                 }
             }
         ], { typecast: true });
@@ -159,7 +261,7 @@ async function handleVerification(chatId: number, aetherId: string) {
     }
     const result = await verifyMember(aetherId);
     if (result.verified) {
-         await sendMessage(chatId, `✅ Verification successful! Welcome, ${result.fullName}.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question to the community.\n\`/asklive [event_code] [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion.`);
+         await sendMessage(chatId, `✅ Verification successful! Welcome, ${result.fullName}.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question.\n\`/asklive [event_code] [your question]\` - Ask a question during an event.\n\`/suggest [your idea]\` - Submit a suggestion.`);
     } else {
         await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at aether.build/join.');
     }
@@ -168,110 +270,137 @@ async function handleVerification(chatId: number, aetherId: string) {
 // --- MAIN HANDLER ---
 export async function POST(req: NextRequest) {
     if (!TELEGRAM_BOT_TOKEN) {
-        console.error('Bot not configured: TELEGRAM_BOT_TOKEN is missing.');
         return NextResponse.json({ error: 'Bot not configured.' }, { status: 500 });
     }
 
     try {
         const body = await req.json();
+        const message: Message | undefined = body.message;
 
-        if (body.message) {
-            const { message } = body;
-            const chatId = message.chat.id;
-            const userId = message.from.id;
-            const text = (message.text || '').trim();
+        if (message) {
+            const { chat, from, text = '', reply_to_message } = message;
 
+            // --- ADMIN COMMANDS (GROUP-ONLY) ---
+            if (chat.type !== 'private' && text.startsWith('/')) {
+                const isAdmin = await isUserAdmin(chat.id, from.id);
+                if (isAdmin) {
+                    const [command, ...args] = text.split(' ');
+                    const repliedToUser = reply_to_message?.from;
+                    const repliedToMessageId = reply_to_message?.message_id;
+
+                    if (!repliedToUser && ['/ban', '/mute', '/unmute', '/del'].includes(command)) {
+                        await sendMessage(chat.id, 'This command must be used as a reply to a user\'s message.', message.message_id);
+                        return NextResponse.json({ status: 'ok' });
+                    }
+                    
+                    switch (command) {
+                        case '/ban':
+                            if(repliedToUser) await banUser(chat.id, repliedToUser.id, args.join(' '));
+                            break;
+                        case '/mute':
+                            const duration = parseMuteDuration(args[0]);
+                            if (repliedToUser && duration > 0) {
+                                await muteUser(chat.id, repliedToUser.id, duration, args.slice(1).join(' '));
+                            } else if (repliedToUser) {
+                                await sendMessage(chat.id, 'Invalid duration. Use format like `1h`, `2d`.', message.message_id);
+                            }
+                            break;
+                        case '/unmute':
+                            if(repliedToUser) await unmuteUser(chat.id, repliedToUser.id);
+                            break;
+                        case '/del':
+                            if(repliedToMessageId) await deleteMessage(chat.id, repliedToMessageId);
+                             // Also delete the command message itself
+                            await deleteMessage(chat.id, message.message_id);
+                            break;
+                    }
+                }
+            }
+            
+            // --- GENERAL COMMANDS & PRIVATE CHAT ---
             if (text.startsWith('/')) {
                 const [command, ...args] = text.split(' ');
 
                 switch (command) {
                     case '/start':
-                        await sendMessage(chatId, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID (e.g., `AETH-XX12`).');
+                        await sendMessage(chat.id, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID (e.g., `AETH-XX12`).');
                         break;
                     
                     case '/verify':
-                        const aetherId = args[0];
-                        await handleVerification(chatId, aetherId);
+                        await handleVerification(chat.id, args[0]);
                         break;
 
                     case '/events':
                         const events = await getUpcomingEvents();
+                        let eventList = '📅 *Upcoming Events:*\n\n';
                         if (events.length > 0) {
-                            let eventList = '📅 *Upcoming Events:*\n\n';
                             events.forEach(event => {
-                                eventList += `*${event.title}* (Code: \`${event.eventCode}\`)\n`;
-                                if (event.registrationUrl) {
-                                    eventList += `[Register Here](${event.registrationUrl})\n\n`;
-                                } else {
-                                    eventList += `Registration opening soon.\n\n`;
-                                }
+                                eventList += `*${event.title}* (Code: \`${event.eventCode}\`)\n[Register Here](${event.registrationUrl})\n\n`;
                             });
-                            eventList += 'To ask a question during an event, use `/asklive [Event Code] [Your Question]`.';
-                            await sendMessage(chatId, eventList);
                         } else {
-                            await sendMessage(chatId, 'No upcoming events right now. Check back soon!');
+                            eventList = 'No upcoming events right now. Check back soon!';
                         }
+                        await sendMessage(chat.id, eventList);
                         break;
                     
                     case '/ask':
                         const question = args.join(' ');
                         if (!question) {
-                            await sendMessage(chatId, 'Please type your question after the command. Usage: `/ask How do I join Horizon Studio?`');
+                            await sendMessage(chat.id, 'Usage: `/ask How do I join Horizon Studio?`');
                             break;
                         }
-                        await logSubmission(userId, question, 'Questions', 'General');
-                        await sendMessage(chatId, 'Thanks! Your question has been submitted to the community admins.');
+                        await logSubmission(from.id, question, 'Questions', 'General');
+                        await sendMessage(chat.id, 'Thanks! Your question has been submitted.');
                         break;
                     
                     case '/asklive':
-                        const eventCode = args[0];
-                        const liveQuestion = args.slice(1).join(' ');
+                        const [eventCode, ...liveQuestionParts] = args;
+                        const liveQuestion = liveQuestionParts.join(' ');
                         if (!eventCode || !liveQuestion) {
-                            await sendMessage(chatId, 'Please provide an event code and your question. Usage: `/asklive WAD25 How do you see AI impacting architecture?`');
+                            await sendMessage(chat.id, 'Usage: `/asklive WAD25 How do you see AI impacting architecture?`');
                             break;
                         }
-                        await logSubmission(userId, liveQuestion, 'Questions', eventCode.toUpperCase());
-                        await sendMessage(chatId, `Thanks! Your question for event *${eventCode.toUpperCase()}* has been submitted to the panel.`);
+                        await logSubmission(from.id, liveQuestion, 'Questions', eventCode.toUpperCase());
+                        await sendMessage(chat.id, `Thanks! Your question for event *${eventCode.toUpperCase()}* has been submitted.`);
                         break;
 
                     case '/suggest':
                         const suggestion = args.join(' ');
                         if (!suggestion) {
-                            await sendMessage(chatId, 'Please type your suggestion after the command. Usage: `/suggest We should have a portfolio review session.`');
+                            await sendMessage(chat.id, 'Usage: `/suggest We should have a portfolio review session.`');
                             break;
                         }
-                        await logSubmission(userId, suggestion, 'Suggestions');
-                        await sendMessage(chatId, 'Great idea! Your suggestion has been recorded for the team to review.');
+                        await logSubmission(from.id, suggestion, 'Suggestions');
+                        await sendMessage(chat.id, 'Great idea! Your suggestion has been recorded.');
                         break;
 
+                    // Fallback for unrecognized commands
                     default:
-                        await sendMessage(chatId, 'Sorry, I don\'t recognize that command. Type `/start` to see what I can do.');
+                         if (chat.type === 'private') {
+                            await sendMessage(chat.id, 'Sorry, I don\'t recognize that command.');
+                         }
                 }
             } else if (TELEGRAM_ADMIN_ID && text.toUpperCase() === TELEGRAM_ADMIN_ID.toUpperCase()) {
-                await sendMessage(chatId, '🔑 Admin authentication successful. Fetching all submissions...');
+                await sendMessage(chat.id, '🔑 Admin authentication successful. Fetching all submissions...');
                 const submissions = await getAllSubmissions();
                 if (submissions.length > 0) {
                     let report = '📝 *All Community Submissions:*\n\n';
                     submissions.forEach(sub => {
-                        const date = new Date(sub.submittedAt).toLocaleDateString('en-US');
-                        const type = sub.type || 'N/A';
-                        report += `Type: *${type}* | Context: *${sub.context}* (${date})\n`;
-                        report += `> ${sub.submission}\n\n`;
+                        report += `*${sub.type}* | Context: *${sub.context}* \n> ${sub.submission}\n\n`;
                     });
-                    // Telegram has a message character limit of 4096
-                    if (report.length > 4000) {
-                        await sendMessage(chatId, 'You have a large number of submissions. Here are the most recent ones:');
-                        await sendMessage(chatId, report.substring(0, 4000));
+                     if (report.length > 4000) {
+                        await sendMessage(chat.id, 'Report is too long for one message. Sending recent entries:');
+                        await sendMessage(chat.id, report.substring(0, 4000));
                     } else {
-                        await sendMessage(chatId, report);
+                        await sendMessage(chat.id, report);
                     }
                 } else {
-                    await sendMessage(chatId, 'No submissions found.');
+                    await sendMessage(chat.id, 'No submissions found.');
                 }
             } else if (/AETH-[A-Z]{2}\d{2}/i.test(text)) {
-                 await handleVerification(chatId, text);
-            } else {
-                await sendMessage(chatId, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
+                 await handleVerification(chat.id, text);
+            } else if (chat.type === 'private') {
+                await sendMessage(chat.id, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
             }
         }
 
@@ -279,10 +408,6 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Error processing webhook:', error);
-        // It's good practice to let Telegram know the webhook failed.
-        if (error instanceof Error) {
-            console.error(error.message);
-        }
         return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
     }
 }
