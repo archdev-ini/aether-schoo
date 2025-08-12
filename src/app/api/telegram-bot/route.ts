@@ -3,28 +3,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import Airtable from 'airtable';
 
 // --- CONFIGURATION ---
-const {
-    TELEGRAM_BOT_TOKEN,
-    AIRTABLE_API_KEY,
-    AIRTABLE_BASE_ID,
-    AIRTABLE_MEMBERS_TABLE_ID,
-    AIRTABLE_EVENTS_TABLE_ID,
-    AIRTABLE_QUESTIONS_TABLE_ID,
-} = process.env;
-
+const { TELEGRAM_BOT_TOKEN } = process.env;
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
-
-if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID || !AIRTABLE_EVENTS_TABLE_ID || !AIRTABLE_QUESTIONS_TABLE_ID) {
-    console.error('Airtable environment variables are not fully set.');
-}
-
-const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID!);
-
 
 // --- HELPER FUNCTIONS ---
 
+function getAirtableBase() {
+    const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID } = process.env;
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+        console.error('Airtable API Key or Base ID is not set.');
+        throw new Error('Airtable configuration is missing.');
+    }
+    return new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+}
+
 // Send a message back to the user
 async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
+    if (!TELEGRAM_BOT_TOKEN) {
+        console.error('Telegram Bot Token is not configured.');
+        return;
+    }
     const payload: any = {
         chat_id: chatId,
         text,
@@ -33,17 +31,31 @@ async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
     if (replyMarkup) {
         payload.reply_markup = replyMarkup;
     }
-    await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
+    try {
+        const response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+            const errorBody = await response.json();
+            console.error('Failed to send message:', errorBody);
+        }
+    } catch (error) {
+        console.error('Error sending Telegram message:', error);
+    }
 }
 
 // Verify a member's Aether ID
 async function verifyMember(aetherId: string): Promise<boolean> {
+    const { AIRTABLE_MEMBERS_TABLE_ID } = process.env;
+    if (!AIRTABLE_MEMBERS_TABLE_ID) {
+        console.error('Airtable Members Table ID is not set.');
+        return false;
+    }
     try {
-        const records = await base(AIRTABLE_MEMBERS_TABLE_ID!).select({
+        const base = getAirtableBase();
+        const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             filterByFormula: `{aetherId} = "${aetherId.toUpperCase()}"`,
             maxRecords: 1,
         }).firstPage();
@@ -56,8 +68,14 @@ async function verifyMember(aetherId: string): Promise<boolean> {
 
 // Fetch upcoming events
 async function getUpcomingEvents(): Promise<any[]> {
+    const { AIRTABLE_EVENTS_TABLE_ID } = process.env;
+    if (!AIRTABLE_EVENTS_TABLE_ID) {
+        console.error('Airtable Events Table ID is not set.');
+        return [];
+    }
     try {
-        const records = await base(AIRTABLE_EVENTS_TABLE_ID!).select({
+        const base = getAirtableBase();
+        const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
             filterByFormula: "IS_AFTER({Date}, TODAY())",
             sort: [{field: "Date", direction: "asc"}],
         }).all();
@@ -76,8 +94,14 @@ async function getUpcomingEvents(): Promise<any[]> {
 
 // Log a question or suggestion
 async function logSubmission(telegramUserId: number, submissionText: string, type: 'Question' | 'Suggestion') {
+    const { AIRTABLE_QUESTIONS_TABLE_ID } = process.env;
+     if (!AIRTABLE_QUESTIONS_TABLE_ID) {
+        console.error('Airtable Questions Table ID is not set.');
+        return false;
+    }
     try {
-        await base(AIRTABLE_QUESTIONS_TABLE_ID!).create([
+        const base = getAirtableBase();
+        await base(AIRTABLE_QUESTIONS_TABLE_ID).create([
             {
                 fields: {
                     'Submission': submissionText,
@@ -97,20 +121,19 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
 // --- MAIN HANDLER ---
 export async function POST(req: NextRequest) {
     if (!TELEGRAM_BOT_TOKEN) {
+        console.error('Bot not configured: TELEGRAM_BOT_TOKEN is missing.');
         return NextResponse.json({ error: 'Bot not configured.' }, { status: 500 });
     }
 
     try {
         const body = await req.json();
 
-        // We only care about messages for now
         if (body.message) {
             const { message } = body;
             const chatId = message.chat.id;
             const userId = message.from.id;
             const text = message.text || '';
 
-            // Command handling
             if (text.startsWith('/')) {
                 const [command, ...args] = text.split(' ');
 
@@ -175,7 +198,6 @@ export async function POST(req: NextRequest) {
                         await sendMessage(chatId, 'Sorry, I don\'t recognize that command. Type `/start` to see what I can do.');
                 }
             } else {
-                // Handle non-command messages
                 await sendMessage(chatId, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
             }
         }
