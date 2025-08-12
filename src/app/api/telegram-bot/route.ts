@@ -143,7 +143,7 @@ async function muteUser(chatId: number, userId: number, durationSeconds: number,
             until_date
         }),
     });
-    const durationText = durationSeconds > 86400 ? `${Math.floor(durationSeconds/86400)} days` : `${Math.floor(durationSeconds/3600)} hours`;
+    const durationText = durationSeconds >= 86400 ? `${Math.floor(durationSeconds/86400)} days` : `${Math.floor(durationSeconds/3600)} hours`;
     await sendMessage(chatId, `User has been muted for ${durationText}. ${reason ? `Reason: ${reason}` : ''}`);
 }
 
@@ -340,14 +340,23 @@ export async function POST(req: NextRequest) {
                     
                     switch (command) {
                         case '/ban':
-                            if(repliedToUser) await banUser(chat.id, repliedToUser.id, args.join(' '));
-                            break;
                         case '/mute':
-                            const duration = parseMuteDuration(args[0]);
-                            if (repliedToUser && duration > 0) {
-                                await muteUser(chat.id, repliedToUser.id, duration, args.slice(1).join(' '));
-                            } else if (repliedToUser) {
-                                await sendMessage(chat.id, 'Invalid duration. Use format like `1h`, `2d`.', message.message_id);
+                            if (repliedToUser) {
+                                const isTargetAdmin = await isUserAdmin(chat.id, repliedToUser.id);
+                                if (isTargetAdmin) {
+                                    await sendMessage(chat.id, 'This command cannot be used on an administrator.', message.message_id);
+                                    break;
+                                }
+                                if (command === '/ban') {
+                                    await banUser(chat.id, repliedToUser.id, args.join(' '));
+                                } else { // /mute
+                                    const duration = parseMuteDuration(args[0]);
+                                    if (duration > 0) {
+                                        await muteUser(chat.id, repliedToUser.id, duration, args.slice(1).join(' '));
+                                    } else {
+                                        await sendMessage(chat.id, 'Invalid duration. Use format like `1h`, `2d`.', message.message_id);
+                                    }
+                                }
                             }
                             break;
                         case '/unmute':
