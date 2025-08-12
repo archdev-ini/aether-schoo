@@ -55,7 +55,7 @@ export async function getEvents(): Promise<Event[]> {
                 title: record.get('Title') || 'Untitled Event',
                 date: eventDateStr || new Date().toISOString(),
                 type: record.get('Type') || 'General',
-                speaker: record.get('Speaker') || 'TBA',
+                speaker: record.get('Speakers') || 'TBA',
                 registrationUrl: record.get('Registration URL'),
                 description: record.get('Description') || 'No description provided.',
                 status: eventDate >= now ? 'Upcoming' : 'Past',
