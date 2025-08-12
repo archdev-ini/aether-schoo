@@ -54,10 +54,10 @@ async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
 }
 
 // Verify a member's Aether ID
-async function verifyMember(aetherId: string): Promise<boolean> {
+async function verifyMember(aetherId: string): Promise<{ verified: boolean; fullName?: string }> {
     if (!AIRTABLE_MEMBERS_TABLE_ID) {
         console.error('Airtable Members Table ID is not set.');
-        return false;
+        return { verified: false };
     }
     try {
         const base = getAirtableBase();
@@ -65,10 +65,15 @@ async function verifyMember(aetherId: string): Promise<boolean> {
             filterByFormula: `{aetherId} = "${aetherId.toUpperCase()}"`,
             maxRecords: 1,
         }).firstPage();
-        return records.length > 0;
+
+        if (records.length > 0) {
+            return { verified: true, fullName: records[0].get('fullName') as string };
+        }
+        return { verified: false };
+
     } catch (error) {
         console.error('Airtable verification error:', error);
-        return false;
+        return { verified: false };
     }
 }
 
@@ -111,10 +116,10 @@ async function getAllSubmissions(): Promise<any[]> {
         }).all();
         
         return records.map(record => ({
-            submission: record.get('Submission'), // fldzGkktA5C06rZzq
-            type: record.get('Type'),             // fldnHAjQMoMSu7qtd
-            submittedAt: record.get('Submitted At'), // fldBBXne24R0iqZFL
-            context: record.get('Context') || 'General', // fldR3R8fZ6ZrHWI9e
+            submission: record.get('fldzGkktA5C06rZzq'),
+            type: record.get('fldnHAjQMoMSu7qtd'),
+            submittedAt: record.get('fldBBXne24R0iqZFL'),
+            context: record.get('fldR3R8fZ6ZrHWI9e') || 'General',
         }));
     } catch (error) {
         console.error('Airtable submission fetching error:', error);
@@ -152,9 +157,9 @@ async function handleVerification(chatId: number, aetherId: string) {
         await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12`.');
         return;
     }
-    const isVerified = await verifyMember(aetherId);
-    if (isVerified) {
-         await sendMessage(chatId, `✅ Verification successful! Welcome to the Aether community.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question to the community.\n\`/asklive [event_code] [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion.`);
+    const result = await verifyMember(aetherId);
+    if (result.verified) {
+         await sendMessage(chatId, `✅ Verification successful! Welcome, ${result.fullName}.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question to the community.\n\`/asklive [event_code] [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion.`);
     } else {
         await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at aether.build/join.');
     }
