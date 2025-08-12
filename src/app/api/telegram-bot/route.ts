@@ -3,7 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import Airtable from 'airtable';
 
 // --- CONFIGURATION ---
-const { TELEGRAM_BOT_TOKEN, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, TELEGRAM_ADMIN_ID } = process.env;
+const { 
+    TELEGRAM_BOT_TOKEN, 
+    AIRTABLE_API_KEY, 
+    AIRTABLE_BASE_ID, 
+    TELEGRAM_ADMIN_ID,
+    AIRTABLE_MEMBERS_TABLE_ID,
+    AIRTABLE_EVENTS_TABLE_ID,
+    AIRTABLE_QUESTIONS_TABLE_ID
+} = process.env;
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 // --- HELPER FUNCTIONS ---
@@ -47,7 +55,6 @@ async function sendMessage(chatId: number, text: string, replyMarkup?: any) {
 
 // Verify a member's Aether ID
 async function verifyMember(aetherId: string): Promise<boolean> {
-    const { AIRTABLE_MEMBERS_TABLE_ID } = process.env;
     if (!AIRTABLE_MEMBERS_TABLE_ID) {
         console.error('Airtable Members Table ID is not set.');
         return false;
@@ -67,7 +74,6 @@ async function verifyMember(aetherId: string): Promise<boolean> {
 
 // Fetch upcoming events
 async function getUpcomingEvents(): Promise<any[]> {
-    const { AIRTABLE_EVENTS_TABLE_ID } = process.env;
     if (!AIRTABLE_EVENTS_TABLE_ID) {
         console.error('Airtable Events Table ID is not set.');
         return [];
@@ -84,6 +90,7 @@ async function getUpcomingEvents(): Promise<any[]> {
             title: record.get('Title'),
             date: record.get('Date'),
             registrationUrl: record.get('Registration URL'),
+            eventCode: record.get('EventCode'),
         }));
     } catch (error) {
         console.error('Airtable event fetching error:', error);
@@ -91,9 +98,8 @@ async function getUpcomingEvents(): Promise<any[]> {
     }
 }
 
-// Fetch recent submissions for admin
-async function getRecentSubmissions(): Promise<any[]> {
-    const { AIRTABLE_QUESTIONS_TABLE_ID } = process.env;
+// Fetch all submissions for admin
+async function getAllSubmissions(): Promise<any[]> {
     if (!AIRTABLE_QUESTIONS_TABLE_ID) {
         console.error('Airtable Questions Table ID is not set.');
         return [];
@@ -101,7 +107,6 @@ async function getRecentSubmissions(): Promise<any[]> {
     try {
         const base = getAirtableBase();
         const records = await base(AIRTABLE_QUESTIONS_TABLE_ID).select({
-            maxRecords: 5,
             sort: [{field: "Submitted At", direction: "desc"}],
         }).all();
         
@@ -110,6 +115,7 @@ async function getRecentSubmissions(): Promise<any[]> {
             type: record.get('Type'),
             status: record.get('Status'),
             submittedAt: record.get('Submitted At'),
+            context: record.get('Context') || 'General', // Default to General if context is missing
         }));
     } catch (error) {
         console.error('Airtable submission fetching error:', error);
@@ -117,10 +123,8 @@ async function getRecentSubmissions(): Promise<any[]> {
     }
 }
 
-
 // Log a question or suggestion
-async function logSubmission(telegramUserId: number, submissionText: string, type: 'Question' | 'Suggestion') {
-    const { AIRTABLE_QUESTIONS_TABLE_ID } = process.env;
+async function logSubmission(telegramUserId: number, submissionText: string, type: 'Question' | 'Suggestion', context: string = 'General') {
      if (!AIRTABLE_QUESTIONS_TABLE_ID) {
         console.error('Airtable Questions Table ID is not set.');
         return false;
@@ -134,6 +138,7 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
                     'Type': type,
                     'Status': 'New',
                     'Telegram User ID': String(telegramUserId),
+                    'Context': context,
                 }
             }
         ]);
@@ -151,7 +156,7 @@ async function handleVerification(chatId: number, aetherId: string) {
     }
     const isVerified = await verifyMember(aetherId);
     if (isVerified) {
-         await sendMessage(chatId, `✅ Verification successful! Welcome to the Aether community.\n\nHere's what you can do:\n\n\`/events\` - View and register for upcoming events.\n\`/ask [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion for the community.`);
+         await sendMessage(chatId, `✅ Verification successful! Welcome to the Aether community.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question to the community.\n\`/asklive [event_code] [your question]\` - Ask a question during a live event.\n\`/suggest [your idea]\` - Submit a suggestion.`);
     } else {
         await sendMessage(chatId, '❌ Verification failed. Please check your Aether ID and try again. You can get your ID by joining at [aether.build/join](https://aether.build/join).');
     }
@@ -191,13 +196,14 @@ export async function POST(req: NextRequest) {
                         if (events.length > 0) {
                             let eventList = '📅 *Upcoming Events:*\n\n';
                             events.forEach(event => {
-                                eventList += `*${event.title}*\n`;
+                                eventList += `*${event.title}* (Code: \`${event.eventCode}\`)\n`;
                                 if (event.registrationUrl) {
                                     eventList += `[Register Here](${event.registrationUrl})\n\n`;
                                 } else {
                                     eventList += `Registration opening soon.\n\n`;
                                 }
                             });
+                            eventList += 'To ask a question during an event, use `/asklive [Event Code] [Your Question]`.';
                             await sendMessage(chatId, eventList);
                         } else {
                             await sendMessage(chatId, 'No upcoming events right now. Check back soon!');
@@ -210,8 +216,19 @@ export async function POST(req: NextRequest) {
                             await sendMessage(chatId, 'Please type your question after the command. Usage: `/ask How do I join Horizon Studio?`');
                             break;
                         }
-                        await logSubmission(userId, question, 'Question');
-                        await sendMessage(chatId, 'Thanks! Your question has been submitted to the panel.');
+                        await logSubmission(userId, question, 'Question', 'General');
+                        await sendMessage(chatId, 'Thanks! Your question has been submitted to the community admins.');
+                        break;
+                    
+                    case '/asklive':
+                        const eventCode = args[0];
+                        const liveQuestion = args.slice(1).join(' ');
+                        if (!eventCode || !liveQuestion) {
+                            await sendMessage(chatId, 'Please provide an event code and your question. Usage: `/asklive WAD25 How do you see AI impacting architecture?`');
+                            break;
+                        }
+                        await logSubmission(userId, liveQuestion, 'Question', eventCode.toUpperCase());
+                        await sendMessage(chatId, `Thanks! Your question for event *${eventCode.toUpperCase()}* has been submitted to the panel.`);
                         break;
 
                     case '/suggest':
@@ -228,16 +245,22 @@ export async function POST(req: NextRequest) {
                         await sendMessage(chatId, 'Sorry, I don\'t recognize that command. Type `/start` to see what I can do.');
                 }
             } else if (TELEGRAM_ADMIN_ID && text.toUpperCase() === TELEGRAM_ADMIN_ID.toUpperCase()) {
-                await sendMessage(chatId, '🔑 Admin authentication successful. Fetching recent submissions...');
-                const submissions = await getRecentSubmissions();
+                await sendMessage(chatId, '🔑 Admin authentication successful. Fetching all submissions...');
+                const submissions = await getAllSubmissions();
                 if (submissions.length > 0) {
-                    let report = '📝 *Recent Community Submissions:*\n\n';
+                    let report = '📝 *All Community Submissions:*\n\n';
                     submissions.forEach(sub => {
                         const date = new Date(sub.submittedAt).toLocaleDateString('en-US');
-                        report += `*${sub.type}* - ${sub.status} (${date})\n`;
+                        report += `*${sub.type}* | Context: *${sub.context}* | Status: ${sub.status} (${date})\n`;
                         report += `> ${sub.submission}\n\n`;
                     });
-                    await sendMessage(chatId, report);
+                    // Telegram has a message character limit of 4096
+                    if (report.length > 4000) {
+                        await sendMessage(chatId, 'You have a large number of submissions. Here are the most recent ones:');
+                        await sendMessage(chatId, report.substring(0, 4000));
+                    } else {
+                        await sendMessage(chatId, report);
+                    }
                 } else {
                     await sendMessage(chatId, 'No submissions found.');
                 }
@@ -252,6 +275,10 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Error processing webhook:', error);
+        // It's good practice to let Telegram know the webhook failed.
+        if (error instanceof Error) {
+            console.error(error.message);
+        }
         return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
     }
 }
