@@ -84,7 +84,6 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
                     'Type': type,
                     'Status': 'New',
                     'Telegram User ID': String(telegramUserId),
-                    'Submitted At': new Date().toISOString(),
                 }
             }
         ]);
