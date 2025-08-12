@@ -202,7 +202,7 @@ async function verifyMember(aetherId: string): Promise<{ verified: boolean; full
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{aetherId} = "${aetherId.toUpperCase()}"`,
+            filterByFormula: `UPPER({aetherId}) = "${aetherId.toUpperCase()}"`,
             maxRecords: 1,
         }).firstPage();
 
@@ -288,18 +288,17 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
 
 async function handleVerification(chatId: number, aetherId: string) {
     if (!aetherId || !/AETH/i.test(aetherId)) {
-        await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12`.');
+        await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12` or `AETHADM-XXXXXX`.');
         return;
     }
     const result = await verifyMember(aetherId);
     if (result.verified && result.fullName) {
-        let successMessage = `✅ Verification successful! Welcome, ${result.fullName}.\n\nHere's what you can do:\n\n\`/events\` - View upcoming events.\n\`/ask [your question]\` - Ask a general question.\n\`/asklive [event_code] [your question]\` - Ask a question during an event.\n\`/suggest [your idea]\` - Submit a suggestion.`;
+        let successMessage = `✅ Verification successful! Welcome, ${result.fullName}.`;
         let replyMarkup = undefined;
 
         if (TELEGRAM_GROUP_CHAT_ID) {
             const inviteLink = await createInviteLink(TELEGRAM_GROUP_CHAT_ID);
             if (inviteLink) {
-                 successMessage = `✅ Verification successful! Welcome, ${result.fullName}.`;
                  replyMarkup = {
                     inline_keyboard: [
                         [{ text: 'Join the Community Group', url: inviteLink }]
@@ -367,6 +366,25 @@ export async function POST(req: NextRequest) {
             if (text.startsWith('/')) {
                 const [command, ...args] = text.split(' ');
 
+                // Handle commands that should only be used in private chat
+                if (chat.type !== 'private' && ['/events', '/ask', '/asklive', '/suggest'].includes(command)) {
+                    const response = await fetch(`${TELEGRAM_API_URL}/getMe`);
+                    const botInfo = await response.json();
+                    const botUsername = botInfo.result.username;
+                    
+                    await sendMessage(
+                        chat.id, 
+                        'To keep our chat clean, please use this command in a private message with me.', 
+                        message.message_id,
+                        {
+                            inline_keyboard: [
+                                [{ text: 'Chat with Aether Bot', url: `https://t.me/${botUsername}` }]
+                            ]
+                        }
+                    );
+                    return NextResponse.json({ status: 'ok' });
+                }
+
                 switch (command) {
                     case '/start':
                         await sendMessage(chat.id, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID (e.g., `AETH-XX12`).');
@@ -420,9 +438,9 @@ export async function POST(req: NextRequest) {
                         await sendMessage(chat.id, 'Great idea! Your suggestion has been recorded.');
                         break;
 
-                    // Fallback for unrecognized commands
+                    // Fallback for unrecognized commands that are not admin commands
                     default:
-                         if (chat.type === 'private') {
+                         if (chat.type === 'private' && !['/ban', '/mute', '/unmute', '/del'].includes(command)) {
                             await sendMessage(chat.id, 'Sorry, I don\'t recognize that command.');
                          }
                 }
@@ -457,5 +475,3 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
     }
 }
-
-    
