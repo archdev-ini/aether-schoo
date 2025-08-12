@@ -287,7 +287,7 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
 }
 
 async function handleVerification(chatId: number, aetherId: string) {
-    if (!aetherId || !/AETH-[A-Z]{2}\d{2}/i.test(aetherId)) {
+    if (!aetherId || !/AETH/i.test(aetherId)) {
         await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12`.');
         return;
     }
@@ -443,7 +443,7 @@ export async function POST(req: NextRequest) {
                 } else {
                     await sendMessage(chat.id, 'No submissions found.');
                 }
-            } else if (/AETH-[A-Z]{2}\d{2}/i.test(text)) {
+            } else if (/AETH/i.test(text)) {
                  await handleVerification(chat.id, text);
             } else if (chat.type === 'private') {
                 await sendMessage(chat.id, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
@@ -457,3 +457,5 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
     }
 }
+
+    
