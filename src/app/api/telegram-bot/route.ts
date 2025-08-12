@@ -113,7 +113,6 @@ async function getAllSubmissions(): Promise<any[]> {
         return records.map(record => ({
             submission: record.get('Submission'), // fldzGkktA5C06rZzq
             type: record.get('Type'),             // fldnHAjQMoMSu7qtd
-            status: record.get('Status'),           // This seems to be mapped to Type in the schema
             submittedAt: record.get('Submitted At'), // fldBBXne24R0iqZFL
             context: record.get('Context') || 'General', // fldR3R8fZ6ZrHWI9e
         }));
@@ -124,7 +123,7 @@ async function getAllSubmissions(): Promise<any[]> {
 }
 
 // Log a question or suggestion
-async function logSubmission(telegramUserId: number, submissionText: string, type: 'Question' | 'Suggestion', context: string = 'General') {
+async function logSubmission(telegramUserId: number, submissionText: string, type: 'Questions' | 'Suggestions', context: string = 'General') {
      if (!AIRTABLE_QUESTIONS_TABLE_ID) {
         console.error('Airtable Questions Table ID is not set.');
         return false;
@@ -134,12 +133,10 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
         await base(AIRTABLE_QUESTIONS_TABLE_ID).create([
             {
                 fields: {
-                    'fldzGkktA5C06rZzq': submissionText, // Submission
-                    'fldnHAjQMoMSu7qtd': 'New',            // Status, using your 'Type' field which acts as status
+                    'fldzGkktA5C06rZzq': submissionText,      // Submission
+                    'fldnHAjQMoMSu7qtd': type,                // Type
                     'fld75Mt7o7JJj57Oi': String(telegramUserId), // Telegram User ID
-                    'fldR3R8fZ6ZrHWI9e': context,       // Context
-                    // The schema does not seem to have a dedicated 'Type' field for "Question" vs "Suggestion"
-                    // So we are logging the content and context. We can add a 'Type' field later if needed.
+                    'fldR3R8fZ6ZrHWI9e': context,            // Context
                 }
             }
         ], { typecast: true });
@@ -217,7 +214,7 @@ export async function POST(req: NextRequest) {
                             await sendMessage(chatId, 'Please type your question after the command. Usage: `/ask How do I join Horizon Studio?`');
                             break;
                         }
-                        await logSubmission(userId, question, 'Question', 'General');
+                        await logSubmission(userId, question, 'Questions', 'General');
                         await sendMessage(chatId, 'Thanks! Your question has been submitted to the community admins.');
                         break;
                     
@@ -228,7 +225,7 @@ export async function POST(req: NextRequest) {
                             await sendMessage(chatId, 'Please provide an event code and your question. Usage: `/asklive WAD25 How do you see AI impacting architecture?`');
                             break;
                         }
-                        await logSubmission(userId, liveQuestion, 'Question', eventCode.toUpperCase());
+                        await logSubmission(userId, liveQuestion, 'Questions', eventCode.toUpperCase());
                         await sendMessage(chatId, `Thanks! Your question for event *${eventCode.toUpperCase()}* has been submitted to the panel.`);
                         break;
 
@@ -238,7 +235,7 @@ export async function POST(req: NextRequest) {
                             await sendMessage(chatId, 'Please type your suggestion after the command. Usage: `/suggest We should have a portfolio review session.`');
                             break;
                         }
-                        await logSubmission(userId, suggestion, 'Suggestion');
+                        await logSubmission(userId, suggestion, 'Suggestions');
                         await sendMessage(chatId, 'Great idea! Your suggestion has been recorded for the team to review.');
                         break;
 
@@ -252,9 +249,8 @@ export async function POST(req: NextRequest) {
                     let report = '📝 *All Community Submissions:*\n\n';
                     submissions.forEach(sub => {
                         const date = new Date(sub.submittedAt).toLocaleDateString('en-US');
-                        // Based on the provided schema, 'Type' field holds the status.
-                        const status = sub.type || 'N/A'; 
-                        report += `Context: *${sub.context}* | Status: ${status} (${date})\n`;
+                        const type = sub.type || 'N/A';
+                        report += `Type: *${type}* | Context: *${sub.context}* (${date})\n`;
                         report += `> ${sub.submission}\n\n`;
                     });
                     // Telegram has a message character limit of 4096
