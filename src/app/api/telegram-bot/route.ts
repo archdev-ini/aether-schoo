@@ -76,6 +76,7 @@ async function sendMessage(chatId: number, text: string, replyToMessageId?: numb
 
 // Check if a user is an admin in a specific chat
 async function isUserAdmin(chatId: number, userId: number): Promise<boolean> {
+    if (userId === Number(TELEGRAM_ADMIN_ID)) return true;
     if (chatId > 0) return false; // Not a group chat
     try {
         const response = await fetch(`${TELEGRAM_API_URL}/getChatMember`, {
@@ -297,12 +298,20 @@ async function getAllEventsAdmin(): Promise<any[]> {
 }
 
 
-async function getAllSubmissions(): Promise<any[]> {
+async function getAllSubmissions(limitDays: number = 0): Promise<any[]> {
     const base = await getAirtableBase();
     if (!base || !AIRTABLE_QUESTIONS_TABLE_ID) return [];
 
+    let filterFormula = "";
+    if (limitDays > 0) {
+        const date = new Date();
+        date.setDate(date.getDate() - limitDays);
+        filterFormula = `IS_AFTER({${'fldBBXne24R0iqZFL'}}, '${date.toISOString()}')`;
+    }
+
     try {
         const records = await base(AIRTABLE_QUESTIONS_TABLE_ID).select({
+            filterByFormula: filterFormula,
             sort: [{field: "fldBBXne24R0iqZFL", direction: "desc"}],
         }).all();
         
@@ -340,6 +349,32 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
     }
 }
 
+async function getMemberStats(): Promise<{ total: number; verified: number; pending: number } | null> {
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_MEMBERS_TABLE_ID) return null;
+
+    let total = 0;
+    let verified = 0;
+
+    try {
+        await base(AIRTABLE_MEMBERS_TABLE_ID).select({
+            fields: ['fld75Mt7o7JJj57Oi'], // Only fetch the Telegram ID field
+        }).eachPage((records, fetchNextPage) => {
+            records.forEach(record => {
+                total++;
+                if (record.get('fld75Mt7o7JJj57Oi')) {
+                    verified++;
+                }
+            });
+            fetchNextPage();
+        });
+
+        return { total, verified, pending: total - verified };
+    } catch (error) {
+        console.error('Airtable member stats error:', error);
+        return null;
+    }
+}
 
 // --- EVENT MANAGEMENT ---
 
@@ -545,7 +580,7 @@ export async function POST(req: NextRequest) {
                 }
 
                 // --- Admin-only commands ---
-                const isSenderAdmin = chat.id < 0 ? await isUserAdmin(chat.id, from.id) : from.id === Number(TELEGRAM_ADMIN_ID);
+                const isSenderAdmin = await isUserAdmin(chat.id, from.id);
                 if (isSenderAdmin) {
                     switch (command) {
                         case '/createevent':
@@ -634,6 +669,52 @@ export async function POST(req: NextRequest) {
                             }
                             const submissionsLink = `https://airtable.com/${AIRTABLE_BASE_ID}/${AIRTABLE_QUESTIONS_TABLE_ID}`;
                             await sendMessage(chat.id, `View all community submissions in Airtable:\n\n${submissionsLink}`, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/stats':
+                            const stats = await getMemberStats();
+                            if (stats) {
+                                let statsMessage = `*📊 Community Stats*\n\n`;
+                                statsMessage += `Total Members: *${stats.total}*\n`;
+                                statsMessage += `Verified Members: *${stats.verified}*\n`;
+                                statsMessage += `Pending Verification: *${stats.pending}*`;
+                                await sendMessage(chat.id, statsMessage, message.message_id);
+                            } else {
+                                await sendMessage(chat.id, 'Could not retrieve community stats.', message.message_id);
+                            }
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/eventstats':
+                            await sendMessage(chat.id, 'This feature is coming soon!', message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/dailyreport':
+                            const [reportDaysStr] = args;
+                            const reportDays = reportDaysStr ? parseInt(reportDaysStr, 10) : 1;
+
+                            if (isNaN(reportDays) || reportDays <= 0) {
+                                await sendMessage(chat.id, 'Please provide a valid number of days for the report.', message.message_id);
+                                return NextResponse.json({ status: 'ok' });
+                            }
+                            
+                            const recentSubmissions = await getAllSubmissions(reportDays);
+                            let reportMessage = `*📈 Daily Report (Last ${reportDays} Day${reportDays > 1 ? 's' : ''})*\n\n`;
+                            
+                            const questions = recentSubmissions.filter(s => s.type === 'Questions');
+                            const suggestions = recentSubmissions.filter(s => s.type === 'Suggestions');
+
+                            reportMessage += `*New Submissions: ${recentSubmissions.length}*\n`;
+                            reportMessage += `  - Questions: ${questions.length}\n`;
+                            reportMessage += `  - Suggestions: ${suggestions.length}\n\n`;
+                            
+                            if (recentSubmissions.length > 0) {
+                                reportMessage += '*Latest Submissions:*\n';
+                                recentSubmissions.slice(0, 5).forEach(s => {
+                                    reportMessage += `  - *[${s.type}]* ${s.submission.substring(0, 50)}...\n`;
+                                });
+                            }
+
+                            await sendMessage(chat.id, reportMessage, message.message_id);
                             return NextResponse.json({ status: 'ok' });
                     }
                 }
