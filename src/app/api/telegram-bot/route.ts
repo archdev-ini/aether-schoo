@@ -306,20 +306,20 @@ async function getAllSubmissions(limitDays: number = 0): Promise<any[]> {
     if (limitDays > 0) {
         const date = new Date();
         date.setDate(date.getDate() - limitDays);
-        filterFormula = `IS_AFTER({${'fldBBXne24R0iqZFL'}}, '${date.toISOString()}')`;
+        filterFormula = `IS_AFTER({Submitted At}, '${date.toISOString()}')`;
     }
 
     try {
         const records = await base(AIRTABLE_QUESTIONS_TABLE_ID).select({
             filterByFormula: filterFormula,
-            sort: [{field: "fldBBXne24R0iqZFL", direction: "desc"}],
+            sort: [{field: "Submitted At", direction: "desc"}],
         }).all();
         
         return records.map(record => ({
-            submission: record.get('fldzGkktA5C06rZzq'),
-            type: record.get('fldnHAjQMoMSu7qtd'),
-            submittedAt: record.get('fldBBXne24R0iqZFL'),
-            context: record.get('fldR3R8fZ6ZrHWI9e') || 'General',
+            submission: record.get('Submission Text'),
+            type: record.get('Type'),
+            submittedAt: record.get('Submitted At'),
+            context: record.get('Context') || 'General',
         }));
     } catch (error) {
         console.error('Airtable submission fetching error:', error);
@@ -335,10 +335,10 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
         await base(AIRTABLE_QUESTIONS_TABLE_ID).create([
             {
                 fields: {
-                    'fldzGkktA5C06rZzq': submissionText,
-                    'fldnHAjQMoMSu7qtd': type,
-                    'fld75Mt7o7JJj57Oi': String(telegramUserId),
-                    'fldR3R8fZ6ZrHWI9e': context,
+                    'Submission Text': submissionText,
+                    'Type': type,
+                    'Telegram User ID': String(telegramUserId),
+                    'Context': context,
                 }
             }
         ], { typecast: true });
@@ -358,11 +358,11 @@ async function getMemberStats(): Promise<{ total: number; verified: number; pend
 
     try {
         await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            fields: ['fld75Mt7o7JJj57Oi'], // Only fetch the Telegram ID field
+            fields: ['Telegram ID'], // Only fetch the Telegram ID field
         }).eachPage((records, fetchNextPage) => {
             records.forEach(record => {
                 total++;
-                if (record.get('fld75Mt7o7JJj57Oi')) {
+                if (record.get('Telegram ID')) {
                     verified++;
                 }
             });
