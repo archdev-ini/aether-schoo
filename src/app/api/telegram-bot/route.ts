@@ -60,11 +60,15 @@ async function sendMessage(chatId: number, text: string, replyToMessageId?: numb
         payload.reply_markup = replyMarkup;
     }
     try {
-        await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+        const res = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
+        const json = await res.json();
+        if (!json.ok) {
+            console.error('Error sending Telegram message:', json.description);
+        }
     } catch (error) {
         console.error('Error sending Telegram message:', error);
     }
@@ -194,12 +198,21 @@ function parseMuteDuration(durationStr: string): number {
 
 // --- AIRTABLE HELPERS ---
 
+async function getAirtableBase() {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+        console.error('Airtable API Key or Base ID is not configured.');
+        return null;
+    }
+    return new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+}
+
 async function verifyMember(aetherId: string): Promise<{ verified: boolean; fullName?: string }> {
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
-        console.error('Airtable credentials are not set in environment variables.');
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_MEMBERS_TABLE_ID) {
+        console.error('Airtable credentials for members are not set in environment variables.');
         return { verified: false };
     }
-    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+
     try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             filterByFormula: `UPPER({aetherId}) = "${aetherId.toUpperCase()}"`,
@@ -217,11 +230,11 @@ async function verifyMember(aetherId: string): Promise<{ verified: boolean; full
 }
 
 async function getUpcomingEvents(): Promise<any[]> {
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_EVENTS_TABLE_ID) {
-        console.error('Airtable credentials for events are not set in environment variables.');
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_EVENTS_TABLE_ID) {
+        console.error('Airtable credentials for events are not set.');
         return [];
     }
-    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     try {
         const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
             filterByFormula: "IS_AFTER({Date}, TODAY())",
@@ -239,12 +252,30 @@ async function getUpcomingEvents(): Promise<any[]> {
     }
 }
 
-async function getAllSubmissions(): Promise<any[]> {
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_QUESTIONS_TABLE_ID) {
-        console.error('Airtable credentials for questions are not set in environment variables.');
+async function getAllEventsAdmin(): Promise<any[]> {
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_EVENTS_TABLE_ID) return [];
+    try {
+        const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
+            sort: [{ field: "Date", direction: "desc" }],
+        }).all();
+        return records.map(record => ({
+            title: record.get('Title'),
+            date: record.get('Date'),
+            eventCode: record.get('EventCode'),
+            status: new Date(record.get('Date') as string) > new Date() ? 'Upcoming' : 'Past',
+        }));
+    } catch (error) {
+        console.error('Airtable event admin fetching error:', error);
         return [];
     }
-    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+}
+
+
+async function getAllSubmissions(): Promise<any[]> {
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_QUESTIONS_TABLE_ID) return [];
+
     try {
         const records = await base(AIRTABLE_QUESTIONS_TABLE_ID).select({
             sort: [{field: "fldBBXne24R0iqZFL", direction: "desc"}],
@@ -263,11 +294,9 @@ async function getAllSubmissions(): Promise<any[]> {
 }
 
 async function logSubmission(telegramUserId: number, submissionText: string, type: 'Questions' | 'Suggestions', context: string = 'General') {
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_QUESTIONS_TABLE_ID) {
-        console.error('Airtable credentials for questions are not set in environment variables.');
-        return false;
-    }
-    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_QUESTIONS_TABLE_ID) return false;
+    
     try {
         await base(AIRTABLE_QUESTIONS_TABLE_ID).create([
             {
@@ -286,8 +315,93 @@ async function logSubmission(telegramUserId: number, submissionText: string, typ
     }
 }
 
+
+// --- EVENT MANAGEMENT ---
+
+function parseCommandArgs(text: string): Record<string, string> {
+    const args: Record<string, string> = {};
+    const regex = /(\w+)="([^"]+)"/g;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        args[match[1]] = match[2];
+    }
+    return args;
+}
+
+async function createEvent(args: Record<string, string>): Promise<{ success: boolean; message: string }> {
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_EVENTS_TABLE_ID) return { success: false, message: 'Airtable for events not configured.' };
+
+    const { title, date, description, link, code } = args;
+    if (!title || !date || !code) {
+        return { success: false, message: 'Missing required fields. Please provide at least `title`, `date` (YYYY-MM-DD), and `code`.' };
+    }
+
+    try {
+        await base(AIRTABLE_EVENTS_TABLE_ID).create([{
+            fields: {
+                'Title': title,
+                'Date': date,
+                'Description': description || '',
+                'Registration URL': link || '',
+                'EventCode': code.toUpperCase(),
+                'Published': true, // Auto-publish new events
+            }
+        }], { typecast: true });
+        return { success: true, message: `✅ Event "${title}" created successfully with code \`${code.toUpperCase()}\`.` };
+    } catch (error) {
+        console.error("Airtable create event error:", error);
+        return { success: false, message: 'Failed to create event in Airtable.' };
+    }
+}
+
+async function updateEvent(eventCode: string, args: Record<string, string>): Promise<{ success: boolean; message: string }> {
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_EVENTS_TABLE_ID) return { success: false, message: 'Airtable for events not configured.' };
+
+    if (Object.keys(args).length === 0) {
+        return { success: false, message: 'No fields provided to update.' };
+    }
+
+    try {
+        const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
+            filterByFormula: `UPPER({EventCode}) = "${eventCode.toUpperCase()}"`,
+            maxRecords: 1,
+        }).firstPage();
+
+        if (records.length === 0) {
+            return { success: false, message: `Event with code \`${eventCode.toUpperCase()}\` not found.` };
+        }
+
+        const recordId = records[0].id;
+        const fieldsToUpdate: Record<string, any> = {};
+
+        if (args.title) fieldsToUpdate['Title'] = args.title;
+        if (args.date) fieldsToUpdate['Date'] = args.date;
+        if (args.description) fieldsToUpdate['Description'] = args.description;
+        if (args.link) fieldsToUpdate['Registration URL'] = args.link;
+        if (args.status && args.status.toLowerCase() === 'closed') {
+             fieldsToUpdate['Published'] = false;
+        }
+
+        await base(AIRTABLE_EVENTS_TABLE_ID).update([{ id: recordId, fields: fieldsToUpdate }], { typecast: true });
+        return { success: true, message: `✅ Event \`${eventCode.toUpperCase()}\` updated successfully.` };
+
+    } catch (error) {
+        console.error("Airtable update event error:", error);
+        return { success: false, message: 'Failed to update event.' };
+    }
+}
+
+
+// --- USER-FACING HANDLERS ---
 async function handleVerification(chatId: number, aetherId: string) {
-    if (!aetherId || !/AETH/i.test(aetherId)) {
+    if (!aetherId) {
+        await sendMessage(chatId, 'Please provide your Aether ID.');
+        return;
+    }
+     // Looser regex to accept both member and admin IDs
+    if (!/AETH-?[A-Z0-9]{4,}/i.test(aetherId)) {
         await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12` or `AETHADM-XXXXXX`.');
         return;
     }
@@ -295,7 +409,7 @@ async function handleVerification(chatId: number, aetherId: string) {
     if (result.verified && result.fullName) {
         let successMessage = `✅ Verification successful! Welcome, ${result.fullName}.
 
-Here's what you can do:
+*Here's what you can do:*
 
 /events - View upcoming events.
 /ask [your question] - Ask a general question to the community.
@@ -332,7 +446,7 @@ export async function POST(req: NextRequest) {
         if (message) {
             const { chat, from, text = '', reply_to_message } = message;
 
-            // --- ADMIN COMMANDS (GROUP-ONLY) ---
+            // --- ADMIN COMMANDS (GROUP-ONLY for moderation) ---
             if (chat.type !== 'private' && text.startsWith('/')) {
                 const isAdmin = await isUserAdmin(chat.id, from.id);
                 if (isAdmin) {
@@ -378,9 +492,10 @@ export async function POST(req: NextRequest) {
                 }
             }
             
-            // --- GENERAL COMMANDS & PRIVATE CHAT ---
+            // --- GENERAL & ADMIN COMMANDS ---
             if (text.startsWith('/')) {
                 const [command, ...args] = text.split(' ');
+                const commandArgsStr = args.join(' ');
 
                 // Handle commands that should only be used in private chat
                 if (chat.type !== 'private' && ['/events', '/ask', '/asklive', '/suggest'].includes(command)) {
@@ -399,6 +514,63 @@ export async function POST(req: NextRequest) {
                         }
                     );
                     return NextResponse.json({ status: 'ok' });
+                }
+
+                // --- Admin-only event commands ---
+                const isSenderAdmin = chat.id < 0 ? await isUserAdmin(chat.id, from.id) : from.id === Number(TELEGRAM_ADMIN_ID);
+                if (isSenderAdmin) {
+                    switch (command) {
+                        case '/createevent':
+                            const createArgs = parseCommandArgs(commandArgsStr);
+                            const createResult = await createEvent(createArgs);
+                            await sendMessage(chat.id, createResult.message, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/updateevent':
+                            const [eventCodeToUpdate, ...updateParts] = args;
+                            if (!eventCodeToUpdate) {
+                                await sendMessage(chat.id, 'Usage: `/updateevent <event_code> key="value" ...`');
+                                break;
+                            }
+                            const updateArgs = parseCommandArgs(updateParts.join(' '));
+                            const updateResult = await updateEvent(eventCodeToUpdate, updateArgs);
+                            await sendMessage(chat.id, updateResult.message, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/closeevent':
+                             const [eventCodeToClose] = args;
+                             if (!eventCodeToClose) {
+                                await sendMessage(chat.id, 'Usage: `/closeevent <event_code>`');
+                                break;
+                            }
+                            const closeResult = await updateEvent(eventCodeToClose, { status: "closed" });
+                            await sendMessage(chat.id, closeResult.message, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/listevents':
+                            const adminEvents = await getAllEventsAdmin();
+                            let adminEventList = '📋 *All Events:*\n\n';
+                            if (adminEvents.length > 0) {
+                                adminEvents.forEach(event => {
+                                    adminEventList += `*${event.title}*\nCode: \`${event.eventCode}\` | Status: *${event.status}*\nDate: ${new Date(event.date).toLocaleDateString()}\n\n`;
+                                });
+                            } else {
+                                adminEventList = 'No events found.';
+                            }
+                            await sendMessage(chat.id, adminEventList, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/registrations':
+                            const [eventCodeForRegs] = args;
+                            if (!eventCodeForRegs || !AIRTABLE_BASE_ID || !AIRTABLE_EVENTS_TABLE_ID) {
+                                await sendMessage(chat.id, 'Usage: `/registrations <event_code>`');
+                                break;
+                            }
+                            // This link is an assumption. You may need a separate registrations table and link to it.
+                            const airtableLink = `https://airtable.com/${AIRTABLE_BASE_ID}/${AIRTABLE_EVENTS_TABLE_ID}?filter_EventCode=${eventCodeForRegs.toUpperCase()}`;
+                            await sendMessage(chat.id, `View registrations for \`${eventCodeForRegs.toUpperCase()}\` in Airtable:\n\n${airtableLink}`, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+                    }
                 }
 
                 switch (command) {
@@ -457,7 +629,11 @@ export async function POST(req: NextRequest) {
                     // Fallback for unrecognized commands that are not admin commands
                     default:
                          if (chat.type === 'private' && !['/ban', '/mute', '/unmute', '/del'].includes(command)) {
-                            await sendMessage(chat.id, 'Sorry, I don\'t recognize that command.');
+                            // Check if it's a non-admin event command
+                            const adminEventCommands = ['/createevent', '/updateevent', '/closeevent', '/listevents', '/registrations'];
+                            if (!adminEventCommands.includes(command)) {
+                                await sendMessage(chat.id, 'Sorry, I don\'t recognize that command.');
+                            }
                          }
                 }
             } else if (TELEGRAM_ADMIN_ID && text.toUpperCase() === TELEGRAM_ADMIN_ID.toUpperCase()) {
@@ -477,7 +653,7 @@ export async function POST(req: NextRequest) {
                 } else {
                     await sendMessage(chat.id, 'No submissions found.');
                 }
-            } else if (/AETH/i.test(text)) {
+            } else if (/AETH-?[A-Z0-9]{4,}/i.test(text)) {
                  await handleVerification(chat.id, text);
             } else if (chat.type === 'private') {
                 await sendMessage(chat.id, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
@@ -488,6 +664,9 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Error processing webhook:', error);
+        if (error instanceof Error) {
+            console.error(error.stack);
+        }
         return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
     }
 }
