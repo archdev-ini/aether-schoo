@@ -316,10 +316,10 @@ async function getAllSubmissions(limitDays: number = 0): Promise<any[]> {
         }).all();
         
         return records.map(record => ({
-            submission: record.get('Submission Text'),
-            type: record.get('Type'),
-            submittedAt: record.get('Submitted At'),
-            context: record.get('Context') || 'General',
+            submission: record.get('fldmnaDBCR8OfV83M'), // Submission Text
+            type: record.get('fld9fG8yJqx3V8vA2'), // Type
+            submittedAt: record.get('fldp03sHnN8A7p1bT'), // Submitted At
+            context: record.get('fldzY2jK7lW1tZ0Xp') || 'General', // Context
         }));
     } catch (error) {
         console.error('Airtable submission fetching error:', error);
@@ -460,8 +460,9 @@ async function handleVerification(chatId: number, aetherId: string) {
         await sendMessage(chatId, 'Please provide your Aether ID.');
         return;
     }
-    if (!/^AETH(-[A-Z0-9]{4,})?(-[A-Z0-9]{5})?$/i.test(aetherId)) {
-        await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12` or `AETHADM-XXXXX`.');
+    // Regex to match AETH- followed by any combination of letters and numbers, including formats like AETH-XX12 and AETHADM-7R2XK9
+    if (!/^AETH(-[A-Z0-9]+)+$/i.test(aetherId)) {
+        await sendMessage(chatId, 'Please provide your Aether ID in a valid format, like `AETH-XX12` or `AETHADM-XXXXX`.');
         return;
     }
     const result = await verifyMember(aetherId);
