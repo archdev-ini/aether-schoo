@@ -18,7 +18,7 @@ const navLinks = [
   { href: '/programs', label: 'Programs' },
   { href: '/community', label: 'Community' },
   { href: '/events', label: 'Events' },
-  { href: '/sustainability', label: 'Sustainability' },
+  { href: '/impact', label: 'Impact' },
   { href: '/about', label: 'About' },
 ];
 
