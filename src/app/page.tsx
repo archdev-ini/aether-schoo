@@ -30,14 +30,6 @@ const featuredFaqs = [
   },
 ];
 
-const sustainabilityPillars = [
-  { icon: Leaf, title: "Climate-Responsive Design", description: "We teach and practice architecture that adapts to local climates, materials, and cultures while minimizing environmental impact." },
-  { icon: Cpu, title: "Responsible Technology", description: "From BIM to Web3, we explore digital tools that reduce waste, improve collaboration, and support transparent, sustainable systems." },
-  { icon: School, title: "Sustainable Learning", description: "Our open school and immersive studios integrate sustainability into design education, preparing future creators to build with care." },
-  { icon: Group, title: "Community Impact", description: "Aether empowers designers to address real challenges — from housing and urban resilience to ecological regeneration." },
-]
-
-
 export default function Home() {
   const preLaunchDate = "2025-10-06T00:00:00Z";
   
@@ -166,53 +158,6 @@ export default function Home() {
                      <div className="text-center space-y-2 p-4">
                         <h3 className="text-lg font-bold">Global exposure anchored in local identity</h3>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="sustainability" className="w-full py-12 md:py-24 lg:py-32 border-y animate-in fade-in slide-in-from-bottom-8 duration-700 delay-350">
-            <div className="container px-4 md:px-6">
-                <div className="text-center max-w-3xl mx-auto mb-16">
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Designing for a Resilient Future</h2>
-                    <p className="mt-4 text-muted-foreground md:text-xl">
-                        At Aether, we see sustainability not as an option, but as a responsibility. Our work is grounded in climate-responsive design, responsible technology, and community action — ensuring every idea we nurture contributes to a more balanced world.
-                    </p>
-                </div>
-                
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                    {sustainabilityPillars.map((pillar) => (
-                        <div key={pillar.title} className="text-center">
-                            <div className="flex justify-center mb-4">
-                                <div className="bg-primary/10 text-primary p-4 rounded-full">
-                                    <pillar.icon className="w-8 h-8"/>
-                                </div>
-                            </div>
-                            <h3 className="text-xl font-bold font-headline">{pillar.title}</h3>
-                            <p className="mt-2 text-muted-foreground">{pillar.description}</p>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="max-w-4xl mx-auto text-center bg-muted/50 p-8 rounded-lg">
-                    <h3 className="text-2xl font-bold font-headline">Our Pledge</h3>
-                    <p className="mt-2 text-muted-foreground">We align with the UN Sustainable Development Goals (SDGs) and commit to:</p>
-                    <div className="mt-6 grid sm:grid-cols-3 gap-6 text-foreground">
-                        <div className="flex flex-col items-center gap-2">
-                           <CheckCircle className="w-6 h-6 text-primary"/>
-                           <span className="font-semibold">Building responsibly</span>
-                        </div>
-                         <div className="flex flex-col items-center gap-2">
-                           <CheckCircle className="w-6 h-6 text-primary"/>
-                           <span className="font-semibold">Teaching sustainability as a core skill</span>
-                        </div>
-                         <div className="flex flex-col items-center gap-2">
-                           <CheckCircle className="w-6 h-6 text-primary"/>
-                           <span className="font-semibold">Partnering for global and local impact</span>
-                        </div>
-                    </div>
-                     <Button asChild className="mt-8" variant="outline">
-                        <Link href="/join">Join us in designing the future responsibly <ArrowRight className="ml-2"/></Link>
-                    </Button>
                 </div>
             </div>
         </section>
