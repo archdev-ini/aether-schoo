@@ -400,9 +400,8 @@ async function handleVerification(chatId: number, aetherId: string) {
         await sendMessage(chatId, 'Please provide your Aether ID.');
         return;
     }
-     // Looser regex to accept both member and admin IDs
-    if (!/AETH-?[A-Z0-9]{4,}/i.test(aetherId)) {
-        await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12` or `AETHADM-XXXXXX`.');
+    if (!/^AETH-[A-Z0-9]{4,}/i.test(aetherId)) {
+        await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12`.');
         return;
     }
     const result = await verifyMember(aetherId);
@@ -628,35 +627,33 @@ export async function POST(req: NextRequest) {
 
                     // Fallback for unrecognized commands that are not admin commands
                     default:
-                         if (chat.type === 'private' && !['/ban', '/mute', '/unmute', '/del'].includes(command)) {
-                            // Check if it's a non-admin event command
-                            const adminEventCommands = ['/createevent', '/updateevent', '/closeevent', '/listevents', '/registrations'];
-                            if (!adminEventCommands.includes(command)) {
-                                await sendMessage(chat.id, 'Sorry, I don\'t recognize that command.');
-                            }
+                         if (chat.type === 'private') {
+                            await sendMessage(chat.id, 'Sorry, I don\'t recognize that command.');
                          }
                 }
-            } else if (TELEGRAM_ADMIN_ID && text.toUpperCase() === TELEGRAM_ADMIN_ID.toUpperCase()) {
-                await sendMessage(chat.id, '🔑 Admin authentication successful. Fetching all submissions...');
-                const submissions = await getAllSubmissions();
-                if (submissions.length > 0) {
-                    let report = '📝 *All Community Submissions:*\n\n';
-                    submissions.forEach(sub => {
-                        report += `*${sub.type}* | Context: *${sub.context}* \n> ${sub.submission}\n\n`;
-                    });
-                     if (report.length > 4000) {
-                        await sendMessage(chat.id, 'Report is too long for one message. Sending recent entries:');
-                        await sendMessage(chat.id, report.substring(0, 4000));
-                    } else {
-                        await sendMessage(chat.id, report);
-                    }
-                } else {
-                    await sendMessage(chat.id, 'No submissions found.');
-                }
-            } else if (/AETH-?[A-Z0-9]{4,}/i.test(text)) {
+            } else if (text.toUpperCase().startsWith('AETH-')) {
                  await handleVerification(chat.id, text);
             } else if (chat.type === 'private') {
-                await sendMessage(chat.id, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
+                if (TELEGRAM_ADMIN_ID && text.toUpperCase() === TELEGRAM_ADMIN_ID.toUpperCase()) {
+                    await sendMessage(chat.id, '🔑 Admin authentication successful. Fetching all submissions...');
+                    const submissions = await getAllSubmissions();
+                    if (submissions.length > 0) {
+                        let report = '📝 *All Community Submissions:*\n\n';
+                        submissions.forEach(sub => {
+                            report += `*${sub.type}* | Context: *${sub.context}* \n> ${sub.submission}\n\n`;
+                        });
+                        if (report.length > 4000) {
+                            await sendMessage(chat.id, 'Report is too long for one message. Sending recent entries:');
+                            await sendMessage(chat.id, report.substring(0, 4000));
+                        } else {
+                            await sendMessage(chat.id, report);
+                        }
+                    } else {
+                        await sendMessage(chat.id, 'No submissions found.');
+                    }
+                } else {
+                    await sendMessage(chat.id, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
+                }
             }
         }
 

@@ -14,6 +14,7 @@ const EventSchema = z.object({
   description: z.string(),
   status: z.enum(['Upcoming', 'Past']),
   coverImage: z.string().url().optional(),
+  eventCode: z.string().optional(),
 });
 
 export type Event = z.infer<typeof EventSchema>;
@@ -48,7 +49,7 @@ export async function getEvents(): Promise<Event[]> {
             }
 
             const eventDateStr = record.get('Date');
-            const eventDate = eventDateStr ? new Date(eventDateStr) : new Date();
+            const eventDate = eventDateStr ? new Date(eventDateStr as string) : new Date();
             
             return {
                 id: record.id,
@@ -60,6 +61,7 @@ export async function getEvents(): Promise<Event[]> {
                 description: record.get('Description') || 'No description provided.',
                 status: eventDate >= now ? 'Upcoming' : 'Past',
                 coverImage: coverImageUrl,
+                eventCode: record.get('EventCode')
             };
         });
         
