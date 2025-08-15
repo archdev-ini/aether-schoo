@@ -3,10 +3,9 @@ import { Twitter, Book, MessageCircle, Camera } from 'lucide-react';
 import Link from 'next/link';
 
 const socialLinks = [
-    { href: "/join", icon: MessageCircle, name: "Discord" },
+    { href: "https://discord.gg/D8g8dSf7GE", icon: MessageCircle, name: "Discord" },
     { href: "#", icon: Camera, name: "Instagram" },
     { href: "https://x.com/aetherxafrica", icon: Twitter, name: "X" },
-    { href: "#", icon: Book, name: "Facebook" },
 ]
 
 export function Footer() {

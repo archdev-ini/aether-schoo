@@ -51,7 +51,7 @@ export default function Home() {
                 <div className="flex flex-col gap-4 min-[400px]:flex-row">
                   <Button asChild size="lg" id="join-waitlist-hero">
                     <Link href="/join">
-                      Join the Founding 500
+                      Join Now
                     </Link>
                   </Button>
                    <Button asChild size="lg" variant="outline">
@@ -91,15 +91,15 @@ export default function Home() {
                 <ul className="grid gap-4 text-muted-foreground md:text-lg">
                     <li className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Curricula often overlook urgent climate realities.</span>
+                        <span>Architecture education often ignores climate realities.</span>
                     </li>
                     <li className="flex items-start gap-3">
                          <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Local heritage is sidelined in favor of one-size-fits-all templates.</span>
+                        <span>Many schools push imported ideas over cultural heritage.</span>
                     </li>
                     <li className="flex items-start gap-3">
                          <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Young architects lack the networks to collaborate and compete globally.</span>
+                        <span>Young designers lack global networks to grow.</span>
                     </li>
                 </ul>
               </div>
@@ -121,53 +121,75 @@ export default function Home() {
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><School className="w-10 h-10 text-primary mb-2" /></div>
                   <h3 className="text-xl font-bold">Learn</h3>
-                  <p className="text-muted-foreground">Contemporary, context-driven architecture training.</p>
+                  <p className="text-muted-foreground">Practical design education for African realities.</p>
               </div>
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><Users className="w-10 h-10 text-primary mb-2" /></div>
                   <h3 className="text-xl font-bold">Collaborate</h3>
-                  <p className="text-muted-foreground">Work with peers and mentors across regions.</p>
+                  <p className="text-muted-foreground">Connect with peers & mentors across the world.</p>
               </div>
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><Waypoints className="w-10 h-10 text-primary mb-2" /></div>
                   <h3 className="text-xl font-bold">Build</h3>
-                  <p className="text-muted-foreground">Apply skills in real projects, earn verifiable proof-of-skill credentials, and access opportunities.</p>
+                  <p className="text-muted-foreground">Work on projects. Earn credentials. Get opportunities.</p>
               </div>
             </div>
           </div>
         </section>
 
         <section id="why-us" className="w-full py-12 md:py-24 lg:py-32 bg-muted animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-            <div className="container px-4 md:px-6 text-center">
-                 <div className="space-y-4 mb-12">
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Other platforms focus on theory. <br/>Aether develops architects who can shape cities and communities.</h2>
-                </div>
-                <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-5">
-                    <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Architecture curriculum rooted in place, adaptable worldwide</h3>
-                    </div>
-                    <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Integration of vernacular wisdom with modern innovation</h3>
-                    </div>
-                    <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Decentralized proof-of-skill credentials</h3>
-                    </div>
-                     <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Learn-to-earn project pathways</h3>
-                    </div>
-                     <div className="text-center space-y-2 p-4">
-                        <h3 className="text-lg font-bold">Global exposure anchored in local identity</h3>
-                    </div>
-                </div>
+          <div className="container px-4 md:px-6">
+            <div className="text-center max-w-3xl mx-auto">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">
+                Why Aether?
+              </h2>
+              <p className="mt-4 text-muted-foreground md:text-xl">
+                We believe in learning that is rooted in culture, responsive to the climate, and connected to a global community of innovators.
+              </p>
             </div>
+            <div className="mx-auto mt-12 grid max-w-5xl gap-8 sm:grid-cols-2 md:grid-cols-3">
+              <div className="flex items-start gap-4">
+                <Globe className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="text-lg font-bold">Africa-First, Global-Ready</h3>
+                  <p className="text-muted-foreground">Curriculum designed in Africa, for the world.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <Leaf className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="text-lg font-bold">Sustainable by Design</h3>
+                  <p className="text-muted-foreground">Integrating climate-conscious principles in all we do.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <Cpu className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="text-lg font-bold">Tech-Enabled Learning</h3>
+                  <p className="text-muted-foreground">Using modern tools for real-world collaboration.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="w-full py-12 md:py-24 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-400">
             <div className="container text-center">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">We Launch in 2 Phases</h2>
-                <div className="mt-4 max-w-2xl mx-auto grid gap-2 text-muted-foreground md:text-lg">
-                    <p>🚀 <span className="font-semibold text-foreground">October 6, 2025:</span> World Architecture Day Pre-Launch Event</p>
-                    <p>🌐 <span className="font-semibold text-foreground">December 8, 2025:</span> Full Platform Rollout</p>
+                <div className="relative mt-8 max-w-4xl mx-auto py-4">
+                  <div className="absolute top-1/2 left-0 w-full h-1 bg-muted rounded-full" />
+                  <div className="relative flex justify-between">
+                      <div className="text-center">
+                          <div className="w-4 h-4 bg-primary rounded-full mx-auto" />
+                          <p className="mt-2 text-sm font-semibold">Oct 6, 2025</p>
+                          <p className="text-xs text-muted-foreground">Pre-Launch Event</p>
+                      </div>
+                      <div className="text-center">
+                           <div className="w-4 h-4 bg-primary rounded-full mx-auto" />
+                          <p className="mt-2 text-sm font-semibold">Dec 8, 2025</p>
+                           <p className="text-xs text-muted-foreground">Full Platform Rollout</p>
+                      </div>
+                  </div>
                 </div>
                  <p className="mt-6 max-w-2xl mx-auto md:text-xl">Join the Founding 500 — the first architects and students shaping the community.</p>
                 <div className="mt-8 max-w-4xl mx-auto">
@@ -197,7 +219,7 @@ export default function Home() {
                     <p className="text-sm text-muted-foreground">Founder, Aether</p>
                 </div>
                 <div className="prose prose-lg max-w-none text-muted-foreground">
-                    <p>I’m Inioluwa Oladipupo, an architecture student with a simple belief: every place should tell its own story.</p>
+                    <p>“Hi, I’m Inioluwa — I started Aether because I believe architects from Africa deserve global platforms without losing our roots.”</p>
                     <p>Aether began as an idea during countless late nights in the studio — working on design briefs and wondering why so many buildings felt disconnected from their climate, culture, and community.</p>
                     <p>I realized the problem was deeper than individual projects. Many schools relied on foreign models that overlooked local genius, while young architects struggled to gain recognition beyond their borders.</p>
                     <p>Aether was created to change that — to give architects and designers a space to learn, collaborate, and prove their skills on the world stage, while staying connected to their roots.</p>
@@ -237,14 +259,14 @@ export default function Home() {
 
         <section className="w-full py-12 md:py-24 lg:py-32 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700">
            <div className="container text-center bg-primary/5 rounded-lg p-10 md:p-16">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Architecture doesn’t just happen — it’s imagined, learned, and built.</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">🌍 Become a Founding Member</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                   Founding 500 spots are limited.
+                   Founding spots are limited. Join now to shape the future of design.
                 </p>
                 <div className="mt-8">
                     <Button asChild size="lg">
                         <Link href="/join">
-                           Join the Waitlist Now
+                           Join Now
                         </Link>
                     </Button>
                 </div>
