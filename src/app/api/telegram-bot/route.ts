@@ -229,6 +229,31 @@ async function verifyMember(aetherId: string): Promise<{ verified: boolean; full
     }
 }
 
+async function manualVerifyMember(telegramId: string, aetherId: string): Promise<{ success: boolean; message: string }> {
+    const base = await getAirtableBase();
+    if (!base || !AIRTABLE_MEMBERS_TABLE_ID) return { success: false, message: 'Airtable credentials for members are not set.'};
+
+    try {
+        const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
+            filterByFormula: `UPPER({aetherId}) = "${aetherId.toUpperCase()}"`,
+            maxRecords: 1,
+        }).firstPage();
+
+        if (records.length === 0) {
+            return { success: false, message: `Aether ID ${aetherId.toUpperCase()} not found.` };
+        }
+
+        const recordId = records[0].id;
+        await base(AIRTABLE_MEMBERS_TABLE_ID).update([{ id: recordId, fields: { 'fld75Mt7o7JJj57Oi': telegramId } }], { typecast: true });
+        
+        return { success: true, message: `✅ User with Telegram ID ${telegramId} has been manually verified with Aether ID ${aetherId.toUpperCase()}.`};
+
+    } catch (error) {
+        console.error('Airtable manual verification error:', error);
+        return { success: false, message: 'Failed to update Airtable record.' };
+    }
+}
+
 async function getUpcomingEvents(): Promise<any[]> {
     const base = await getAirtableBase();
     if (!base || !AIRTABLE_EVENTS_TABLE_ID) {
@@ -400,8 +425,8 @@ async function handleVerification(chatId: number, aetherId: string) {
         await sendMessage(chatId, 'Please provide your Aether ID.');
         return;
     }
-    if (!/^AETH-[A-Z0-9]{4,}/i.test(aetherId)) {
-        await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12`.');
+    if (!/^AETH(-[A-Z0-9]{4,})?(-[A-Z0-9]{5})?$/i.test(aetherId)) {
+        await sendMessage(chatId, 'Please provide your Aether ID in the format `AETH-XX12` or `AETHADM-XXXXX`.');
         return;
     }
     const result = await verifyMember(aetherId);
@@ -452,41 +477,45 @@ export async function POST(req: NextRequest) {
                     const [command, ...args] = text.split(' ');
                     const repliedToUser = reply_to_message?.from;
                     const repliedToMessageId = reply_to_message?.message_id;
+                    const targetUserId = repliedToUser?.id ?? (args[0] ? parseInt(args[0]) : undefined);
 
-                    if (!repliedToUser && ['/ban', '/mute', '/unmute', '/del'].includes(command)) {
-                        await sendMessage(chat.id, 'This command must be used as a reply to a user\'s message.', message.message_id);
+                    if (!targetUserId && ['/ban', '/unban', '/mute', '/unmute', '/del'].includes(command)) {
+                        await sendMessage(chat.id, 'This command must be used as a reply to a user\'s message or with a User ID.', message.message_id);
                         return NextResponse.json({ status: 'ok' });
                     }
                     
-                    switch (command) {
-                        case '/ban':
-                        case '/mute':
-                            if (repliedToUser) {
-                                const isTargetAdmin = await isUserAdmin(chat.id, repliedToUser.id);
-                                if (isTargetAdmin) {
-                                    await sendMessage(chat.id, 'This command cannot be used on an administrator.', message.message_id);
-                                    break;
+                    if (targetUserId) {
+                        const isTargetAdmin = await isUserAdmin(chat.id, targetUserId);
+                        if (isTargetAdmin) {
+                            await sendMessage(chat.id, 'This command cannot be used on an administrator.', message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+                        }
+                        switch (command) {
+                            case '/ban':
+                                await banUser(chat.id, targetUserId, args.slice(1).join(' '));
+                                break;
+                            case '/unban':
+                                await unbanUser(chat.id, targetUserId);
+                                break;
+                            case '/mute':
+                                const duration = parseMuteDuration(args[1] ?? args[0]);
+                                if (duration > 0) {
+                                    const reason = repliedToUser ? args.slice(0).join(' ') : args.slice(1).join(' ');
+                                    await muteUser(chat.id, targetUserId, duration, reason);
+                                } else {
+                                    await sendMessage(chat.id, 'Invalid duration. Use format like `1h`, `2d`.', message.message_id);
                                 }
-                                if (command === '/ban') {
-                                    await banUser(chat.id, repliedToUser.id, args.join(' '));
-                                } else { // /mute
-                                    const duration = parseMuteDuration(args[0]);
-                                    if (duration > 0) {
-                                        await muteUser(chat.id, repliedToUser.id, duration, args.slice(1).join(' '));
-                                    } else {
-                                        await sendMessage(chat.id, 'Invalid duration. Use format like `1h`, `2d`.', message.message_id);
-                                    }
-                                }
-                            }
-                            break;
-                        case '/unmute':
-                            if(repliedToUser) await unmuteUser(chat.id, repliedToUser.id);
-                            break;
-                        case '/del':
-                            if(repliedToMessageId) await deleteMessage(chat.id, repliedToMessageId);
-                             // Also delete the command message itself
-                            await deleteMessage(chat.id, message.message_id);
-                            break;
+                                break;
+                            case '/unmute':
+                                await unmuteUser(chat.id, targetUserId);
+                                break;
+                        }
+                    }
+
+                    if (command === '/del' && repliedToMessageId) {
+                         await deleteMessage(chat.id, repliedToMessageId);
+                         // Also delete the command message itself
+                        await deleteMessage(chat.id, message.message_id);
                     }
                 }
             }
@@ -497,7 +526,7 @@ export async function POST(req: NextRequest) {
                 const commandArgsStr = args.join(' ');
 
                 // Handle commands that should only be used in private chat
-                if (chat.type !== 'private' && ['/events', '/ask', '/asklive', '/suggest'].includes(command)) {
+                if (chat.type !== 'private' && ['/events', '/ask', '/asklive', '/suggest', '/start'].includes(command)) {
                     const response = await fetch(`${TELEGRAM_API_URL}/getMe`);
                     const botInfo = await response.json();
                     const botUsername = botInfo.result.username;
@@ -515,7 +544,7 @@ export async function POST(req: NextRequest) {
                     return NextResponse.json({ status: 'ok' });
                 }
 
-                // --- Admin-only event commands ---
+                // --- Admin-only commands ---
                 const isSenderAdmin = chat.id < 0 ? await isUserAdmin(chat.id, from.id) : from.id === Number(TELEGRAM_ADMIN_ID);
                 if (isSenderAdmin) {
                     switch (command) {
@@ -565,9 +594,46 @@ export async function POST(req: NextRequest) {
                                 await sendMessage(chat.id, 'Usage: `/registrations <event_code>`');
                                 break;
                             }
-                            // This link is an assumption. You may need a separate registrations table and link to it.
-                            const airtableLink = `https://airtable.com/${AIRTABLE_BASE_ID}/${AIRTABLE_EVENTS_TABLE_ID}?filter_EventCode=${eventCodeForRegs.toUpperCase()}`;
-                            await sendMessage(chat.id, `View registrations for \`${eventCodeForRegs.toUpperCase()}\` in Airtable:\n\n${airtableLink}`, message.message_id);
+                            const registrationsLink = `https://airtable.com/${AIRTABLE_BASE_ID}/${AIRTABLE_EVENTS_TABLE_ID}?filter_EventCode=${eventCodeForRegs.toUpperCase()}`;
+                            await sendMessage(chat.id, `View registrations for \`${eventCodeForRegs.toUpperCase()}\` in Airtable:\n\n${registrationsLink}`, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+                        
+                        case '/verify':
+                             const [telegramId, aetherId] = args;
+                             if (!telegramId || !aetherId) {
+                                 await sendMessage(chat.id, 'Usage: `/verify <telegram_user_id> <aether_id>`');
+                                 break;
+                             }
+                             const verifyResult = await manualVerifyMember(telegramId, aetherId);
+                             await sendMessage(chat.id, verifyResult.message, message.message_id);
+                             return NextResponse.json({ status: 'ok' });
+
+                        case '/members':
+                            if (!AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+                                await sendMessage(chat.id, 'Airtable Member table is not configured.');
+                                break;
+                            }
+                            const membersLink = `https://airtable.com/${AIRTABLE_BASE_ID}/${AIRTABLE_MEMBERS_TABLE_ID}`;
+                            await sendMessage(chat.id, `View all members in Airtable:\n\n${membersLink}`, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/find':
+                            const [query] = args;
+                            if (!query || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+                                await sendMessage(chat.id, 'Usage: `/find <username_or_aetherid>`');
+                                break;
+                            }
+                            const findLink = `https://airtable.com/${AIRTABLE_BASE_ID}/${AIRTABLE_MEMBERS_TABLE_ID}?filter_OR(FIND(%22${query}%22%2C+LOWER(%7BfullName%7D))%2C+FIND(%22${query.toUpperCase()}%22%2C+%7BaetherId%7D))`;
+                            await sendMessage(chat.id, `View search results for "${query}" in Airtable:\n\n${findLink}`, message.message_id);
+                            return NextResponse.json({ status: 'ok' });
+
+                        case '/submissions':
+                             if (!AIRTABLE_BASE_ID || !AIRTABLE_QUESTIONS_TABLE_ID) {
+                                await sendMessage(chat.id, 'Airtable Submissions table is not configured.');
+                                break;
+                            }
+                            const submissionsLink = `https://airtable.com/${AIRTABLE_BASE_ID}/${AIRTABLE_QUESTIONS_TABLE_ID}`;
+                            await sendMessage(chat.id, `View all community submissions in Airtable:\n\n${submissionsLink}`, message.message_id);
                             return NextResponse.json({ status: 'ok' });
                     }
                 }
@@ -577,7 +643,7 @@ export async function POST(req: NextRequest) {
                         await sendMessage(chat.id, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID (e.g., `AETH-XX12`).');
                         break;
                     
-                    case '/verify':
+                    case '/verify': // This case is now for regular users
                         await handleVerification(chat.id, args[0]);
                         break;
 
@@ -627,33 +693,14 @@ export async function POST(req: NextRequest) {
 
                     // Fallback for unrecognized commands that are not admin commands
                     default:
-                         if (chat.type === 'private') {
+                         if (chat.type === 'private' && !isSenderAdmin) {
                             await sendMessage(chat.id, 'Sorry, I don\'t recognize that command.');
                          }
                 }
             } else if (text.toUpperCase().startsWith('AETH-')) {
                  await handleVerification(chat.id, text);
             } else if (chat.type === 'private') {
-                if (TELEGRAM_ADMIN_ID && text.toUpperCase() === TELEGRAM_ADMIN_ID.toUpperCase()) {
-                    await sendMessage(chat.id, '🔑 Admin authentication successful. Fetching all submissions...');
-                    const submissions = await getAllSubmissions();
-                    if (submissions.length > 0) {
-                        let report = '📝 *All Community Submissions:*\n\n';
-                        submissions.forEach(sub => {
-                            report += `*${sub.type}* | Context: *${sub.context}* \n> ${sub.submission}\n\n`;
-                        });
-                        if (report.length > 4000) {
-                            await sendMessage(chat.id, 'Report is too long for one message. Sending recent entries:');
-                            await sendMessage(chat.id, report.substring(0, 4000));
-                        } else {
-                            await sendMessage(chat.id, report);
-                        }
-                    } else {
-                        await sendMessage(chat.id, 'No submissions found.');
-                    }
-                } else {
-                    await sendMessage(chat.id, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
-                }
+                await sendMessage(chat.id, 'Hi there! I can only respond to commands right now. Try `/start` to see your options.');
             }
         }
 
@@ -667,3 +714,5 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
     }
 }
+
+    
