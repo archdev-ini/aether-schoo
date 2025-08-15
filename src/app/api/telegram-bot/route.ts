@@ -293,7 +293,14 @@ async function handleVerification(chatId: number, aetherId: string) {
     }
     const result = await verifyMember(aetherId);
     if (result.verified && result.fullName) {
-        let successMessage = `✅ Verification successful! Welcome, ${result.fullName}.`;
+        let successMessage = `✅ Verification successful! Welcome, ${result.fullName}.
+
+Here's what you can do:
+
+/events - View upcoming events.
+/ask [your question] - Ask a general question to the community.
+/asklive [event_code] [your question] - Ask a question during a live event.
+/suggest [your idea] - Submit a suggestion.`;
         let replyMarkup = undefined;
 
         if (TELEGRAM_GROUP_CHAT_ID) {
