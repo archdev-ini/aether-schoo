@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, ShieldCheck } from 'lucide-react';
+import { Menu, Moon, Sun, ShieldCheck, Search } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -107,6 +107,12 @@ export function Header() {
             </Sheet>
           </div>
           <div className="flex items-center gap-2">
+             <Button asChild variant="ghost" size="icon">
+                <Link href="/search">
+                    <Search className="h-5 w-5" />
+                    <span className="sr-only">Search</span>
+                </Link>
+             </Button>
              <ThemeToggle />
             <Button asChild id="get-aether-id-header">
               <Link href="/join">Get Your Aether ID</Link>
