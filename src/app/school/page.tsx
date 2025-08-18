@@ -1,8 +1,9 @@
 
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, BookOpen, Bot, Archive, Users, Wind, Code } from "lucide-react";
+import { ArrowRight, BookOpen, Bot, Archive, Users, Wind, Code, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -13,36 +14,18 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useMemo } from "react";
+import { type Course } from '@/components/common/CourseCard';
 
-const newContent = [
-    {
-        title: "Primer: Parametric Design with Grasshopper",
-        category: "Primers",
-        imageUrl: "https://images.unsplash.com/photo-1632426986596-e366916892a4?q=80&w=600&h=400&auto=format&fit=crop",
-        aiHint: "parametric architecture",
-        icon: Code
-    },
-    {
-        title: "Course: Sustainable Materials in West Africa",
-        category: "Courses",
-        imageUrl: "https://images.unsplash.com/photo-1517602302339-38541c888f40?q=80&w=600&h=400&auto=format&fit=crop",
-        aiHint: "sustainable materials",
-        icon: BookOpen
-    },
-    {
-        title: "Archive: The Great Mosque of Djenné",
-        category: "Archives",
-        imageUrl: "https://images.unsplash.com/photo-1590483441839-a68b55500448?q=80&w=600&h=400&auto=format&fit=crop",
-        aiHint: "african architecture",
-        icon: Archive
-    },
-    {
-        title: "AI Workflow: Site Analysis with Computer Vision",
-        category: "Workflows",
-        imageUrl: "https://images.unsplash.com/photo-1698661033580-779d7d117a59?q=80&w=600&h=400&auto=format&fit=crop",
-        aiHint: "computer vision city",
-        icon: Bot
-    }
+// Mock Data representing all available content
+const allContent: Course[] = [
+    { id: "1", title: "Parametric Design with Grasshopper", author: "Dr. Elena Vance", tags: ["Parametrics", "Computational Design"], difficulty: "Intermediate", format: "Primer", releaseDate: "2024-08-15", description: "An in-depth guide to visual programming in Rhino for complex architectural forms.", imageUrl: "https://images.unsplash.com/photo-1632426986596-e366916892a4?q=80&w=600&h=400&auto=format&fit=crop", aiHint: "parametric architecture" },
+    { id: "2", title: "Sustainable Materials in West Africa", author: "Kwame Addo", tags: ["Sustainability", "Materials"], difficulty: "Beginner", format: "Video Course", releaseDate: "2024-09-01", description: "Explore the use of laterite, bamboo, and recycled plastics in modern African construction.", imageUrl: "https://images.unsplash.com/photo-1517602302339-38541c888f40?q=80&w=600&h=400&auto=format&fit=crop", aiHint: "sustainable materials" },
+    { id: "5", title: "The Great Mosque of Djenné: An Archive", author: "Community Curated", tags: ["History", "Vernacular"], difficulty: "All Levels", format: "Archive", releaseDate: "2024-06-10", description: "A deep dive into the history, construction, and cultural significance of this iconic landmark.", imageUrl: "https://images.unsplash.com/photo-1590483441839-a68b55500448?q=80&w=600&h=400&auto=format&fit=crop", aiHint: "african architecture" },
+    { id: "4", title: "AI for Site Analysis", author: "Aether AI", tags: ["AI", "Urbanism"], difficulty: "Advanced", format: "Primer", releaseDate: "2024-08-22", description: "Use computer vision and data analysis to conduct comprehensive site studies.", imageUrl: "https://images.unsplash.com/photo-1698661033580-779d7d117a59?q=80&w=600&h=400&auto=format&fit=crop", aiHint: "computer vision city" },
+    { id: "6", title: "Design Thinking for Architects", author: "Inioluwa Oladipupo", tags: ["Design Theory"], difficulty: "Beginner", format: "Primer", releaseDate: "2024-09-05", description: "A framework for creative problem-solving tailored to architectural challenges.", imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=600&h=400&auto=format&fit=crop", aiHint: "team collaboration" },
+    { id: "8", title: "Intro to Urban Planning", author: "Amina El-Sayed", tags: ["Urbanism"], difficulty: "Beginner", format: "Video Course", releaseDate: "2024-09-10", description: "Understand the principles that shape our cities, from zoning to public space.", imageUrl: "https://images.unsplash.com/photo-1549472539-b2760b2f45b7?q=80&w=600&h=400&auto=format&fit=crop", aiHint: "city map" },
 ];
 
 const contentSections = [
@@ -77,6 +60,23 @@ const contentSections = [
 ]
 
 export default function SchoolPage() {
+  const { toast } = useToast();
+
+  const handleVote = (e: React.MouseEvent, title: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast({
+        title: "Vote Counted!",
+        description: `You voted for "${title}" as Drop of the Week.`,
+    })
+  }
+  
+  const newContent = useMemo(() => {
+    const sortedContent = [...allContent].sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime());
+    return sortedContent.slice(0, 4); // Get the 4 most recent items
+  }, []);
+
+
   return (
     <main className="animate-in fade-in duration-500">
         {/* Hero Section */}
@@ -102,7 +102,7 @@ export default function SchoolPage() {
         {/* What's New Section */}
         <section className="w-full py-16 md:py-24">
             <div className="container px-4 md:px-6">
-                <h2 className="text-3xl font-bold tracking-tight text-center font-headline mb-12">What's New This Week</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-center font-headline mb-12">This Week's Drops</h2>
                 <Carousel
                     opts={{
                         align: "start",
@@ -113,29 +113,33 @@ export default function SchoolPage() {
                     <CarouselContent>
                         {newContent.map((item, index) => (
                         <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                            <Card className="overflow-hidden h-full flex flex-col">
-                                <Image
-                                    src={item.imageUrl}
-                                    alt={item.title}
-                                    width={600}
-                                    height={400}
-                                    data-ai-hint={item.aiHint}
-                                    className="w-full h-48 object-cover"
-                                />
-                                <CardHeader>
-                                     <Badge variant="secondary" className="w-fit mb-2">{item.category}</Badge>
-                                    <CardTitle>{item.title}</CardTitle>
-                                </CardHeader>
-                                <CardContent className="flex-grow flex flex-col">
-                                    <div className="flex-grow" />
-                                    <Button asChild variant="outline" className="w-full mt-4">
-                                        <Link href="/school/courses">
-                                            <item.icon className="mr-2 h-4 w-4" />
-                                            Explore Now
-                                        </Link>
-                                    </Button>
-                                </CardContent>
-                            </Card>
+                            <Link href={`/school/courses/${item.id}`} className="group block h-full">
+                                <Card className="overflow-hidden h-full flex flex-col hover:border-primary/50 transition-colors duration-300">
+                                    <Image
+                                        src={item.imageUrl}
+                                        alt={item.title}
+                                        width={600}
+                                        height={400}
+                                        data-ai-hint={item.aiHint}
+                                        className="w-full h-48 object-cover"
+                                    />
+                                    <CardHeader>
+                                        <Badge variant="secondary" className="w-fit mb-2">{item.format}</Badge>
+                                        <CardTitle className="group-hover:text-primary transition-colors">{item.title}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="flex-grow flex flex-col">
+                                        <div className="flex-grow" />
+                                        <Button 
+                                            variant="outline" 
+                                            className="w-full mt-4" 
+                                            onClick={(e) => handleVote(e, item.title)}
+                                        >
+                                            <ThumbsUp className="mr-2 h-4 w-4" />
+                                            Vote for Drop of the Week
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </Link>
                         </CarouselItem>
                         ))}
                     </CarouselContent>
