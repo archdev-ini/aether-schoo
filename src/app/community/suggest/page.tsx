@@ -79,9 +79,9 @@ export default function SuggestPage() {
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12">
             <Lightbulb className="w-12 h-12 mx-auto text-primary mb-4" />
-            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Suggest a Primer or Course</h1>
+            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Suggest Content for the Library</h1>
             <p className="mt-4 text-muted-foreground md:text-xl">
-                Have an idea for a topic we should cover? Let us know! The best ideas come from the community.
+                Have an idea for a course, primer, or archive we should create? Let us know! The best ideas come from the community.
             </p>
         </div>
         <Card>

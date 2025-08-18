@@ -13,8 +13,8 @@ export interface Course {
     description: string;
     author: string;
     tags: string[];
-    difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
-    format: 'Video Course' | 'Primer' | 'Archive';
+    difficulty: string;
+    format: string;
     releaseDate: string;
     imageUrl: string;
     aiHint?: string;

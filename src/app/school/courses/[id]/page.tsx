@@ -42,8 +42,8 @@ const allCourseData = {
         aiHint: "sustainable materials",
         duration: "4 hours",
         lessons: [
-            { id: 1, title: "Introduction to Sustainable Materials", type: "video", duration: "12 min", completed: false },
-            { id: 2, title: "The Power of Laterite: From Earth to Wall", type: "video", duration: "25 min", completed: false },
+            { id: 1, title: "Introduction to Sustainable Materials", type: "video", duration: "12 min", completed: true },
+            { id: 2, title: "The Power of Laterite: From Earth to Wall", type: "video", duration: "25 min", completed: true },
             { id: 3, title: "Reading: The History of Earthen Architecture", type: "document", duration: "45 min", completed: false },
             { id: 4, title: "Knowledge Check: Earthen Materials", type: "quiz", duration: "10 min", completed: false },
             { id: 5, title: "Bamboo as a Structural Element", type: "video", duration: "30 min", completed: false },
@@ -55,6 +55,22 @@ const allCourseData = {
             { id: 1, user: "Amina E.", text: "The section on laterite stabilization techniques was a game-changer for my final year project.", upvotes: 12 },
             { id: 2, user: "David T.", text: "Anyone have good resources for sourcing treated bamboo in Nigeria? The case study was inspiring.", upvotes: 8 },
             { id: 3, user: "Sarah K.", text: "Tip: Pause the video at 15:32 in the plastics lesson. The diagram showing extrusion methods is super helpful.", upvotes: 19 },
+        ]
+    },
+    "5": {
+        id: "5",
+        title: "The Great Mosque of Djenné: An Archive",
+        author: "Community Curated",
+        tags: ["History", "Vernacular"],
+        difficulty: "All Levels",
+        format: "Archive",
+        releaseDate: "2024-06-10",
+        description: "A deep dive into the history, construction, and cultural significance of this iconic landmark. This archive entry contains original manuscripts, photographs, and architectural drawings.",
+        imageUrl: "https://images.unsplash.com/photo-1590483441839-a68b55500448?q=80&w=1200&h=600&auto=format&fit=crop",
+        aiHint: "african architecture",
+        duration: "Self-paced",
+        communityNotes: [
+            { id: 1, user: "Prof. Faye", text: "The high-resolution scans of the original 1907 blueprints are an invaluable resource for my research.", upvotes: 35 },
         ]
     }
 };
@@ -118,7 +134,7 @@ function ArticleStyleLayout({ courseData }: { courseData: any }) {
 export default function CourseDetailPage({ params }: { params: { id: string } }) {
     const courseData = allCourseData[params.id as keyof typeof allCourseData] || allCourseData["2"];
     const [lessons, setLessons] = useState(courseData.lessons || []);
-    const [activeLessonId, setActiveLessonId] = useState(1);
+    const [activeLessonId, setActiveLessonId] = useState(lessons.length > 0 ? lessons[0].id : 1);
 
     const completedLessons = lessons.filter(l => l.completed).length;
     const progress = lessons.length > 0 ? (completedLessons / lessons.length) * 100 : 0;

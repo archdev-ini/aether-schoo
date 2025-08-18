@@ -19,7 +19,7 @@ const allCourses: Course[] = [
         author: "Dr. Elena Vance",
         tags: ["Parametrics", "Computational Design"],
         difficulty: "Intermediate",
-        format: "Video Course",
+        format: "Primer",
         releaseDate: "2024-08-15",
         description: "An in-depth guide to visual programming in Rhino for complex architectural forms.",
         imageUrl: "https://images.unsplash.com/photo-1632426986596-e366916892a4?q=80&w=600&h=400&auto=format&fit=crop",

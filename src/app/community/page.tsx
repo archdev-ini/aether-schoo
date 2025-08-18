@@ -112,7 +112,7 @@ export default function CommunityPage() {
                         <Button asChild>
                             <Link href="/community/suggest">
                                 <PencilRuler className="mr-2"/>
-                                Suggest a Primer or Course
+                                Suggest Content for the Library
                             </Link>
                         </Button>
                     </div>
