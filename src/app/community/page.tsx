@@ -153,7 +153,7 @@ export default function CommunityPage() {
                     </ul>
                      <div className="pt-4">
                         <Button asChild>
-                            <Link href="/community/suggest">
+                            <Link href="/confirm-id">
                                 <PencilRuler className="mr-2"/>
                                 Suggest Content for the Library
                             </Link>

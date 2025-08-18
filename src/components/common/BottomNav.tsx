@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, Search, Users, User } from 'lucide-react';
+import { Home, Compass, Search, Users, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -11,7 +11,7 @@ const navItems = [
   { href: '/school', label: 'School', icon: Compass },
   { href: '/search', label: 'Search', icon: Search },
   { href: '/community', label: 'Community', icon: Users },
-  { href: '/profile', label: 'Profile', icon: User },
+  { href: '/confirm-id', label: 'ID', icon: ShieldCheck },
 ];
 
 export function BottomNav() {
