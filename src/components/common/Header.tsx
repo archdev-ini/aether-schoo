@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Separator } from '@/components/ui/separator';
+import { SearchDialog } from './SearchDialog';
+import { useState } from 'react';
 
 const navLinks = [
   { href: '/programs', label: 'Programs' },
@@ -51,7 +53,10 @@ function ThemeToggle() {
 
 
 export function Header() {
+  const [openSearch, setOpenSearch] = useState(false);
+
   return (
+    <>
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 hidden md:flex">
@@ -107,11 +112,9 @@ export function Header() {
             </Sheet>
           </div>
           <div className="flex items-center gap-2">
-             <Button asChild variant="ghost" size="icon">
-                <Link href="/search">
-                    <Search className="h-5 w-5" />
-                    <span className="sr-only">Search</span>
-                </Link>
+             <Button variant="ghost" size="icon" onClick={() => setOpenSearch(true)}>
+                <Search className="h-5 w-5" />
+                <span className="sr-only">Search</span>
              </Button>
              <ThemeToggle />
             <Button asChild id="get-aether-id-header">
@@ -121,5 +124,7 @@ export function Header() {
         </div>
       </div>
     </header>
+    <SearchDialog open={openSearch} onOpenChange={setOpenSearch} />
+    </>
   );
 }
