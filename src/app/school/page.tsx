@@ -1,4 +1,5 @@
 
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, BookOpen, Bot, Archive, Users, Wind, Code } from "lucide-react";
@@ -49,25 +50,29 @@ const contentSections = [
         icon: BookOpen,
         title: "Courses",
         description: "Structured learning paths to master new skills, from BIM software to sustainable design theory.",
-        cta: "Browse Courses"
+        cta: "Browse Courses",
+        href: "/school/courses"
     },
     {
         icon: Wind,
         title: "Primers",
         description: "Quick, focused introductions to core concepts. Get up to speed on a new topic in under an hour.",
-        cta: "Explore Primers"
+        cta: "Explore Primers",
+        href: "/school/courses?format=Primer"
     },
     {
         icon: Archive,
         title: "Archives",
         description: "A community-curated library of historical documents, case studies, and architectural precedents.",
-        cta: "Search Archives"
+        cta: "Search Archives",
+        href: "/school/courses?format=Archive"
     },
     {
         icon: Users,
         title: "Community",
         description: "Connect with peers, join study groups, and get feedback from mentors in our private channels.",
-        cta: "Join the Community"
+        cta: "Join the Community",
+        href: "/community"
     }
 ]
 
@@ -123,9 +128,11 @@ export default function SchoolPage() {
                                 </CardHeader>
                                 <CardContent className="flex-grow flex flex-col">
                                     <div className="flex-grow" />
-                                    <Button variant="outline" className="w-full mt-4">
-                                        <item.icon className="mr-2 h-4 w-4" />
-                                        Explore Now
+                                    <Button asChild variant="outline" className="w-full mt-4">
+                                        <Link href="/school/courses">
+                                            <item.icon className="mr-2 h-4 w-4" />
+                                            Explore Now
+                                        </Link>
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -158,8 +165,10 @@ export default function SchoolPage() {
                             <h3 className="text-xl font-bold font-headline">{section.title}</h3>
                             <p className="mt-2 text-muted-foreground flex-grow">{section.description}</p>
                             <div className="mt-6">
-                                 <Button variant="secondary" className="w-full">
-                                    {section.cta}
+                                 <Button asChild variant="secondary" className="w-full">
+                                    <Link href={section.href}>
+                                        {section.cta}
+                                    </Link>
                                  </Button>
                             </div>
                         </Card>
