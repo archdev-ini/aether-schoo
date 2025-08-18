@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, Users, Bell, Twitter, ShieldCheck, CheckCircle, Lightbulb, Heart } from "lucide-react";
+import { MessageCircle, Users, Bell, ShieldCheck, CheckCircle, Lightbulb, Heart, PencilRuler } from "lucide-react";
 import Link from "next/link";
 
 const communityPlatforms = [
@@ -108,6 +108,14 @@ export default function CommunityPage() {
                         </li>
                         ))}
                     </ul>
+                     <div className="pt-4">
+                        <Button asChild>
+                            <Link href="/community/suggest">
+                                <PencilRuler className="mr-2"/>
+                                Suggest a Primer or Course
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
                  <Card className="p-8 bg-background shadow-lg">
                     <CardHeader className="p-0">
