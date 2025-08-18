@@ -4,12 +4,14 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Clock, FileText, Film, Layers, MessageSquare, PlayCircle, Award, ThumbsUp, User, BookOpen } from "lucide-react";
+import { CheckCircle, Clock, FileText, Film, Layers, MessageSquare, PlayCircle, Award, ThumbsUp, User, BookOpen, Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Quiz } from '@/components/common/Quiz';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 
 // --- MOCK DATA ---
 const allCourseData = {
@@ -26,7 +28,7 @@ const allCourseData = {
         aiHint: "parametric architecture",
         duration: "45 min read",
         communityNotes: [
-             { id: 1, user: "John A.", text: "The explanation of data trees finally made it click for me. Highly recommended.", upvotes: 22 },
+             { id: 1, user: "John A.", avatar: "https://placehold.co/100x100.png", text: "The explanation of data trees finally made it click for me. Highly recommended.", upvotes: 22, isTopNote: false },
         ]
     },
     "2": {
@@ -52,9 +54,9 @@ const allCourseData = {
             { id: 8, title: "Final Project: Design Your Sustainable Kiosk", type: "project", duration: "90 min", completed: false },
         ],
         communityNotes: [
-            { id: 1, user: "Amina E.", text: "The section on laterite stabilization techniques was a game-changer for my final year project.", upvotes: 12 },
-            { id: 2, user: "David T.", text: "Anyone have good resources for sourcing treated bamboo in Nigeria? The case study was inspiring.", upvotes: 8 },
-            { id: 3, user: "Sarah K.", text: "Tip: Pause the video at 15:32 in the plastics lesson. The diagram showing extrusion methods is super helpful.", upvotes: 19 },
+            { id: 3, user: "Sarah K.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&h=100&auto=format&fit=crop", text: "Tip: Pause the video at 15:32 in the plastics lesson. The diagram showing extrusion methods is super helpful.", upvotes: 19, isTopNote: true },
+            { id: 1, user: "Amina E.", avatar: "https://images.unsplash.com/photo-1580894908361-967195033215?q=80&w=100&h=100&auto=format&fit=crop", text: "The section on laterite stabilization techniques was a game-changer for my final year project.", upvotes: 12, isTopNote: false },
+            { id: 2, user: "David T.", avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=100&h=100&auto=format&fit=crop", text: "Anyone have good resources for sourcing treated bamboo in Nigeria? The case study was inspiring.", upvotes: 8, isTopNote: false },
         ]
     },
     "5": {
@@ -70,7 +72,7 @@ const allCourseData = {
         aiHint: "african architecture",
         duration: "Self-paced",
         communityNotes: [
-            { id: 1, user: "Prof. Faye", text: "The high-resolution scans of the original 1907 blueprints are an invaluable resource for my research.", upvotes: 35 },
+            { id: 1, user: "Prof. Faye", avatar: "https://placehold.co/100x100.png", text: "The high-resolution scans of the original 1907 blueprints are an invaluable resource for my research.", upvotes: 35, isTopNote: false },
         ]
     }
 };
@@ -114,12 +116,19 @@ function ArticleStyleLayout({ courseData }: { courseData: any }) {
                     <CardTitle className="flex items-center gap-2"><MessageSquare className="w-5 h-5" /> Community Notes</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {courseData.communityNotes.map((note: any) => (
-                       <Card key={note.id} className="p-4 text-sm bg-muted/50">
-                           <p>{note.text}</p>
-                           <div className="flex justify-between items-center mt-2">
-                               <p className="text-xs text-muted-foreground font-medium">-- {note.user}</p>
-                               <Button variant="ghost" size="sm" className="h-auto px-2 py-1 text-muted-foreground">
+                     {courseData.communityNotes.sort((a: any, b: any) => b.isTopNote - a.isTopNote || b.upvotes - a.upvotes).map((note: any) => (
+                       <Card key={note.id} className={`p-4 text-sm bg-muted/50 ${note.isTopNote ? 'border-amber-500/50' : ''}`}>
+                            {note.isTopNote && <Badge className="mb-2 bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20"><Star className="w-3 h-3 mr-1" /> Top Note of the Week</Badge>}
+                           <div className="flex items-start gap-3">
+                                <Avatar className="w-8 h-8">
+                                    <AvatarImage src={note.avatar} alt={note.user} />
+                                    <AvatarFallback>{note.user.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-foreground">{note.user}</p>
+                                    <p>{note.text}</p>
+                                </div>
+                                <Button variant="ghost" size="sm" className="h-auto px-2 py-1 text-muted-foreground shrink-0">
                                    <ThumbsUp className="w-4 h-4 mr-2" /> {note.upvotes}
                                </Button>
                            </div>
@@ -259,13 +268,20 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
 
                 <div className="space-y-4 pt-4">
                     <h3 className="text-xl font-bold font-headline flex items-center gap-2"><MessageSquare className="w-5 h-5"/> Community Notes</h3>
-                    <div className="space-y-3">
-                       {courseData.communityNotes.map((note:any) => (
-                           <Card key={note.id} className="p-3 text-sm bg-background">
-                               <p>{note.text}</p>
-                               <div className="flex justify-between items-center mt-2">
-                                   <p className="text-xs text-muted-foreground font-medium">-- {note.user}</p>
-                                   <Button variant="ghost" size="sm" className="h-auto px-2 py-1 text-muted-foreground">
+                     <div className="space-y-3">
+                       {courseData.communityNotes.sort((a: any, b: any) => b.isTopNote - a.isTopNote || b.upvotes - a.upvotes).map((note:any) => (
+                           <Card key={note.id} className={`p-3 text-sm bg-background ${note.isTopNote ? 'border-amber-500/50' : ''}`}>
+                                {note.isTopNote && <Badge className="mb-2 bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20"><Star className="w-3 h-3 mr-1" /> Top Note</Badge>}
+                               <div className="flex items-start gap-3">
+                                   <Avatar className="w-8 h-8">
+                                       <AvatarImage src={note.avatar} alt={note.user} />
+                                       <AvatarFallback>{note.user.charAt(0)}</AvatarFallback>
+                                   </Avatar>
+                                   <div className="flex-1">
+                                       <p className="font-semibold text-foreground">{note.user}</p>
+                                       <p>{note.text}</p>
+                                   </div>
+                                    <Button variant="ghost" size="sm" className="h-auto px-2 py-1 text-muted-foreground shrink-0">
                                        <ThumbsUp className="w-4 h-4 mr-2" /> {note.upvotes}
                                    </Button>
                                </div>

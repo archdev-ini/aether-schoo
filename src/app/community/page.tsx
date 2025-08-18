@@ -1,7 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, Users, Bell, ShieldCheck, CheckCircle, Lightbulb, Heart, PencilRuler } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MessageCircle, Users, Bell, ShieldCheck, CheckCircle, Lightbulb, Heart, PencilRuler, Award } from "lucide-react";
 import Link from "next/link";
 
 const communityPlatforms = [
@@ -32,6 +33,12 @@ const communityValues = [
     { icon: Lightbulb, text: "Share generously. Your knowledge and feedback are invaluable." },
     { icon: Heart, text: "Respect all perspectives. Our diversity is our strength." },
     { icon: CheckCircle, text: "Build constructively. We are here to elevate each other." },
+]
+
+const topContributors = [
+    { name: "Amina E.", points: 1250, avatar: "https://images.unsplash.com/photo-1580894908361-967195033215?q=80&w=100&h=100&auto=format&fit=crop", aiHint: "professional woman" },
+    { name: "David T.", points: 1100, avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=100&h=100&auto=format&fit=crop", aiHint: "professional man" },
+    { name: "Sarah K.", points: 950, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&h=100&auto=format&fit=crop", aiHint: "professional woman portrait" },
 ]
 
 export default function CommunityPage() {
@@ -91,6 +98,41 @@ export default function CommunityPage() {
             </div>
         </div>
       </section>
+      
+      {/* Top Contributors Leaderboard Section */}
+        <section className="w-full py-16 md:py-24">
+            <div className="container px-4 md:px-6">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                    <h2 className="text-3xl font-bold tracking-tight font-headline">Top Contributors</h2>
+                    <p className="mt-4 text-muted-foreground md:text-lg">
+                        Our community is built by its members. Earn points by contributing notes, helping peers, and suggesting content.
+                    </p>
+                </div>
+                <div className="max-w-2xl mx-auto">
+                    <Card>
+                        <CardContent className="p-4 space-y-4">
+                           {topContributors.map((user, index) => (
+                               <div key={user.name} className="flex items-center gap-4 p-2 rounded-md transition-colors hover:bg-muted/50">
+                                   <span className="font-bold text-lg text-muted-foreground w-6 text-center">{index + 1}</span>
+                                   <Avatar>
+                                       <AvatarImage src={user.avatar} alt={user.name} data-ai-hint={user.aiHint} />
+                                       <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                   </Avatar>
+                                   <div className="flex-grow">
+                                       <p className="font-semibold">{user.name}</p>
+                                   </div>
+                                   <div className="text-right">
+                                       <p className="font-bold text-primary">{user.points} pts</p>
+                                       {index === 0 && <Badge variant="secondary" className="mt-1 bg-amber-500/10 text-amber-600 border-amber-500/20">Top Contributor</Badge>}
+                                   </div>
+                               </div>
+                           ))}
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </section>
+
 
        {/* Community Guidelines Section */}
         <section className="w-full py-16 md:py-24 bg-muted">
