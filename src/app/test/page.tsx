@@ -26,16 +26,8 @@ const FormSchema = z.object({
   mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship'], { required_error: 'Please select your main interest.' }),
   preferredPlatform: z.enum(['Discord', 'WhatsApp', 'Telegram'], { required_error: 'Please select a platform.' }),
   socialHandle: z.string().optional(),
-  reason: z.string().min(10, { message: 'Please tell us why you want to join (at least 10 characters).' }),
+  reasonToJoin: z.string().min(10, { message: 'Please tell us why you want to join (at least 10 characters).' }),
   referralCode: z.string().optional(),
-}).refine(data => {
-    if (data.referralCode && data.referralCode.length > 0) {
-        return /^AETH-[A-Z]{2}\d{2}$/.test(data.referralCode.toUpperCase());
-    }
-    return true;
-}, {
-    message: 'Invalid referral code format. Must be AETH-XX12.',
-    path: ['referralCode'],
 });
 
 export type FormValues = z.infer<typeof FormSchema>;
@@ -53,7 +45,7 @@ export default function TestPage() {
         email: '',
         location: '',
         socialHandle: '',
-        reason: '',
+        reasonToJoin: '',
         referralCode: '',
     },
   });
@@ -65,9 +57,9 @@ export default function TestPage() {
         if (result.success && result.aetherId) {
             toast({
               title: "Success!",
-              description: "Redirecting to your dashboard..."
+              description: `New member added with ID: ${result.aetherId}`
             });
-            router.push('/school');
+            // You can redirect or perform other actions here
         } else {
             throw new Error(result.error || 'An unexpected error occurred.');
         }
@@ -86,9 +78,9 @@ export default function TestPage() {
     <main className="container py-12 md:py-24 animate-in fade-in duration-500">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Test Auth Flow</h1>
+            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Aether Detailed Signup</h1>
             <p className="mt-4 text-muted-foreground md:text-xl">
-                Fill out this form to simulate signup and be redirected to the school dashboard.
+                This form captures detailed information for new members.
             </p>
         </div>
         <Card>
@@ -126,7 +118,7 @@ export default function TestPage() {
                             <FormItem><FormLabel>Social Handle <span className="text-muted-foreground">(Instagram or X, optional)</span></FormLabel><FormControl><Input placeholder="@yourhandle" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
 
-                         <FormField control={form.control} name="reason" render={({ field }) => (
+                         <FormField control={form.control} name="reasonToJoin" render={({ field }) => (
                             <FormItem><FormLabel>Why do you want to join Aether?</FormLabel><FormControl><Textarea placeholder="Tell us about your goals, aspirations, and what you hope to achieve..." className="resize-none" rows={5} {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
 
@@ -136,7 +128,7 @@ export default function TestPage() {
 
                         <Button type="submit" disabled={isLoading} size="lg" className="w-full">
                           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Submit & Go to Dashboard
+                          Submit
                         </Button>
                     </form>
                 </Form>

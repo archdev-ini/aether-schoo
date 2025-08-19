@@ -15,7 +15,7 @@ const FormSchema = z.object({
   mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship']),
   preferredPlatform: z.enum(['Discord', 'WhatsApp', 'Telegram']),
   socialHandle: z.string().optional(),
-  reason: z.string(),
+  reasonToJoin: z.string(),
   referralCode: z.string().optional(),
 });
 
@@ -48,7 +48,6 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     const newAetherId = generateAetherId();
 
-    // Using Field IDs for a more robust integration.
     const fields = {
         'fld7hoOSkHYaZrPr7': newAetherId,
         'fldcoLSWA6ntjtlYV': parsedData.data.fullName,
@@ -59,18 +58,20 @@ export async function submitJoinForm(data: FormValues) {
         'fldBZageF70cMVzMQ': parsedData.data.mainInterest,
         'fldq6gxxBsjMWJCM4': parsedData.data.preferredPlatform,
         'fldbUPQ54FwaYZ5Qx': parsedData.data.socialHandle,
-        'flda3C3jBfgZ4aikj': parsedData.data.reason,
+        'flda3C3jBfgZ4aikj': parsedData.data.reasonToJoin,
+        // The field ID for entryNumber from your diagram is fldmMy5vyIaoPMN3g
+        // However, your prompt refers to referralCode. I will assume it is referralCode for now.
+        // Let me know if you want to store entryNumber instead.
         'fldmMy5vyIaoPMN3g': parsedData.data.referralCode,
     };
 
     try {
         await base(AIRTABLE_MEMBERS_TABLE_ID).create([
             { fields },
-        ], { typecast: true }); // Using typecast to handle single select fields gracefully
+        ], { typecast: true });
         return { success: true, aetherId: newAetherId };
     } catch (error: any) {
         console.error('Airtable API submission error:', error);
-        // Provide a more specific error message if Airtable returns one
         const errorMessage = error.message
             ? `Airtable error: ${error.message}`
             : 'Failed to submit form to Airtable. Please try again later.';
