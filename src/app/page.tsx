@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen, Layers, Users, Calendar, Star } from "lucide-reac
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { getEvents } from "@/app/events/actions";
 
 const pillars = [
     {
@@ -23,21 +24,6 @@ const pillars = [
     },
 ];
 
-const prelaunchEvents = [
-    {
-        title: "Keynote: The Future of African Cities",
-        description: "With leading urbanist Dr. Adanna Okoye.",
-    },
-    {
-        title: "Workshop: Intro to Parametric Design",
-        description: "A hands-on session for beginners.",
-    },
-     {
-        title: "Q&A: Building a Global Practice",
-        description: "With the founders of Aether.",
-    },
-]
-
 function BlueprintBackground() {
     return (
         <div className="absolute inset-0 z-0 overflow-hidden opacity-5 dark:opacity-[0.03]">
@@ -55,7 +41,10 @@ function BlueprintBackground() {
     )
 }
 
-export default function Home() {
+export default async function Home() {
+  const allEvents = await getEvents();
+  const upcomingEvents = allEvents.filter(e => e.status === 'Upcoming').slice(0, 3);
+
   return (
     <div className="flex flex-col animate-in fade-in duration-500">
       <main className="flex-1">
@@ -121,10 +110,10 @@ export default function Home() {
              </div>
              <div className="mx-auto w-full max-w-4xl">
                  <div className="grid sm:grid-cols-3 gap-6">
-                    {prelaunchEvents.map((event) => (
-                        <div key={event.title} className="p-6 rounded-lg bg-muted/50">
+                    {upcomingEvents.map((event) => (
+                        <div key={event.id} className="p-6 rounded-lg bg-muted/50">
                             <h3 className="font-bold text-lg">{event.title}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{event.description}</p>
                         </div>
                     ))}
                  </div>
