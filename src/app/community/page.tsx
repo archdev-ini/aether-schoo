@@ -12,21 +12,21 @@ const communityPlatforms = [
     icon: MessageCircle, 
     description: "The heart of our community. Join channels for design critiques, project showcases, Q&As, and live events.",
     cta: "Join the Design Critique Channel",
-    href: "/confirm-id" 
+    href: "/login" 
   },
   { 
     name: "Telegram", 
     icon: Bell, 
     description: "Stay in the loop. Get real-time announcements, industry news, and key Aether updates.",
     cta: "Get Important Announcements",
-    href: "/confirm-id" 
+    href: "/login" 
   },
   { 
     name: "WhatsApp", 
     icon: Users, 
     description: "Connect with your local chapter. Join regional groups for meetups and localized discussions.",
     cta: "Find Your Local Group",
-    href: "/confirm-id" 
+    href: "/login" 
   },
 ];
 
@@ -153,7 +153,7 @@ export default function CommunityPage() {
                     </ul>
                      <div className="pt-4">
                         <Button asChild>
-                            <Link href="/confirm-id">
+                            <Link href="/community/suggest">
                                 <PencilRuler className="mr-2"/>
                                 Suggest Content for the Library
                             </Link>
@@ -172,7 +172,7 @@ export default function CommunityPage() {
                             Access to our private channels requires a verified Aether ID. This ensures our community remains a trusted space for professionals and students.
                         </p>
                         <Button asChild className="mt-6" size="lg" id="confirm-id-community">
-                            <Link href="/confirm-id">Confirm My ID</Link>
+                            <Link href="/login">Login to Join</Link>
                         </Button>
                     </CardContent>
                 </Card>

@@ -13,9 +13,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { validateAetherId } from './actions';
+import { loginUser } from './actions';
 
 const FormSchema = z.object({
+  fullName: z.string().min(2, { message: 'Please enter your full name.' }),
   aetherId: z.string().min(5, { message: 'Please enter a valid Aether ID.' }),
 });
 
@@ -29,7 +30,7 @@ export default function LoginPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { aetherId: '' },
+    defaultValues: { fullName: '', aetherId: '' },
   });
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function LoginPage() {
     if (storedId && storedName) {
       setRememberedUser({ id: storedId, name: storedName });
       form.setValue('aetherId', storedId);
+      form.setValue('fullName', storedName);
     }
   }, [form]);
 
@@ -46,7 +48,7 @@ export default function LoginPage() {
     setIsLoading(true);
     const aetherId = data.aetherId.toUpperCase();
     try {
-      const result = await validateAetherId({ aetherId });
+      const result = await loginUser({ fullName: data.fullName, aetherId });
       if (result.success && result.data) {
         localStorage.setItem('aether_user_id', aetherId);
         localStorage.setItem('aether_user_name', result.data.fullName);
@@ -59,7 +61,7 @@ export default function LoginPage() {
       } else {
          toast({
           title: 'Login Failed',
-          description: result.error || 'Please check your Aether ID and try again.',
+          description: result.error || 'Please check your details and try again.',
           variant: 'destructive',
         });
       }
@@ -88,7 +90,7 @@ export default function LoginPage() {
           <KeyRound className="w-12 h-12 mx-auto text-primary mb-4" />
           <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Member Portal</h1>
           <p className="mt-4 text-muted-foreground md:text-xl">
-            Enter your Aether ID to access your profile and learning dashboard.
+            Enter your credentials to access your profile and learning dashboard.
           </p>
         </div>
 
@@ -104,6 +106,15 @@ export default function LoginPage() {
             <CardContent>
                 <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField control={form.control} name="fullName" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Full Name</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Your full name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
                     <FormField control={form.control} name="aetherId" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Your Aether ID</FormLabel>
@@ -131,9 +142,6 @@ export default function LoginPage() {
          <div className="text-center mt-8">
             <p className="text-muted-foreground">
                 Don't have an ID? <Link href="/join" className="text-primary underline">Join Aether now</Link>
-            </p>
-             <p className="text-muted-foreground mt-2">
-                Need to verify your full name? <Link href="/confirm-id" className="text-primary underline">Go to verification</Link>
             </p>
         </div>
       </div>
