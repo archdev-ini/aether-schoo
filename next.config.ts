@@ -38,11 +38,6 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
-        source: '/profile',
-        destination: '/coming-soon',
-        permanent: false,
-      },
-      {
         source: '/map',
         destination: '/coming-soon',
         permanent: false,
