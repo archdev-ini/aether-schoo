@@ -34,7 +34,7 @@ async function generateAetherId(base: any, tableId: string): Promise<string> {
     const checksum = sha1Hash.substring(0, 2).toUpperCase();
 
     // 4. Assemble the final ID
-    return `aeth-${code}-${checksum}`;
+    return `AETH-${code}-${checksum}`;
 }
 
 export async function submitJoinForm(data: FormValues) {

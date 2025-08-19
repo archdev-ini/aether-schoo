@@ -131,7 +131,7 @@ export default function ConfirmIdPage() {
                         <FormItem>
                             <FormLabel>Aether ID</FormLabel>
                             <FormControl>
-                                <Input placeholder="AETH-XX123" {...field} />
+                                <Input placeholder="AETH-A2DQ0-X7" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

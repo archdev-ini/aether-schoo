@@ -460,9 +460,9 @@ async function handleVerification(chatId: number, aetherId: string) {
         await sendMessage(chatId, 'Please provide your Aether ID.');
         return;
     }
-    // Regex to match AETH- followed by any combination of letters and numbers, including formats like AETH-XX12 and AETHADM-7R2XK9
+    // Regex to match AETH- followed by any combination of letters and numbers, and hyphens.
     if (!/^AETH(-[A-Z0-9]+)+$/i.test(aetherId)) {
-        await sendMessage(chatId, 'Please provide your Aether ID in a valid format, like `AETH-XX12` or `AETHADM-XXXXX`.');
+        await sendMessage(chatId, 'Please provide your Aether ID in a valid format, like `AETH-A2DQ0-X7`.');
         return;
     }
     const result = await verifyMember(aetherId);
@@ -722,7 +722,7 @@ export async function POST(req: NextRequest) {
 
                 switch (command) {
                     case '/start':
-                        await sendMessage(chat.id, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID (e.g., `AETH-XX12`).');
+                        await sendMessage(chat.id, 'Welcome to the Aether Bot! Please verify your identity by sending your Aether ID (e.g., `AETH-A2DQ0-X7`).');
                         break;
                     
                     case '/verify': // This case is now for regular users
@@ -796,5 +796,3 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Error processing request' }, { status: 500 });
     }
 }
-
-    
