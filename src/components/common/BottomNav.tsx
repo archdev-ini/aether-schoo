@@ -3,22 +3,48 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, Users, LogIn } from 'lucide-react';
+import { Home, Calendar, Users, LogIn, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/events', label: 'Events', icon: Calendar },
-  { href: '/login', label: 'Login', icon: LogIn },
-];
+import { useState, useEffect } from 'react';
 
 export function BottomNav() {
   const pathname = usePathname();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // This effect runs on the client and can safely access localStorage
+    const name = localStorage.getItem('aether_user_name');
+    setIsLoggedIn(!!name);
+
+    // Optional: listen for storage changes to update UI across tabs
+    const handleStorageChange = () => {
+       const name = localStorage.getItem('aether_user_name');
+       setIsLoggedIn(!!name);
+    }
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    }
+  }, []);
+
+  const navItems = [
+    { href: '/', label: 'Home', icon: Home, show: 'always' },
+    { href: '/events', label: 'Events', icon: Calendar, show: 'always' },
+    { href: '/profile', label: 'Profile', icon: User, show: 'loggedIn' },
+    { href: '/login', label: 'Login', icon: LogIn, show: 'loggedOut' },
+  ];
+
+  const visibleItems = navItems.filter(item => {
+      if (item.show === 'always') return true;
+      if (item.show === 'loggedIn' && isLoggedIn) return true;
+      if (item.show === 'loggedOut' && !isLoggedIn) return true;
+      return false;
+  });
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 border-t border-border/40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex justify-around h-16 max-w-screen-2xl items-center">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive = (pathname === '/' && item.href === '/') ||
                            (item.href !== '/' && pathname.startsWith(item.href));
           return (

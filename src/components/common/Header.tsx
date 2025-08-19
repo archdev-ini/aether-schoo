@@ -4,15 +4,20 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, ShieldCheck, UserPlus, LogIn } from 'lucide-react';
+import { Menu, Moon, Sun, User, UserPlus, LogIn, LogOut } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Separator } from '@/components/ui/separator';
+import { useState, useEffect } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const navLinks = [
   { href: '/events', label: 'Events' },
@@ -49,6 +54,31 @@ function ThemeToggle() {
 
 
 export function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userAetherId, setUserAetherId] = useState('');
+  const { toast } = useToast();
+  const router = useRouter();
+
+  useEffect(() => {
+    const name = localStorage.getItem('aether_user_name');
+    const id = localStorage.getItem('aether_user_id');
+    if (name && id) {
+        setIsLoggedIn(true);
+        setUserName(name);
+        setUserAetherId(id);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('aether_user_id');
+    localStorage.removeItem('aether_user_name');
+    setIsLoggedIn(false);
+    setUserName('');
+    setUserAetherId('');
+    toast({ description: "You have been logged out." });
+    router.push('/');
+  }
 
   return (
     <>
@@ -95,32 +125,65 @@ export function Header() {
                       </Link>
                     ))}
                     <Separator className="my-2"/>
-                     <Link
-                        href="/login"
-                        className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        <LogIn className="w-5 h-5"/>
-                        Login
-                      </Link>
-                      <Link
-                        href="/join"
-                        className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        <UserPlus className="w-5 h-5"/>
-                        Get Aether ID
-                      </Link>
+                    {isLoggedIn ? (
+                       <>
+                        <Link href="/profile" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
+                            <User className="w-5 h-5"/> Profile
+                        </Link>
+                        <button onClick={handleLogout} className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground text-left">
+                            <LogOut className="w-5 h-5"/> Logout
+                        </button>
+                       </>
+                    ) : (
+                      <>
+                        <Link href="/login" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
+                            <LogIn className="w-5 h-5"/> Login
+                        </Link>
+                        <Link href="/join" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
+                            <UserPlus className="w-5 h-5"/> Get Aether ID
+                        </Link>
+                      </>
+                    )}
                 </div>
               </SheetContent>
             </Sheet>
           </div>
           <div className="flex items-center gap-2">
              <ThemeToggle />
-             <Button asChild variant="outline">
-                <Link href="/login">Login</Link>
-             </Button>
-            <Button asChild id="get-aether-id-header">
-              <Link href="/join">Get Your Aether ID</Link>
-            </Button>
+            {isLoggedIn ? (
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                           <Avatar className="h-8 w-8">
+                                <AvatarImage src={`https://api.dicebear.com/7.x/bottts/svg?seed=${userAetherId}`} alt={userName} />
+                                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                           </Avatar>
+                         </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                            <Link href="/profile">
+                                <User className="mr-2" />
+                                Profile
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout}>
+                            <LogOut className="mr-2"/>
+                            Logout
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : (
+                <>
+                    <Button asChild variant="outline" className="hidden sm:inline-flex">
+                        <Link href="/login">Login</Link>
+                    </Button>
+                    <Button asChild id="get-aether-id-header">
+                        <Link href="/join">Get Your Aether ID</Link>
+                    </Button>
+                </>
+            )}
           </div>
         </div>
       </div>
