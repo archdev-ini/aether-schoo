@@ -14,7 +14,7 @@ const FormSchema = z.object({
   mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship']),
 });
 
-async function generateAetherId(base: any, tableId: string): Promise<string> {
+async function generateAetherId(base: any, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
     const founderKey = parseInt(process.env.AETHER_FOUNDER_KEY || '731', 10);
     const modulus = 999983; // Large prime modulus
 
@@ -34,7 +34,10 @@ async function generateAetherId(base: any, tableId: string): Promise<string> {
     const checksum = sha1Hash.substring(0, 2).toUpperCase();
 
     // 4. Assemble the final ID
-    return `AETH-${code}-${checksum}`;
+    return {
+        aetherId: `AETH-${code}-${checksum}`,
+        entryNumber: N
+    };
 }
 
 export async function submitJoinForm(data: FormValues) {
@@ -58,7 +61,7 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const newAetherId = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
+        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
 
         const fields = {
             'aetherId': newAetherId,
@@ -66,6 +69,7 @@ export async function submitJoinForm(data: FormValues) {
             'email': parsedData.data.email,
             'location': parsedData.data.location,
             'mainInterest': parsedData.data.mainInterest,
+            'entryNumber': entryNumber, // Store the entry number
         };
 
         await base(AIRTABLE_MEMBERS_TABLE_ID).create([
