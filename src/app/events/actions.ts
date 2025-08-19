@@ -20,6 +20,8 @@ const EventSchema = z.object({
 export type Event = z.infer<typeof EventSchema>;
 
 export async function getEvents(): Promise<Event[]> {
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Artificial delay
+
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,

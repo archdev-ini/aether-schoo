@@ -25,11 +25,6 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  async redirects() {
-    return [
-      // Redirects can be added here if needed in the future
-    ];
-  },
 };
 
 export default nextConfig;

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -14,6 +14,7 @@ import { Loader2, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { loginUser } from './actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
@@ -22,7 +23,7 @@ const FormSchema = z.object({
 
 type FormValues = z.infer<typeof FormSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [rememberedUser, setRememberedUser] = useState<{ id: string; name: string } | null>(null);
   const { toast } = useToast();
@@ -70,15 +71,15 @@ export default function LoginPage() {
         localStorage.setItem('aether_user_id', result.data.aetherId);
         localStorage.setItem('aether_user_name', result.data.fullName);
         
+        // Dispatch a custom event to notify other components (like the header) of the auth change
+        window.dispatchEvent(new CustomEvent('auth-change'));
+        
         toast({
           title: 'Login Successful!',
           description: `Welcome back, ${result.data.fullName.split(' ')[0]}.`,
         });
-
-        // Use router.replace to avoid adding a new entry to the history stack
-        router.replace('/profile');
-        // router.refresh() is important to ensure the server re-evaluates the cookie
-        router.refresh(); 
+        
+        router.push('/profile');
       } else {
          toast({
           title: 'Login Failed',
@@ -102,10 +103,12 @@ export default function LoginPage() {
     localStorage.removeItem('aether_user_name');
     setRememberedUser(null);
     form.reset();
+    // Dispatch a custom event to notify other components (like the header) of the auth change
+    window.dispatchEvent(new CustomEvent('auth-change'));
   }
 
   return (
-    <main className="container py-12 md:py-24 animate-in fade-in duration-500">
+     <main className="container py-12 md:py-24 animate-in fade-in duration-500">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-12">
           <KeyRound className="w-12 h-12 mx-auto text-primary mb-4" />
@@ -167,5 +170,46 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
-  );
+  )
+}
+
+function LoginPageSkeleton() {
+    return (
+         <main className="container py-12 md:py-24">
+            <div className="max-w-md mx-auto">
+                <div className="text-center mb-12 space-y-4">
+                    <Skeleton className="w-12 h-12 rounded-full mx-auto" />
+                    <Skeleton className="h-10 w-3/4 mx-auto" />
+                    <Skeleton className="h-6 w-full max-w-sm mx-auto" />
+                </div>
+                <Card>
+                    <CardHeader>
+                         <Skeleton className="h-8 w-24" />
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                         <div className="space-y-2">
+                             <Skeleton className="h-4 w-20" />
+                             <Skeleton className="h-10 w-full" />
+                         </div>
+                         <div className="space-y-2">
+                             <Skeleton className="h-4 w-20" />
+                             <Skeleton className="h-10 w-full" />
+                         </div>
+                         <Skeleton className="h-11 w-full" />
+                    </CardContent>
+                </Card>
+                 <div className="text-center mt-8">
+                     <Skeleton className="h-5 w-48 mx-auto" />
+                </div>
+            </div>
+        </main>
+    )
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<LoginPageSkeleton />}>
+            <LoginForm />
+        </Suspense>
+    )
 }

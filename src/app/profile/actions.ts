@@ -3,9 +3,6 @@
 
 import { z } from 'zod';
 import Airtable from 'airtable';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-
 
 const MemberProfileSchema = z.object({
     fullName: z.string(),
@@ -76,7 +73,7 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
 }
 
 export async function logout() {
-    cookies().delete('aether_user_id');
-    cookies().delete('aether_user_name');
-    redirect('/login');
+    // This function can be expanded later if server-side sessions are used.
+    // For now, logout is primarily a client-side action.
+    console.log("Logout action called on server.");
 }

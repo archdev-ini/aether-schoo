@@ -4,7 +4,6 @@
 import { z } from 'zod';
 import Airtable from 'airtable';
 import { createHash } from 'crypto';
-import { cookies } from 'next/headers';
 
 const LoginSchema = z.object({
   fullName: z.string().min(2, 'Please enter your full name.'),
@@ -87,21 +86,6 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
             // This indicates a forged or incorrect ID, even if the record was found.
             return { success: false, error: 'Verification failed. The provided ID is invalid.' };
         }
-
-        // If all checks pass, set auth cookie
-        cookies().set('aether_user_id', recordedAetherId, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 60 * 60 * 24 * 7, // 1 week
-            path: '/',
-        });
-         cookies().set('aether_user_name', recordedFullName, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 60 * 60 * 24 * 7, // 1 week
-            path: '/',
-        });
-
 
         return { success: true, data: { fullName: recordedFullName, aetherId: recordedAetherId } };
 
