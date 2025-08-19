@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, ShieldCheck } from 'lucide-react';
+import { Menu, Moon, Sun, ShieldCheck, UserPlus } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -101,6 +101,13 @@ export function Header() {
                       >
                         <ShieldCheck className="w-5 h-5"/>
                         Confirm ID
+                      </Link>
+                      <Link
+                        href="/join"
+                        className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        <UserPlus className="w-5 h-5"/>
+                        Get Aether ID
                       </Link>
                 </div>
               </SheetContent>
