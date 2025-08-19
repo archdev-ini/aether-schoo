@@ -1,140 +1,87 @@
+'use server';
 
-'use client';
-
-import { useState } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
-import { submitJoinForm } from './actions';
-import { useRouter } from 'next/navigation';
+import type { FormValues } from './page';
+import { createHash } from 'crypto';
+
+const Airtable = require('airtable');
 
 const FormSchema = z.object({
-  fullName: z.string().min(2, { message: 'Please enter your full name.' }),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  ageRange: z.string().min(1, { message: 'Please select your age range.' }),
-  location: z.string().min(3, { message: 'Please enter your city and country.' }),
-  role: z.enum(['Student', 'Graduate', 'Professional'], { required_error: 'Please select your role.' }),
-  mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship'], { required_error: 'Please select your main interest.' }),
-  preferredPlatform: z.enum(['Discord', 'WhatsApp', 'Telegram'], { required_error: 'Please select a platform.' }),
-  socialHandle: z.string().optional(),
-  reasonToJoin: z.string().min(10, { message: 'Please tell us why you want to join (at least 10 characters).' }),
-  referralCode: z.string().optional(),
+  fullName: z.string(),
+  email: z.string().email(),
+  location: z.string(),
+  mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship']),
 });
 
-export type FormValues = z.infer<typeof FormSchema>;
+async function generateAetherId(base: any, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
+    const founderKey = parseInt(process.env.AETHER_FOUNDER_KEY || '731', 10);
+    const modulus = 999983; // Large prime modulus
 
+    // 1. Get the current count of records to determine N
+    const records = await base(tableId).select({ fields: [] }).all();
+    const N = records.length + 1;
 
-export default function TestPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const router = useRouter();
+    // 2. Calculate the CODE
+    // Formula: CODE = BASE36(((N * K^3 + K * 97) mod M))
+    const codeValue = (N * Math.pow(founderKey, 3) + founderKey * 97) % modulus;
+    const code = codeValue.toString(36).toUpperCase();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-        fullName: '',
-        email: '',
-        location: '',
-        socialHandle: '',
-        reasonToJoin: '',
-        referralCode: '',
-    },
-  });
+    // 3. Calculate the CHECKSUM
+    // First 2 characters of SHA1 hash of (N || K).
+    const hashInput = `${N}${founderKey}`;
+    const sha1Hash = createHash('sha1').update(hashInput).digest('hex');
+    const checksum = sha1Hash.substring(0, 2).toUpperCase();
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setIsLoading(true);
-    try {
-        const result = await submitJoinForm(data);
-        if (result.success && result.aetherId) {
-            toast({
-              title: "Success!",
-              description: `New member added with ID: ${result.aetherId}`
-            });
-            // You can redirect or perform other actions here
-        } else {
-            throw new Error(result.error || 'An unexpected error occurred.');
-        }
-    } catch(error: any) {
-         toast({
-            title: 'Error',
-            description: error.message || 'There was a problem with your submission. Please try again.',
-            variant: 'destructive',
-        });
-    } finally {
-        setIsLoading(false);
+    // 4. Assemble the final ID
+    return {
+        aetherId: `AETH-${code}-${checksum}`,
+        entryNumber: N
+    };
+}
+
+export async function submitJoinForm(data: FormValues) {
+    const parsedData = FormSchema.safeParse(data);
+
+    if (!parsedData.success) {
+        return { success: false, error: 'Invalid form data.' };
     }
-  };
 
-  return (
-    <main className="container py-12 md:py-24 animate-in fade-in duration-500">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Aether Detailed Signup</h1>
-            <p className="mt-4 text-muted-foreground md:text-xl">
-                This form captures detailed information for new members.
-            </p>
-        </div>
-        <Card>
-            <CardContent className="p-6 md:p-8">
-                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <FormField control={form.control} name="fullName" render={({ field }) => (
-                                <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="email" render={({ field }) => (
-                                <FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="your@email.com" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="ageRange" render={({ field }) => (
-                                <FormItem><FormLabel>Age Range</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select your age range" /></SelectTrigger></FormControl><SelectContent><SelectItem value="<18">&lt;18</SelectItem><SelectItem value="18-24">18-24</SelectItem><SelectItem value="25-34">25-34</SelectItem><SelectItem value="35-44">35-44</SelectItem><SelectItem value="45+">45+</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="location" render={({ field }) => (
-                                <FormItem><FormLabel>City + Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                        </div>
-                        
-                        <FormField control={form.control} name="role" render={({ field }) => (
-                            <FormItem><FormLabel>Which best describes you?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col sm:flex-row gap-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Student" id="r1" /></FormControl><FormLabel htmlFor="r1" className="font-normal">Student</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Graduate" id="r2" /></FormControl><FormLabel htmlFor="r2" className="font-normal">Graduate</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Professional" id="r3" /></FormControl><FormLabel htmlFor="r3" className="font-normal">Professional</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        
-                        <FormField control={form.control} name="mainInterest" render={({ field }) => (
-                            <FormItem><FormLabel>What are you most interested in?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-wrap gap-x-6 gap-y-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Courses" id="i1" /></FormControl><FormLabel htmlFor="i1" className="font-normal">Courses</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Studio" id="i2" /></FormControl><FormLabel htmlFor="i2" className="font-normal">Studio</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Community" id="i3" /></FormControl><FormLabel htmlFor="i3" className="font-normal">Community</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Mentorship" id="i4" /></FormControl><FormLabel htmlFor="i4" className="font-normal">Mentorship</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
-                        )}/>
+    const {
+        AIRTABLE_API_KEY,
+        AIRTABLE_BASE_ID,
+        AIRTABLE_MEMBERS_TABLE_ID
+    } = process.env;
 
-                        <FormField control={form.control} name="preferredPlatform" render={({ field }) => (
-                            <FormItem><FormLabel>Preferred Community Platform</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col sm:flex-row gap-4 pt-2"><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Discord" id="p1" /></FormControl><FormLabel htmlFor="p1" className="font-normal">Discord</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="WhatsApp" id="p2" /></FormControl><FormLabel htmlFor="p2" className="font-normal">WhatsApp</FormLabel></FormItem><FormItem className="flex items-center space-x-3"><FormControl><RadioGroupItem value="Telegram" id="p3" /></FormControl><FormLabel htmlFor="p3" className="font-normal">Telegram</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        
-                        <FormField control={form.control} name="socialHandle" render={({ field }) => (
-                            <FormItem><FormLabel>Social Handle <span className="text-muted-foreground">(Instagram or X, optional)</span></FormLabel><FormControl><Input placeholder="@yourhandle" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID || !process.env.AETHER_FOUNDER_KEY) {
+        console.error('Airtable or Founder Key credentials are not set in environment variables.');
+        return { success: false, error: 'Server configuration error. Please contact support.' };
+    }
 
-                         <FormField control={form.control} name="reasonToJoin" render={({ field }) => (
-                            <FormItem><FormLabel>Why do you want to join Aether?</FormLabel><FormControl><Textarea placeholder="Tell us about your goals, aspirations, and what you hope to achieve..." className="resize-none" rows={5} {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+    
+    try {
+        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
 
-                        <FormField control={form.control} name="referralCode" render={({ field }) => (
-                            <FormItem><FormLabel>Referral Code <span className="text-muted-foreground">(Another member's Aether ID, optional)</span></FormLabel><FormControl><Input placeholder="Enter code if you have one" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
+        const fields = {
+            'aetherId': newAetherId,
+            'fullName': parsedData.data.fullName,
+            'email': parsedData.data.email,
+            'location': parsedData.data.location,
+            'mainInterest': parsedData.data.mainInterest,
+            'entryNumber': entryNumber, // Store the entry number
+        };
 
-                        <Button type="submit" disabled={isLoading} size="lg" className="w-full">
-                          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Submit
-                        </Button>
-                    </form>
-                </Form>
-            </CardContent>
-        </Card>
-      </div>
-    </main>
-  );
+        await base(AIRTABLE_MEMBERS_TABLE_ID).create([
+            { fields },
+        ], { typecast: true });
+        return { success: true, aetherId: newAetherId };
+
+    } catch (error: any) {
+        console.error('Airtable API submission error:', error);
+        const errorMessage = error.message
+            ? `Airtable error: ${error.message}`
+            : 'Failed to submit form to Airtable. Please try again later.';
+            
+        return { success: false, error: errorMessage };
+    }
 }
