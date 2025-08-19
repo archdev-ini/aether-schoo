@@ -1,100 +1,19 @@
 
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut } from "lucide-react";
-import { getMemberProfile, type MemberProfile } from './actions';
-import { useToast } from '@/hooks/use-toast';
+import { getMemberProfile, type MemberProfile, logout } from './actions';
 import Link from 'next/link';
 
-function ProfileSkeleton() {
-    return (
-        <div className="max-w-4xl mx-auto space-y-8">
-            <Card className="overflow-hidden">
-                <Skeleton className="h-24 md:h-32" />
-                <div className="flex flex-col md:flex-row items-center md:items-end p-6 gap-6 -mt-16 md:-mt-20">
-                    <Skeleton className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-background" />
-                    <div className="flex-grow text-center md:text-left space-y-2">
-                        <Skeleton className="h-8 w-48 mx-auto md:mx-0" />
-                        <Skeleton className="h-4 w-72 mx-auto md:mx-0" />
-                    </div>
-                    <Skeleton className="h-10 w-36" />
-                </div>
-            </Card>
-             <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-1 space-y-8">
-                    <Card><CardContent className="p-6"><Skeleton className="h-24" /></CardContent></Card>
-                    <Card><CardContent className="p-6"><Skeleton className="h-32" /></CardContent></Card>
-                </div>
-                <div className="lg:col-span-2">
-                    <Card><CardContent className="p-6"><Skeleton className="h-48" /></CardContent></Card>
-                </div>
-             </div>
-        </div>
-    )
-}
-
-export default function ProfilePage() {
-  const [profile, setProfile] = useState<MemberProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const aetherId = localStorage.getItem('aether_user_id');
-    if (!aetherId) {
-      router.push('/login');
-      return;
-    }
-
-    async function fetchProfile() {
-      setIsLoading(true);
-      const result = await getMemberProfile(aetherId);
-      if (result.success && result.data) {
-        setProfile(result.data);
-      } else {
-        toast({
-          title: 'Error',
-          description: result.error || 'Could not load your profile.',
-          variant: 'destructive',
-        });
-        // Clear broken credentials and redirect to login
-        localStorage.removeItem('aether_user_id');
-        localStorage.removeItem('aether_user_name');
-        router.push('/login');
-      }
-      setIsLoading(false);
-    }
-
-    fetchProfile();
-  }, [router, toast]);
-  
-  const handleLogout = () => {
-    localStorage.removeItem('aether_user_id');
-    localStorage.removeItem('aether_user_name');
-    toast({ description: "You have been logged out." });
-    router.push('/login');
-  }
-
-  if (isLoading || !profile) {
-    return (
-        <main className="container py-12 md:py-24 animate-in fade-in duration-500">
-            <ProfileSkeleton />
-        </main>
-    );
-  }
-  
+async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
   const { fullName, aetherId, email, role, location, mainInterest, reasonToJoin } = profile;
   const firstName = fullName.split(' ')[0];
 
   return (
-    <main className="container py-12 md:py-24 animate-in fade-in duration-500">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Profile Header Card */}
         <Card className="overflow-hidden">
@@ -116,7 +35,9 @@ export default function ProfilePage() {
                     <Pencil className="mr-2" /> Edit Profile
                   </Link>
                 </Button>
-                <Button variant="ghost" size="icon" onClick={handleLogout}><LogOut /></Button>
+                <form action={logout}>
+                    <Button variant="ghost" size="icon" type="submit"><LogOut /></Button>
+                </form>
              </div>
           </div>
         </Card>
@@ -177,6 +98,30 @@ export default function ProfilePage() {
             </div>
         </div>
       </div>
+  )
+}
+
+export default async function ProfilePage() {
+  const cookieStore = cookies();
+  const aetherId = cookieStore.get('aether_user_id')?.value;
+
+  if (!aetherId) {
+    redirect('/login');
+  }
+
+  const result = await getMemberProfile(aetherId);
+
+  if (!result.success || !result.data) {
+    // This case handles if the cookie is stale or the user was deleted from Airtable
+    // We clear the cookie and redirect to login
+    cookies().delete('aether_user_id');
+    cookies().delete('aether_user_name');
+    redirect('/login?error=not_found');
+  }
+
+  return (
+    <main className="container py-12 md:py-24 animate-in fade-in duration-500">
+      <ProfilePageContent profile={result.data} />
     </main>
   );
 }

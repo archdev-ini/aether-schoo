@@ -2,8 +2,9 @@
 'use server';
 
 import { z } from 'zod';
-const Airtable = require('airtable');
+import Airtable from 'airtable';
 import { createHash } from 'crypto';
+import { cookies } from 'next/headers';
 
 const LoginSchema = z.object({
   fullName: z.string().min(2, 'Please enter your full name.'),
@@ -28,7 +29,7 @@ function generateVerificationId(entryNumber: number, founderKey: number): string
 }
 
 
-export async function loginUser(input: LoginInput): Promise<{ success: boolean; data?: { fullName: string }; error?: string }> {
+export async function loginUser(input: LoginInput): Promise<{ success: boolean; data?: { fullName: string, aetherId: string }; error?: string }> {
     const parsedInput = LoginSchema.safeParse(input);
 
     if (!parsedInput.success) {
@@ -87,8 +88,22 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
             return { success: false, error: 'Verification failed. The provided ID is invalid.' };
         }
 
-        // If all checks pass, the user is authentic.
-        return { success: true, data: { fullName: recordedFullName } };
+        // If all checks pass, set auth cookie
+        cookies().set('aether_user_id', recordedAetherId, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: '/',
+        });
+         cookies().set('aether_user_name', recordedFullName, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: '/',
+        });
+
+
+        return { success: true, data: { fullName: recordedFullName, aetherId: recordedAetherId } };
 
     } catch (error: any) {
         console.error('Airtable API error:', error);

@@ -2,7 +2,10 @@
 'use server';
 
 import { z } from 'zod';
-const Airtable = require('airtable');
+import Airtable from 'airtable';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
 
 const MemberProfileSchema = z.object({
     fullName: z.string(),
@@ -70,4 +73,10 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
         console.error('Airtable API error fetching profile:', error);
         return { success: false, error: 'Failed to communicate with the database.' };
     }
+}
+
+export async function logout() {
+    cookies().delete('aether_user_id');
+    cookies().delete('aether_user_name');
+    redirect('/login');
 }

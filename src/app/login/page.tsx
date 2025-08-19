@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, KeyRound } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { loginUser } from './actions';
 
 const FormSchema = z.object({
@@ -27,6 +27,7 @@ export default function LoginPage() {
   const [rememberedUser, setRememberedUser] = useState<{ id: string; name: string } | null>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
@@ -34,7 +35,7 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    // Check for remembered user on mount
+    // Check for remembered user on mount from localStorage
     const storedId = localStorage.getItem('aether_user_id');
     const storedName = localStorage.getItem('aether_user_name');
     if (storedId && storedName) {
@@ -42,7 +43,22 @@ export default function LoginPage() {
       form.setValue('aetherId', storedId);
       form.setValue('fullName', storedName);
     }
-  }, [form]);
+    
+    // Check for error from URL query params
+    const error = searchParams.get('error');
+    if (error === 'not_found') {
+        toast({
+            title: 'Session Error',
+            description: 'Your login session was invalid. Please log in again.',
+            variant: 'destructive',
+        });
+        // Clear potentially stale localStorage
+        localStorage.removeItem('aether_user_id');
+        localStorage.removeItem('aether_user_name');
+        setRememberedUser(null);
+        form.reset();
+    }
+  }, [form, searchParams, toast]);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
@@ -50,14 +66,19 @@ export default function LoginPage() {
     try {
       const result = await loginUser({ fullName: data.fullName, aetherId });
       if (result.success && result.data) {
-        localStorage.setItem('aether_user_id', aetherId);
+        // Save to localStorage for client-side components that need immediate access
+        localStorage.setItem('aether_user_id', result.data.aetherId);
         localStorage.setItem('aether_user_name', result.data.fullName);
         
         toast({
           title: 'Login Successful!',
           description: `Welcome back, ${result.data.fullName.split(' ')[0]}.`,
         });
-        router.push('/profile');
+
+        // Use router.replace to avoid adding a new entry to the history stack
+        router.replace('/profile');
+        // router.refresh() is important to ensure the server re-evaluates the cookie
+        router.refresh(); 
       } else {
          toast({
           title: 'Login Failed',

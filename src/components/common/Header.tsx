@@ -61,23 +61,35 @@ export function Header() {
   const router = useRouter();
 
   useEffect(() => {
+    // This effect now primarily reads from localStorage for client-side display consistency.
+    // The actual auth state is managed by the server cookie.
     const name = localStorage.getItem('aether_user_name');
     const id = localStorage.getItem('aether_user_id');
     if (name && id) {
         setIsLoggedIn(true);
         setUserName(name);
         setUserAetherId(id);
+    } else {
+        setIsLoggedIn(false);
+        setUserName('');
+        setUserAetherId('');
     }
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Client-side cleanup
     localStorage.removeItem('aether_user_id');
     localStorage.removeItem('aether_user_name');
     setIsLoggedIn(false);
     setUserName('');
     setUserAetherId('');
+    
+    // Server-side cleanup (calling a server action)
+    await fetch('/api/logout', { method: 'POST' });
+
     toast({ description: "You have been logged out." });
     router.push('/');
+    router.refresh(); // Force a refresh to re-evaluate server components
   }
 
   return (
