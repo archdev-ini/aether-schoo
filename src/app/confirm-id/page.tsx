@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, UserCheck, Search, ShieldX, MessageCircle, Send } from 'lucide-react';
+import { Loader2, UserCheck, Search, ShieldX, KeyRound, Lock, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { verifyMember } from './actions';
 
@@ -74,26 +74,20 @@ export default function ConfirmIdPage() {
             <div className="max-w-lg mx-auto">
                 <Card className="text-center animate-in fade-in duration-300">
                     <CardHeader>
-                        <UserCheck className="w-16 h-16 mx-auto text-primary" />
-                        <CardTitle className="text-3xl font-bold mt-4">You're Verified, {verifiedName.split(' ')[0]}!</CardTitle>
-                        <CardDescription>Welcome to the inner circle. Use the links below to join our private community spaces and get involved.</CardDescription>
+                        <div className="relative w-24 h-24 mx-auto">
+                             <Lock className="w-24 h-24 text-muted-foreground/20" />
+                             <KeyRound className="absolute w-16 h-16 text-primary top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in-50 duration-1000" />
+                        </div>
+                        <CardTitle className="text-3xl font-bold mt-4 font-headline">Your ID is the Key</CardTitle>
+                        <CardDescription>You're verified, {verifiedName.split(' ')[0]}. The rest of Aether will unlock on December 8, 2025.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Button asChild size="lg" variant="outline">
-                                <Link href="https://discord.gg/D8g8dSf7GE" target="_blank">
-                                    <MessageCircle className="mr-2" />
-                                    Join Discord
-                                </Link>
-                            </Button>
-                             <Button asChild size="lg" variant="outline">
-                                <Link href="https://t.me/+MdYqlhI_Z2g2ZDA0" target="_blank">
-                                    <Send className="mr-2" />
-                                    Join Telegram
-                                </Link>
-                            </Button>
-                        </div>
-                        <p className="text-xs text-muted-foreground pt-4">You now have access to all community features. Introduce yourself!</p>
+                        <Button asChild size="lg">
+                            <Link href="/events">
+                                <Calendar className="mr-2" />
+                                Stay Connected for the Reveal
+                            </Link>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
