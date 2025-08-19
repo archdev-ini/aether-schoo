@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Loader2, ShieldCheck, Eye, MessageCircle, Twitter } from 'lucide-react';
 import Link from 'next/link';
 import { submitJoinForm } from './actions';
 import { WelcomeCard } from '@/components/common/WelcomeCard';
@@ -24,6 +24,20 @@ const FormSchema = z.object({
 });
 
 export type FormValues = z.infer<typeof FormSchema>;
+
+// Inline SVG for Discord Icon
+const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.39 0 2.72-.28 3.96-.81.28.66.73 1.25 1.3 1.72.63.53 1.38.92 2.24 1.1.28.06.56.09.84.09.68 0 1.33-.21 1.88-.61.66-.48 1.15-1.16 1.4-1.95.29-.9.4-1.85.4-2.83 0-5.52-4.48-10-10-10zm-3.5 12.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+);
+// Inline SVG for Telegram Icon
+const TelegramIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 2l-7 20-4-9-9-4Z"/><path d="M22 2L11 13"/></svg>
+);
+// Inline SVG for WhatsApp Icon
+const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21.44 11.23c0 5.6-4.59 10.17-10.23 10.17-1.78 0-3.48-.46-4.96-1.29l-5.25 1.62 1.66-5.1c-.93-1.55-1.48-3.35-1.48-5.23C1.18 5.63 5.77 1.06 11.41 1.06c2.78 0 5.3.99 7.25 2.78 1.94 1.8 3.03 4.3 3.03 7.39z"/></svg>
+);
+
 
 export default function JoinPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -74,18 +88,35 @@ export default function JoinPage() {
 
                 <WelcomeCard fullName={fullName} aetherId={aetherId} />
 
+                 <Button asChild variant="outline" size="lg">
+                    <Link href="/lobby">
+                        <Eye className="mr-2" />
+                        See a Sneak Peek of the Platform
+                    </Link>
+                </Button>
+
                 <Card>
                     <CardHeader>
-                        <ShieldCheck className="w-10 h-10 mx-auto text-primary" />
-                        <CardTitle>Next Step: Verify Your ID</CardTitle>
-                        <CardDescription>To unlock private community channels and get full access, you need to verify your new ID.</CardDescription>
+                        <CardTitle>Next Step: Join the Community</CardTitle>
+                        <CardDescription>Your Aether ID is your key. Use it to introduce yourself in our community hubs.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <p className="text-sm text-muted-foreground">Click the button below to complete the final step.</p>
+                    <CardContent className="grid sm:grid-cols-3 gap-4">
                         <Button asChild size="lg" className="w-full">
-                            <Link href="/confirm-id">
-                                Verify My ID & Join Community
-                                <ArrowRight className="ml-2" />
+                            <Link href="https://discord.gg/D8g8dSf7GE" target="_blank">
+                                <DiscordIcon className="mr-2" />
+                                Join Discord
+                            </Link>
+                        </Button>
+                         <Button asChild size="lg" className="w-full bg-[#2AABEE] hover:bg-[#2AABEE]/90">
+                            <Link href="#" target="_blank">
+                                <TelegramIcon className="mr-2" />
+                                Join Telegram
+                            </Link>
+                        </Button>
+                         <Button asChild size="lg" className="w-full bg-[#25D366] hover:bg-[#25D366]/90">
+                            <Link href="#" target="_blank">
+                                <WhatsAppIcon className="mr-2" />
+                                Join WhatsApp
                             </Link>
                         </Button>
                     </CardContent>
