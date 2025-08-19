@@ -11,16 +11,22 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowRight, Loader2, ShieldCheck, Eye, MessageCircle, Twitter } from 'lucide-react';
+import { ArrowRight, Loader2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { submitJoinForm } from './actions';
 import { WelcomeCard } from '@/components/common/WelcomeCard';
+import { Textarea } from '@/components/ui/textarea';
 
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   location: z.string().min(3, { message: 'Please enter your city and country.' }),
+  ageRange: z.string({ required_error: 'Please select your age range.' }),
+  role: z.enum(['Student', 'Graduate', 'Professional'], { required_error: 'Please select your current role.' }),
   mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship'], { required_error: 'Please select your main interest.' }),
+  preferredPlatform: z.enum(['Discord', 'WhatsApp', 'Telegram'], { required_error: 'Please select your preferred platform.'}),
+  socialHandle: z.string().optional(),
+  reasonToJoin: z.string().optional(),
 });
 
 export type FormValues = z.infer<typeof FormSchema>;
@@ -52,6 +58,8 @@ export default function JoinPage() {
         fullName: '',
         email: '',
         location: '',
+        socialHandle: '',
+        reasonToJoin: '',
     },
   });
 
@@ -138,7 +146,7 @@ export default function JoinPage() {
         <Card>
             <CardContent className="p-6 md:p-8">
                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <div className="grid md:grid-cols-2 gap-6">
                             <FormField control={form.control} name="fullName" render={({ field }) => (
                                 <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem>
@@ -147,22 +155,74 @@ export default function JoinPage() {
                                 <FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="your@email.com" {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </div>
-                        <FormField control={form.control} name="location" render={({ field }) => (
-                            <FormItem><FormLabel>City + Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
+
+                         <div className="grid md:grid-cols-2 gap-6">
+                            <FormField control={form.control} name="location" render={({ field }) => (
+                                <FormItem><FormLabel>City + Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                             <FormField control={form.control} name="ageRange" render={({ field }) => (
+                                <FormItem><FormLabel>Age Range</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Select your age range" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="<18">&lt;18</SelectItem>
+                                        <SelectItem value="18-24">18-24</SelectItem>
+                                        <SelectItem value="25-34">25-34</SelectItem>
+                                        <SelectItem value="35-44">35-44</SelectItem>
+                                        <SelectItem value="45-60">45-60</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage /></FormItem>
+                            )}/>
+                        </div>
                         
-                        <FormField control={form.control} name="mainInterest" render={({ field }) => (
-                            <FormItem><FormLabel>What are you most interested in?</FormLabel>
+                        <div className="grid md:grid-cols-2 gap-6">
+                             <FormField control={form.control} name="role" render={({ field }) => (
+                                <FormItem><FormLabel>Current Role</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Select your current role" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Student">Student</SelectItem>
+                                        <SelectItem value="Graduate">Graduate</SelectItem>
+                                        <SelectItem value="Professional">Professional</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="mainInterest" render={({ field }) => (
+                                <FormItem><FormLabel>Main Interest</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue placeholder="Select your main interest" /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="Courses">Courses & Learning</SelectItem>
+                                        <SelectItem value="Studio">Studio Projects & Collaboration</SelectItem>
+                                        <SelectItem value="Community">Community & Networking</SelectItem>
+                                        <SelectItem value="Mentorship">Mentorship</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage /></FormItem>
+                            )}/>
+                        </div>
+                        
+                         <FormField control={form.control} name="preferredPlatform" render={({ field }) => (
+                            <FormItem><FormLabel>Preferred Community Platform</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select your main interest" /></SelectTrigger></FormControl>
+                                <FormControl><SelectTrigger><SelectValue placeholder="Where are you most active?" /></SelectTrigger></FormControl>
                                 <SelectContent>
-                                    <SelectItem value="Courses">Courses & Learning</SelectItem>
-                                    <SelectItem value="Studio">Studio Projects & Collaboration</SelectItem>
-                                    <SelectItem value="Community">Community & Networking</SelectItem>
-                                    <SelectItem value="Mentorship">Mentorship</SelectItem>
+                                    <SelectItem value="Discord">Discord</SelectItem>
+                                    <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                                    <SelectItem value="Telegram">Telegram</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage /></FormItem>
+                        )}/>
+
+                        <FormField control={form.control} name="socialHandle" render={({ field }) => (
+                            <FormItem><FormLabel>X (Twitter) or Instagram Handle <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="@yourhandle" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+
+                        <FormField control={form.control} name="reasonToJoin" render={({ field }) => (
+                            <FormItem><FormLabel>What do you hope to achieve with Aether? <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Textarea placeholder="e.g., 'To collaborate on innovative projects...'" className="resize-none" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
 
                         <Button type="submit" disabled={isLoading} size="lg" className="w-full">

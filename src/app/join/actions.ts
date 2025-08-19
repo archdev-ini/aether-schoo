@@ -11,7 +11,12 @@ const FormSchema = z.object({
   fullName: z.string(),
   email: z.string().email(),
   location: z.string(),
+  ageRange: z.string(),
+  role: z.enum(['Student', 'Graduate', 'Professional']),
   mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship']),
+  preferredPlatform: z.enum(['Discord', 'WhatsApp', 'Telegram']),
+  socialHandle: z.string().optional(),
+  reasonToJoin: z.string().optional(),
 });
 
 async function generateAetherId(base: any, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
@@ -44,6 +49,7 @@ export async function submitJoinForm(data: FormValues) {
     const parsedData = FormSchema.safeParse(data);
 
     if (!parsedData.success) {
+        console.error('Form validation failed:', parsedData.error.flatten().fieldErrors);
         return { success: false, error: 'Invalid form data.' };
     }
 
@@ -62,14 +68,23 @@ export async function submitJoinForm(data: FormValues) {
     
     try {
         const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
+        const { 
+            fullName, email, location, ageRange, role, 
+            mainInterest, preferredPlatform, socialHandle, reasonToJoin 
+        } = parsedData.data;
 
         const fields = {
             'aetherId': newAetherId,
-            'fullName': parsedData.data.fullName,
-            'email': parsedData.data.email,
-            'location': parsedData.data.location,
-            'mainInterest': parsedData.data.mainInterest,
-            'entryNumber': entryNumber, // Store the entry number
+            'fullName': fullName,
+            'email': email,
+            'location': location,
+            'ageRange': ageRange,
+            'role': role,
+            'mainInterest': mainInterest,
+            'preferredPlatform': preferredPlatform,
+            'socialHandle': socialHandle,
+            'reasonToJoin': reasonToJoin,
+            'entryNumber': entryNumber,
         };
 
         await base(AIRTABLE_MEMBERS_TABLE_ID).create([
