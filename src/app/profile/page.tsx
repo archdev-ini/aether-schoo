@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut } from "lucide-react";
 import { getMemberProfile, type MemberProfile } from './actions';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 function ProfileSkeleton() {
     return (
@@ -110,7 +111,11 @@ export default function ProfilePage() {
               </p>
             </div>
              <div className="flex gap-2">
-                <Button variant="outline"><Pencil className="mr-2" /> Edit Profile</Button>
+                <Button variant="outline" asChild>
+                  <Link href="/profile/edit">
+                    <Pencil className="mr-2" /> Edit Profile
+                  </Link>
+                </Button>
                 <Button variant="ghost" size="icon" onClick={handleLogout}><LogOut /></Button>
              </div>
           </div>
