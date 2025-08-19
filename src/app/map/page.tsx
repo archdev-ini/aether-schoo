@@ -23,7 +23,7 @@ async function MapData() {
             <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-4" />
             <CardTitle>Could Not Load Map Data</CardTitle>
             <CardDescription className="mt-2">
-                There was a problem fetching member locations. This may be due to a server configuration issue. Please try again later.
+                {error}
             </CardDescription>
         </Card>
     )
