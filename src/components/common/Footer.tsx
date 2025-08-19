@@ -31,7 +31,10 @@ export function Footer() {
                  </div>
             </div>
              <div className="mt-8 pt-6 border-t border-border/40 text-center md:text-left text-sm text-muted-foreground flex flex-col md:flex-row justify-between items-center gap-4">
-                <p>&copy; 2025 Aether by Buildr Africa. All rights reserved.</p>
+                <div className="space-y-2 text-center md:text-left">
+                    <p>&copy; 2025 Aether by Buildr Africa. All rights reserved.</p>
+                    <p>Full platform launch on December 8, 2025 — join now to secure your ID.</p>
+                </div>
                 <div className="flex gap-4">
                     <Link href="/privacy-policy" className="hover:text-foreground">Privacy Policy</Link>
                     <Link href="/terms-of-use" className="hover:text-foreground">Terms of Use</Link>
