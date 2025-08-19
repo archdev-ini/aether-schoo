@@ -2,7 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+const Airtable = require('airtable');
 
 const UserLocationSchema = z.object({
   id: z.string(),
@@ -52,45 +52,55 @@ async function geocodeLocation(location: string, apiKey: string): Promise<{ lat:
 }
 
 export async function getUserLocations(): Promise<UserLocation[]> {
-    const supabase = await createSupabaseServerClient();
-    const { GOOGLE_MAPS_API_KEY } = process.env;
+    const {
+        AIRTABLE_API_KEY,
+        AIRTABLE_BASE_ID,
+        AIRTABLE_MEMBERS_TABLE_ID,
+        GOOGLE_MAPS_API_KEY
+    } = process.env;
 
-    if (!GOOGLE_MAPS_API_KEY) {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+        throw new Error('Airtable credentials are not set in environment variables.');
+    }
+     if (!GOOGLE_MAPS_API_KEY) {
         throw new Error('Google Maps API key is not configured.');
     }
 
-    const { data: records, error } = await supabase
-        .from('members')
-        .select('id, fullName, location, mainInterest')
-        .not('location', 'is', null) // Only select members with a location
-        .limit(100); // Limit to 100 members to avoid excessive geocoding requests
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 
-    if (error) {
-        console.error('Supabase API error:', error);
+    try {
+        const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
+            filterByFormula: "NOT({location} = '')",
+            fields: ['fullName', 'location', 'mainInterest'],
+            maxRecords: 100 // Limit to avoid excessive geocoding requests
+        }).all();
+
+        const locationsPromises = records.map(async (record) => {
+            const locationString = record.get('location') as string;
+            let coords = null;
+            if (locationString) {
+                 coords = await geocodeLocation(locationString, GOOGLE_MAPS_API_KEY);
+            }
+
+            return {
+                id: record.id,
+                fullName: record.get('fullName') as string || 'An Aether Member',
+                location: locationString || 'Parts Unknown',
+                mainInterest: record.get('mainInterest') as string || 'Exploring',
+                lat: coords?.lat,
+                lng: coords?.lng,
+            };
+        });
+
+        const locations = await Promise.all(locationsPromises);
+
+        // Filter out users that could not be geocoded
+        const validLocations = locations.filter(l => l.lat && l.lng);
+        
+        return UserLocationSchema.array().parse(validLocations);
+
+    } catch (error) {
+        console.error('Airtable API error:', error);
         throw new Error('Failed to fetch locations from the database.');
     }
-
-    const locationsPromises = records.map(async (record) => {
-        const locationString = record.location;
-        let coords = null;
-        if (locationString && typeof locationString === 'string') {
-             coords = await geocodeLocation(locationString, GOOGLE_MAPS_API_KEY);
-        }
-
-        return {
-            id: String(record.id), // Ensure id is a string for the schema
-            fullName: record.fullName || 'An Aether Member',
-            location: locationString || 'Parts Unknown',
-            mainInterest: record.mainInterest || 'Exploring',
-            lat: coords?.lat,
-            lng: coords?.lng,
-        };
-    });
-
-    const locations = await Promise.all(locationsPromises);
-
-    // Filter out users that could not be geocoded
-    const validLocations = locations.filter(l => l.lat && l.lng);
-    
-    return UserLocationSchema.array().parse(validLocations);
 }
