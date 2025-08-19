@@ -36,7 +36,7 @@ export async function verifyMember(input: VerifyMemberInput): Promise<{ success:
     try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             // Find the record where BOTH the Aether ID and Full Name match.
-            filterByFormula: `AND({aetherId} = "${aetherId.toUpperCase()}", {fullName} = "${fullName}")`,
+            filterByFormula: `AND(UPPER({aetherId}) = "${aetherId.toUpperCase()}", {fullName} = "${fullName}")`,
             maxRecords: 1,
             fields: ['fullName'] // We only need to confirm the name exists.
         }).firstPage();

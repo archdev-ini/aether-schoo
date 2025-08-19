@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, School, Users, Waypoints, CheckCircle, Leaf, Cpu, Group, Globe } from "lucide-react";
+import { ArrowRight, Waypoints, CheckCircle, Rss, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,19 +10,20 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CountdownTimer } from "@/components/common/CountdownTimer";
+import { Badge } from "@/components/ui/badge";
 
 const featuredFaqs = [
   {
-    question: "What exactly is Aether?",
-    answer: "Aether is a global-facing, locally empowering platform for architects, designers, and students. We provide learning programs, project opportunities, and a vibrant community focused on culturally rooted, climate-conscious design.",
+    question: "What is the Aether Prelaunch?",
+    answer: "This is an early-access phase for our founding members. It allows you to get your Aether ID, join our community channels, and get notified about our first events before the full platform launch on December 8, 2025.",
   },
   {
-    question: "Who can join the Aether Community?",
-    answer: "Anyone passionate about architecture, urban design, or creative problem-solving is welcome — whether you’re a student, practicing professional, or an enthusiast exploring the field.",
+    question: "What can I do during the prelaunch?",
+    answer: "You can create your Aether ID, verify it to get access to our private Discord and Telegram groups, and sign up for our upcoming events.",
   },
   {
-    question: "What’s the difference between Aether School and Horizon Studio?",
-    answer: "Aether School is our learning arm, offering courses and workshops. Horizon Studio is our project lab, where members collaborate on real-world challenges.",
+    question: "When will courses and other features be available?",
+    answer: "The Aether School, including all courses and primers, along with the Horizon Studio project lab, will go live on our full platform launch date: December 8, 2025.",
   },
    {
     question: "Do I need to be in Nigeria to join?",
@@ -41,22 +42,26 @@ export default function Home() {
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-16">
               <div className="flex flex-col justify-center space-y-6">
                 <div className="space-y-4">
+                  <Badge variant="outline" className="text-base py-2 px-4 border-primary/50 text-primary">
+                    <Star className="w-5 h-5 mr-2" />
+                    World Architecture Day Prelaunch is Live!
+                  </Badge>
                   <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none font-headline">
-                    From Africa to the World — Building Architects Who Shape the Future
+                    From Africa to the World — The Future of Architecture Starts Here.
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Aether is a global architecture learning community — born in Africa — equipping the next generation to design spaces that are culturally rooted, climate-responsive, and globally relevant.
+                    Welcome to the Aether prelaunch. Get your permanent Aether ID, join our global community, and be the first to know about our upcoming events. The full learning platform launches December 8, 2025.
                   </p>
                 </div>
                 <div className="flex flex-col gap-4 min-[400px]:flex-row">
                   <Button asChild size="lg" id="join-waitlist-hero">
                     <Link href="/join">
-                      Join Now
+                      Get Your Aether ID
                     </Link>
                   </Button>
                    <Button asChild size="lg" variant="outline">
-                    <Link href="/about">
-                      See How We’re Building the Future
+                    <Link href="/events">
+                      View Upcoming Events
                     </Link>
                   </Button>
                 </div>
@@ -88,20 +93,13 @@ export default function Home() {
               />
               <div className="space-y-6">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">The world’s cities are expanding fast — but architecture education isn’t keeping pace.</h2>
-                <ul className="grid gap-4 text-muted-foreground md:text-lg">
-                    <li className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Architecture education often ignores climate realities.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                         <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Many schools push imported ideas over cultural heritage.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                         <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                        <span>Young designers lack global networks to grow.</span>
-                    </li>
-                </ul>
+                 <p className="text-muted-foreground md:text-lg">Aether was created to change that. We're building a new path for architecture education — one that is culturally grounded, climate-responsive, and globally connected.</p>
+                 <Button asChild variant="link" className="p-0 h-auto text-lg">
+                   <Link href="/about">
+                      Read Our Mission
+                      <ArrowRight className="ml-2"/>
+                    </Link>
+                 </Button>
               </div>
             </div>
           </div>
@@ -111,122 +109,40 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-4">
-                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">Aether: Learn. Collaborate. Build.</h2>
+                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">What You Can Do Now</h2>
                  <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
-                    Aether is more than a platform — it’s a studio without walls.
+                    Join our prelaunch to become a founding member of the Aether ecosystem.
                 </p>
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:gap-12 lg:grid-cols-3 mt-12">
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
-                  <div className="flex justify-center"><School className="w-10 h-10 text-primary mb-2" /></div>
-                  <h3 className="text-xl font-bold">Learn</h3>
-                  <p className="text-muted-foreground">Practical design education for African realities.</p>
+                  <div className="flex justify-center"><Star className="w-10 h-10 text-primary mb-2" /></div>
+                  <h3 className="text-xl font-bold">Get Your ID</h3>
+                  <p className="text-muted-foreground">Claim your unique Aether ID to become a founding member.</p>
               </div>
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
-                  <div className="flex justify-center"><Users className="w-10 h-10 text-primary mb-2" /></div>
-                  <h3 className="text-xl font-bold">Collaborate</h3>
-                  <p className="text-muted-foreground">Connect with peers & mentors across the world.</p>
+                  <div className="flex justify-center"><Rss className="w-10 h-10 text-primary mb-2" /></div>
+                  <h3 className="text-xl font-bold">Join the Community</h3>
+                  <p className="text-muted-foreground">Access private channels on Discord and Telegram.</p>
               </div>
               <div className="grid gap-2 text-center p-6 bg-muted/50 rounded-lg">
                   <div className="flex justify-center"><Waypoints className="w-10 h-10 text-primary mb-2" /></div>
-                  <h3 className="text-xl font-bold">Build</h3>
-                  <p className="text-muted-foreground">Work on projects. Earn credentials. Get opportunities.</p>
+                  <h3 className="text-xl font-bold">Access Events</h3>
+                  <p className="text-muted-foreground">Get invites to exclusive prelaunch workshops and Q&As.</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="why-us" className="w-full py-12 md:py-24 lg:py-32 bg-muted animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-          <div className="container px-4 md:px-6">
-            <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">
-                Why Aether?
-              </h2>
-              <p className="mt-4 text-muted-foreground md:text-xl">
-                We believe in learning that is rooted in culture, responsive to the climate, and connected to a global community of innovators.
-              </p>
-            </div>
-            <div className="mx-auto mt-12 grid max-w-5xl gap-8 sm:grid-cols-2 md:grid-cols-3">
-              <div className="flex items-start gap-4">
-                <Globe className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-lg font-bold">Africa-First, Global-Ready</h3>
-                  <p className="text-muted-foreground">Curriculum designed in Africa, for the world.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <Leaf className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-lg font-bold">Sustainable by Design</h3>
-                  <p className="text-muted-foreground">Integrating climate-conscious principles in all we do.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <Cpu className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-lg font-bold">Tech-Enabled Learning</h3>
-                  <p className="text-muted-foreground">Using modern tools for real-world collaboration.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="w-full py-12 md:py-24 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-400">
+        <section className="w-full py-12 md:py-24 bg-primary/5 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-400">
             <div className="container text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">We Launch in 2 Phases</h2>
-                <div className="relative mt-8 max-w-4xl mx-auto py-4">
-                  <div className="absolute top-1/2 left-0 w-full h-1 bg-muted rounded-full" />
-                  <div className="relative flex justify-between">
-                      <div className="text-center">
-                          <div className="w-4 h-4 bg-primary rounded-full mx-auto" />
-                          <p className="mt-2 text-sm font-semibold">Oct 6, 2025</p>
-                          <p className="text-xs text-muted-foreground">Pre-Launch Event</p>
-                      </div>
-                      <div className="text-center">
-                           <div className="w-4 h-4 bg-primary rounded-full mx-auto" />
-                          <p className="mt-2 text-sm font-semibold">Dec 8, 2025</p>
-                           <p className="text-xs text-muted-foreground">Full Platform Rollout</p>
-                      </div>
-                  </div>
-                </div>
-                 <p className="mt-6 max-w-2xl mx-auto md:text-xl">Join the Founding 500 — the first architects and students shaping the community.</p>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Full Platform Launches December 8, 2025</h2>
+                 <p className="mt-6 max-w-2xl mx-auto md:text-xl text-muted-foreground">Countdown to the Aether School and Horizon Studio launch.</p>
                 <div className="mt-8 max-w-4xl mx-auto">
-                    <CountdownTimer targetDate={preLaunchDate} />
+                    <CountdownTimer targetDate="2025-12-08T00:00:00Z" />
                 </div>
             </div>
-        </section>
-
-        <section id="social-proof" className="w-full py-12 md:py-24 lg:py-32 bg-muted animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-              <div className="space-y-2">
-                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">From Studio Desk to Global Vision</h2>
-              </div>
-            </div>
-            <div className="max-w-4xl mx-auto grid md:grid-cols-[1fr_3fr] gap-8 md:gap-12 items-start">
-                <div className="flex flex-col items-center text-center">
-                     <Image
-                        src="https://placehold.co/400x400.png"
-                        width={150}
-                        height={150}
-                        alt="Inioluwa Oladipupo"
-                        data-ai-hint="portrait man"
-                        className="rounded-full object-cover mb-4 shadow-lg"
-                    />
-                    <h3 className="font-bold font-headline text-lg">Inioluwa Oladipupo</h3>
-                    <p className="text-sm text-muted-foreground">Founder, Aether</p>
-                </div>
-                <div className="prose prose-lg max-w-none text-muted-foreground">
-                    <p>“Hi, I’m Inioluwa — I started Aether because I believe architects from Africa deserve global platforms without losing our roots.”</p>
-                    <p>Aether began as an idea during countless late nights in the studio — working on design briefs and wondering why so many buildings felt disconnected from their climate, culture, and community.</p>
-                    <p>I realized the problem was deeper than individual projects. Many schools relied on foreign models that overlooked local genius, while young architects struggled to gain recognition beyond their borders.</p>
-                    <p>Aether was created to change that — to give architects and designers a space to learn, collaborate, and prove their skills on the world stage, while staying connected to their roots.</p>
-                    <p>Our journey starts in Africa, but our vision is global. We believe architecture can shape identity and community anywhere — if it’s grounded in the people and places it serves.</p>
-                </div>
-            </div>
-          </div>
         </section>
 
         <section id="faq" className="w-full py-12 md:py-24 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-600">
@@ -261,7 +177,7 @@ export default function Home() {
            <div className="container text-center bg-primary/5 rounded-lg p-10 md:p-16">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-5xl font-headline">🌍 Become a Founding Member</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                   Founding spots are limited. Join now to shape the future of design.
+                   Founding spots are limited. Get your Aether ID now to shape the future of design.
                 </p>
                 <div className="mt-8">
                     <Button asChild size="lg">

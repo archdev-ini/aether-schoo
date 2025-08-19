@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -23,6 +24,65 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       }
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/school',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+       {
+        source: '/school/:path*',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+      {
+        source: '/profile',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+      {
+        source: '/map',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+      {
+        source: '/community/suggest',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+       {
+        source: '/community',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+       {
+        source: '/search',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+       {
+        source: '/discover',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+      {
+        source: '/projects',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+        {
+        source: '/impact',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+       {
+        source: '/programs',
+        destination: '/coming-soon',
+        permanent: false,
+      },
+    ];
   },
 };
 

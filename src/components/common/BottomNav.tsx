@@ -3,15 +3,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Compass, Search, Users, ShieldCheck } from 'lucide-react';
+import { Home, Calendar, Users, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
-  { href: '/school', label: 'School', icon: Compass },
-  { href: '/search', label: 'Search', icon: Search },
-  { href: '/community', label: 'Community', icon: Users },
-  { href: '/confirm-id', label: 'ID', icon: ShieldCheck },
+  { href: '/events', label: 'Events', icon: Calendar },
+  { href: '/confirm-id', label: 'Verify ID', icon: ShieldCheck },
 ];
 
 export function BottomNav() {

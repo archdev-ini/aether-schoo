@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, ShieldCheck, Search } from 'lucide-react';
+import { Menu, Moon, Sun, ShieldCheck } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -13,15 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Separator } from '@/components/ui/separator';
-import { SearchDialog } from './SearchDialog';
-import { useState } from 'react';
 
 const navLinks = [
-  { href: '/programs', label: 'Programs' },
-  { href: '/community', label: 'Community' },
   { href: '/events', label: 'Events' },
-  { href: '/impact', label: 'Impact' },
   { href: '/about', label: 'About' },
+  { href: '/faq', label: 'FAQ' },
 ];
 
 function ThemeToggle() {
@@ -53,7 +49,6 @@ function ThemeToggle() {
 
 
 export function Header() {
-  const [openSearch, setOpenSearch] = useState(false);
 
   return (
     <>
@@ -112,10 +107,6 @@ export function Header() {
             </Sheet>
           </div>
           <div className="flex items-center gap-2">
-             <Button variant="ghost" size="icon" onClick={() => setOpenSearch(true)}>
-                <Search className="h-5 w-5" />
-                <span className="sr-only">Search</span>
-             </Button>
              <ThemeToggle />
             <Button asChild id="get-aether-id-header">
               <Link href="/join">Get Your Aether ID</Link>
@@ -124,7 +115,6 @@ export function Header() {
         </div>
       </div>
     </header>
-    <SearchDialog open={openSearch} onOpenChange={setOpenSearch} />
     </>
   );
 }
