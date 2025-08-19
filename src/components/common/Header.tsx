@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, ShieldCheck, UserPlus } from 'lucide-react';
+import { Menu, Moon, Sun, ShieldCheck, UserPlus, LogIn } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -96,11 +96,11 @@ export function Header() {
                     ))}
                     <Separator className="my-2"/>
                      <Link
-                        href="/confirm-id"
+                        href="/login"
                         className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground"
                       >
-                        <ShieldCheck className="w-5 h-5"/>
-                        Confirm ID
+                        <LogIn className="w-5 h-5"/>
+                        Login
                       </Link>
                       <Link
                         href="/join"
@@ -115,6 +115,9 @@ export function Header() {
           </div>
           <div className="flex items-center gap-2">
              <ThemeToggle />
+             <Button asChild variant="outline">
+                <Link href="/login">Login</Link>
+             </Button>
             <Button asChild id="get-aether-id-header">
               <Link href="/join">Get Your Aether ID</Link>
             </Button>

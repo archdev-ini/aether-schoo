@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserCheck, Search, ShieldX, KeyRound, Lock, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { verifyMember } from './actions';
+import { useRouter } from 'next/navigation';
 
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
@@ -27,6 +28,7 @@ export default function ConfirmIdPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [verifiedName, setVerifiedName] = useState('');
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
@@ -40,12 +42,17 @@ export default function ConfirmIdPage() {
     setIsLoading(true);
     setVerified(false);
     setErrorState(false);
+    const aetherId = data.aetherId.toUpperCase();
     try {
       const result = await verifyMember({ 
           fullName: data.fullName, 
-          aetherId: data.aetherId.toUpperCase() 
+          aetherId: aetherId
       });
       if (result.success && result.data) {
+        // "Remember" the user by saving to localStorage
+        localStorage.setItem('aether_user_id', aetherId);
+        localStorage.setItem('aether_user_name', result.data.fullName);
+        
         setVerified(true);
         setVerifiedName(result.data.fullName);
       } else {
@@ -79,13 +86,12 @@ export default function ConfirmIdPage() {
                              <KeyRound className="absolute w-16 h-16 text-primary top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in-50 duration-1000" />
                         </div>
                         <CardTitle className="text-3xl font-bold mt-4 font-headline">Your ID is the Key</CardTitle>
-                        <CardDescription>You're verified, {verifiedName.split(' ')[0]}. The rest of Aether will unlock on December 8, 2025.</CardDescription>
+                        <CardDescription>You're verified, {verifiedName.split(' ')[0]}. You can now log in to the member portal.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <Button asChild size="lg">
-                            <Link href="/events">
-                                <Calendar className="mr-2" />
-                                Stay Connected for the Reveal
+                            <Link href="/login">
+                                Go to Login Portal
                             </Link>
                         </Button>
                     </CardContent>
@@ -155,6 +161,12 @@ export default function ConfirmIdPage() {
                 </CardContent>
             </Card>
         )}
+        
+        <div className="text-center mt-8">
+            <p className="text-muted-foreground">
+                Already verified? <Link href="/login" className="text-primary underline">Go to login</Link>
+            </p>
+        </div>
 
       </div>
     </main>
