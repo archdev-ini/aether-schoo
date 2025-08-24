@@ -3,7 +3,8 @@ import { ContentForm } from '../../ContentForm';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { getContentById, type ContentData } from '../../actions';
+import { getContentById } from '../../actions';
+import type { ContentData } from '@/types/content';
 
 export default async function EditContentPage({ params }: { params: { id: string } }) {
     const content = await getContentById(params.id);

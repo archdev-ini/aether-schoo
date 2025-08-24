@@ -5,38 +5,7 @@ import { z } from 'zod';
 import Airtable from 'airtable';
 import { revalidatePath } from 'next/cache';
 import { notFound } from 'next/navigation';
-
-// These types are now defined in ContentForm.tsx but we need them for the function signatures.
-// It's a bit of duplication, but necessary to keep the 'use server' file clean.
-const ContentFormSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters.'),
-  description: z.string().min(10, 'Description must be at least 10 characters.'),
-  author: z.string().min(2, 'Author is required.'),
-  format: z.string({ required_error: 'Please select a format.' }),
-  difficulty: z.string({ required_error: 'Please select a difficulty.'}),
-  status: z.enum(['Draft', 'Published']),
-  releaseDate: z.string().optional(),
-  contentUrl: z.string().url().optional().or(z.literal('')),
-  tags: z.string().optional(),
-});
-type ContentFormValues = z.infer<typeof ContentFormSchema>;
-
-
-// This type describes the data structure for a single content item,
-// used for both listing and fetching individual items.
-export interface ContentData {
-  id: string;
-  title: string;
-  description?: string;
-  author: string;
-  format: string;
-  difficulty?: string;
-  status: 'Draft' | 'Published';
-  releaseDate?: string;
-  contentUrl?: string;
-  tags?: string;
-}
-
+import type { ContentData, ContentFormValues } from '@/types/content';
 
 function getAirtableBase() {
     const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID } = process.env;
