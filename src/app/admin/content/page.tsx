@@ -6,8 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Link as LinkIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
 async function ContentTable() {
   const content = await getContent();
@@ -32,9 +33,8 @@ async function ContentTable() {
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Format</TableHead>
-              <TableHead>Author</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Release Date</TableHead>
+              <TableHead>URL</TableHead>
               <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
@@ -43,13 +43,21 @@ async function ContentTable() {
               <TableRow key={item.id}>
                 <TableCell className="font-medium">{item.title}</TableCell>
                 <TableCell>{item.format}</TableCell>
-                <TableCell>{item.author}</TableCell>
                 <TableCell>
                   <Badge variant={item.status === 'Published' ? 'default' : 'secondary'}>
                     {item.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{item.releaseDate ? new Date(item.releaseDate).toLocaleDateString() : 'N/A'}</TableCell>
+                <TableCell>
+                  {item.contentUrl ? (
+                    <Link href={item.contentUrl} target="_blank" className="text-primary hover:underline flex items-center gap-1">
+                      <LinkIcon className="w-3 h-3" />
+                      Link
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">None</span>
+                  )}
+                </TableCell>
                 <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -60,7 +68,9 @@ async function ContentTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem>Edit</DropdownMenuItem>
-                            <DropdownMenuItem>View</DropdownMenuItem>
+                             <DropdownMenuItem asChild>
+                                <Link href={`/school/courses/${item.id}`} target="_blank">View</Link>
+                            </DropdownMenuItem>
                              <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -69,7 +79,7 @@ async function ContentTable() {
             ))}
              {content.length === 0 && (
                 <TableRow>
-                    <TableCell colSpan={6} className="text-center h-24">
+                    <TableCell colSpan={5} className="text-center h-24">
                         No content found. Add your first piece of content to get started.
                     </TableCell>
                 </TableRow>
@@ -99,9 +109,8 @@ function ContentTableSkeleton() {
                         <TableRow>
                             <TableHead>Title</TableHead>
                             <TableHead>Format</TableHead>
-                            <TableHead>Author</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Release Date</TableHead>
+                            <TableHead>URL</TableHead>
                             <TableHead><span className="sr-only">Actions</span></TableHead>
                         </TableRow>
                     </TableHeader>
@@ -110,9 +119,8 @@ function ContentTableSkeleton() {
                              <TableRow key={i}>
                                 <TableCell><Skeleton className="h-5 w-48" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                                <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                                 <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
-                                <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                                 <TableCell><Skeleton className="h-8 w-8" /></TableCell>
                             </TableRow>
                         ))}

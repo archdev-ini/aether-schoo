@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -10,6 +11,8 @@ const ContentSchema = z.object({
   author: z.string(),
   status: z.enum(['Draft', 'Published']),
   releaseDate: z.string().optional(),
+  contentUrl: z.string().url().optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 export type Content = z.infer<typeof ContentSchema>;
@@ -17,8 +20,6 @@ export type Content = z.infer<typeof ContentSchema>;
 export async function getContent(): Promise<Content[]> {
   const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_CONTENT_TABLE_ID } = process.env;
 
-  // For now, if the content table isn't configured, return an empty array
-  // In a real app, you might want to throw an error or handle this differently.
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_CONTENT_TABLE_ID) {
     console.warn('Airtable credentials for content are not fully set. Returning empty array.');
     return [];
@@ -38,6 +39,8 @@ export async function getContent(): Promise<Content[]> {
       author: record.get('Author') || 'N/A',
       status: record.get('Status') || 'Draft',
       releaseDate: record.get('Release Date'),
+      contentUrl: record.get('Content URL'),
+      tags: record.get('Tags') || [],
     }));
 
     return ContentSchema.array().parse(content);
