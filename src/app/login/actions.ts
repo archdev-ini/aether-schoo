@@ -77,7 +77,7 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
 
         const isAdmin = recordedAetherId.toUpperCase().startsWith('ATM-');
 
-        // Only verify community IDs
+        // Only verify community IDs, not admin/team IDs
         if (!isAdmin) {
              // If entryNumber is missing for some reason, we cannot verify authenticity.
             if (!entryNumber) {
