@@ -3,6 +3,7 @@
 
 import { z } from 'zod';
 import Airtable from 'airtable';
+import { revalidatePath } from 'next/cache';
 
 const MemberSchema = z.object({
   id: z.string(),
@@ -14,6 +15,7 @@ const MemberSchema = z.object({
   mainInterest: z.string(),
   preferredPlatform: z.string(),
   entryNumber: z.number(),
+  status: z.enum(['Active', 'Suspended']),
 });
 
 export type Member = z.infer<typeof MemberSchema>;
@@ -75,6 +77,7 @@ export async function getMembers(options: GetMembersOptions = {}): Promise<Membe
       mainInterest: record.get('mainInterest') || 'Unspecified',
       preferredPlatform: record.get('preferredPlatform') || 'Unspecified',
       entryNumber: record.get('entryNumber') || 0,
+      status: record.get('status') || 'Active',
     }));
 
     return MemberSchema.array().parse(members);
@@ -82,4 +85,26 @@ export async function getMembers(options: GetMembersOptions = {}): Promise<Membe
     console.error('Airtable getMembers error:', error);
     return [];
   }
+}
+
+
+export async function suspendMember(memberId: string): Promise<{ success: boolean, error?: string }> {
+    const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_MEMBERS_TABLE_ID } = process.env;
+
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+        return { success: false, error: 'Airtable credentials not configured.' };
+    }
+
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+
+    try {
+        await base(AIRTABLE_MEMBERS_TABLE_ID).update(memberId, {
+            'status': 'Suspended'
+        });
+        revalidatePath('/admin731/members');
+        return { success: true };
+    } catch (error) {
+        console.error('Airtable suspendMember error:', error);
+        return { success: false, error: 'Failed to update member status in Airtable.' };
+    }
 }

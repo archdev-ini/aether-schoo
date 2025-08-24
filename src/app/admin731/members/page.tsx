@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MemberFilters } from './filters';
+import { MemberActions } from './MemberActions';
 
 async function MembersTable({ search, role, interest, platform }: { search?: string, role?: string, interest?: string, platform?: string }) {
   const members = await getMembers({ search, role, interest, platform });
@@ -23,10 +24,11 @@ async function MembersTable({ search, role, interest, platform }: { search?: str
               <TableHead>#</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Aether ID</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Interest</TableHead>
-              <TableHead>Platform</TableHead>
+              <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -40,15 +42,22 @@ async function MembersTable({ search, role, interest, platform }: { search?: str
                 <TableCell>
                   <Badge variant="outline">{member.aetherId}</Badge>
                 </TableCell>
+                <TableCell>
+                    <Badge variant={member.status === 'Suspended' ? 'destructive' : 'default'}>
+                        {member.status}
+                    </Badge>
+                </TableCell>
                 <TableCell>{member.role}</TableCell>
                 <TableCell>{member.location}</TableCell>
                 <TableCell>{member.mainInterest}</TableCell>
-                <TableCell>{member.preferredPlatform}</TableCell>
+                <TableCell>
+                    <MemberActions memberId={member.id} currentStatus={member.status} />
+                </TableCell>
               </TableRow>
             ))}
              {members.length === 0 && (
                 <TableRow>
-                    <TableCell colSpan={7} className="text-center h-24">
+                    <TableCell colSpan={8} className="text-center h-24">
                        No members found for the current filters.
                     </TableCell>
                 </TableRow>
@@ -74,10 +83,11 @@ function MembersTableSkeleton() {
                              <TableHead>#</TableHead>
                              <TableHead>Name</TableHead>
                              <TableHead>Aether ID</TableHead>
+                             <TableHead>Status</TableHead>
                              <TableHead>Role</TableHead>
                              <TableHead>Location</TableHead>
                              <TableHead>Interest</TableHead>
-                             <TableHead>Platform</TableHead>
+                             <TableHead><span className="sr-only">Actions</span></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -89,10 +99,11 @@ function MembersTableSkeleton() {
                                     <Skeleton className="h-4 w-32" />
                                 </TableCell>
                                 <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                                <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                                <TableCell><Skeleton className="h-8 w-8" /></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
