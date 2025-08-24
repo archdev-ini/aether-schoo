@@ -18,7 +18,6 @@ import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { logout } from '@/app/profile/actions';
 
 const navLinks = [
   { href: '/events', label: 'Events' },
@@ -57,21 +56,46 @@ interface HeaderProps {
   user: { name: string; id: string } | null;
 }
 
-export function Header({ user }: HeaderProps) {
+export function Header({ user: initialUser }: HeaderProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const [user, setUser] = useState(initialUser);
+
+  useEffect(() => {
+    setUser(initialUser);
+  }, [initialUser]);
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+        const storedId = localStorage.getItem('aether_user_id');
+        const storedName = localStorage.getItem('aether_user_name');
+        if (storedId && storedName) {
+            setUser({ id: storedId, name: storedName });
+        } else {
+            setUser(null);
+        }
+    };
+    window.addEventListener('auth-change', handleAuthChange);
+    // Initial check in case the prop is stale
+    handleAuthChange();
+    return () => {
+        window.removeEventListener('auth-change', handleAuthChange);
+    };
+  }, []);
 
   const handleLogout = async () => {
     // Clear localStorage for immediate client-side UI update
     localStorage.removeItem('aether_user_id');
     localStorage.removeItem('aether_user_name');
-    
-    // Call server action to clear cookie
-    await logout();
+    setUser(null);
+
+    // Call server action via API route to clear cookie
+    await fetch('/api/logout', { method: 'POST' });
 
     toast({ description: "You have been logged out." });
     
     // Refresh the page to ensure all server components reflect the logged-out state
+    router.push('/');
     router.refresh();
   }
 

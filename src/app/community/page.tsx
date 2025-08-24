@@ -12,21 +12,21 @@ const communityPlatforms = [
     icon: MessageCircle, 
     description: "The heart of our community. Join channels for design critiques, project showcases, Q&As, and live events.",
     cta: "Join the Design Critique Channel",
-    href: "/login" 
+    href: "https://discord.gg/D8g8dSf7GE" 
   },
   { 
     name: "Telegram", 
     icon: Bell, 
     description: "Stay in the loop. Get real-time announcements, industry news, and key Aether updates.",
     cta: "Get Important Announcements",
-    href: "/login" 
+    href: "#" 
   },
   { 
     name: "WhatsApp", 
     icon: Users, 
     description: "Connect with your local chapter. Join regional groups for meetups and localized discussions.",
     cta: "Find Your Local Group",
-    href: "/login" 
+    href: "#" 
   },
 ];
 
@@ -88,9 +88,9 @@ export default function CommunityPage() {
                             <p className="text-muted-foreground">{platform.description}</p>
                         </CardContent>
                         <div className="p-6 pt-0">
-                            <Button asChild className="w-full" variant="outline">
-                                <Link href={platform.href}>
-                                    {platform.cta}
+                            <Button asChild className="w-full" variant={platform.href==="#" ? "secondary" : "outline"} disabled={platform.href==="#"}>
+                                <Link href={platform.href} target={platform.href.startsWith("http") ? "_blank" : "_self"}>
+                                    {platform.href === "#" ? "Coming Soon" : platform.cta}
                                 </Link>
                             </Button>
                         </div>

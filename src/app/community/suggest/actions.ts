@@ -2,6 +2,7 @@
 'use server';
 
 import { z } from 'zod';
+import Airtable from 'airtable';
 
 const FormSchema = z.object({
   title: z.string(),
@@ -17,14 +18,32 @@ export async function submitSuggestion(data: FormValues) {
     if (!parsedData.success) {
         return { success: false, error: 'Invalid form data.' };
     }
+    
+    const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_QUESTIONS_TABLE_ID } = process.env;
 
-    // In a real app, this would save to a database (e.g., Airtable).
-    // For this example, we'll just log it to the console.
-    console.log('New community suggestion:');
-    console.log(parsedData.data);
-    
-    // Simulate a successful API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return { success: true };
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_QUESTIONS_TABLE_ID) {
+        console.error('Airtable credentials for suggestions are not set.');
+        return { success: false, error: 'Server configuration error.' };
+    }
+
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+
+    try {
+        await base(AIRTABLE_QUESTIONS_TABLE_ID).create([
+            {
+                fields: {
+                    'Submission Text': `${parsedData.data.title}: ${parsedData.data.description}`,
+                    'Type': 'Suggestions',
+                    'Context': 'Content Suggestion Form',
+                    'Submitter Name': parsedData.data.fullName || 'Anonymous',
+                }
+            }
+        ], { typecast: true });
+        
+        return { success: true };
+
+    } catch(error) {
+        console.error('Airtable suggestion submission error:', error);
+        return { success: false, error: 'Failed to submit suggestion to our database.' };
+    }
 }

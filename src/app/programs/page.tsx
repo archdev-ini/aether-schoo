@@ -85,7 +85,7 @@ export default function ProgramsPage() {
                         </CardContent>
                         <div className="mt-6">
                             <Button asChild className="w-full" size="lg">
-                                <Link href="/school">
+                                <Link href="/school/courses">
                                     Explore School Features
                                 </Link>
                             </Button>
