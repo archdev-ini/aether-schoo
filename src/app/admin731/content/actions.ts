@@ -6,7 +6,9 @@ import Airtable from 'airtable';
 import { revalidatePath } from 'next/cache';
 import { notFound } from 'next/navigation';
 
-export const ContentFormSchema = z.object({
+// These types are now defined in ContentForm.tsx but we need them for the function signatures.
+// It's a bit of duplication, but necessary to keep the 'use server' file clean.
+const ContentFormSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters.'),
   description: z.string().min(10, 'Description must be at least 10 characters.'),
   author: z.string().min(2, 'Author is required.'),
@@ -17,22 +19,24 @@ export const ContentFormSchema = z.object({
   contentUrl: z.string().url().optional().or(z.literal('')),
   tags: z.string().optional(),
 });
+type ContentFormValues = z.infer<typeof ContentFormSchema>;
 
-export type ContentFormValues = z.infer<typeof ContentFormSchema>;
 
+// This type describes the data structure for a single content item,
+// used for both listing and fetching individual items.
+export interface ContentData {
+  id: string;
+  title: string;
+  description?: string;
+  author: string;
+  format: string;
+  difficulty?: string;
+  status: 'Draft' | 'Published';
+  releaseDate?: string;
+  contentUrl?: string;
+  tags?: string;
+}
 
-const ContentSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  format: z.string(),
-  author: z.string(),
-  status: z.enum(['Draft', 'Published']),
-  releaseDate: z.string().optional(),
-  contentUrl: z.string().url().optional(),
-  tags: z.array(z.string()).optional(),
-});
-
-export type Content = z.infer<typeof ContentSchema>;
 
 function getAirtableBase() {
     const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID } = process.env;
@@ -43,7 +47,7 @@ function getAirtableBase() {
 }
 
 
-export async function getContent(): Promise<Content[]> {
+export async function getContent(): Promise<ContentData[]> {
   const { AIRTABLE_CONTENT_TABLE_ID } = process.env;
 
   if (!AIRTABLE_CONTENT_TABLE_ID) {
@@ -56,27 +60,28 @@ export async function getContent(): Promise<Content[]> {
   try {
     const records = await base(AIRTABLE_CONTENT_TABLE_ID).select({
       sort: [{ field: 'Release Date', direction: 'desc' }],
+      fields: ['Title', 'Format', 'Status', 'Content URL', 'Tags', 'Release Date', 'Author'] // Specify fields
     }).all();
 
-    const content = records.map(record => ({
+    const content: ContentData[] = records.map(record => ({
       id: record.id,
-      title: record.get('Title') || 'Untitled',
-      format: record.get('Format') || 'N/A',
-      author: record.get('Author') || 'N/A',
-      status: record.get('Status') || 'Draft',
-      releaseDate: record.get('Release Date'),
-      contentUrl: record.get('Content URL'),
-      tags: record.get('Tags') || [],
+      title: record.get('Title') as string || 'Untitled',
+      format: record.get('Format') as string || 'N/A',
+      author: record.get('Author') as string || 'N/A',
+      status: record.get('Status') as 'Draft' | 'Published' || 'Draft',
+      releaseDate: record.get('Release Date') as string,
+      contentUrl: record.get('Content URL') as string,
+      tags: (record.get('Tags') as string[] || []).join(', '),
     }));
 
-    return ContentSchema.array().parse(content);
+    return content;
   } catch (error) {
     console.error('Airtable getContent error:', error);
     return [];
   }
 }
 
-export async function getContentById(id: string) {
+export async function getContentById(id: string): Promise<ContentData | null> {
     const { AIRTABLE_CONTENT_TABLE_ID } = process.env;
     if (!AIRTABLE_CONTENT_TABLE_ID) return null;
 
@@ -84,18 +89,18 @@ export async function getContentById(id: string) {
     try {
         const record = await base(AIRTABLE_CONTENT_TABLE_ID).find(id);
         
-        const tags = record.get('Tags') || [];
+        const tags = record.get('Tags') as string[] || [];
 
         return {
             id: record.id,
-            title: record.get('Title'),
-            description: record.get('Description'),
-            author: record.get('Author'),
-            format: record.get('Format'),
-            difficulty: record.get('Difficulty'),
-            status: record.get('Status'),
-            releaseDate: record.get('Release Date'),
-            contentUrl: record.get('Content URL') || '',
+            title: record.get('Title') as string,
+            description: record.get('Description') as string,
+            author: record.get('Author') as string,
+            format: record.get('Format') as string,
+            difficulty: record.get('Difficulty') as string,
+            status: record.get('Status') as 'Draft' | 'Published',
+            releaseDate: record.get('Release Date') as string,
+            contentUrl: (record.get('Content URL') as string) || '',
             tags: tags.join(', '), // Convert array to comma-separated string for form input
         };
     } catch (error) {

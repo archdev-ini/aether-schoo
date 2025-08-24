@@ -4,7 +4,8 @@
 import { useRouter } from 'next/navigation';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ContentFormSchema, type ContentFormValues, createContent, updateContent } from './actions';
+import { z } from 'zod';
+import { createContent, updateContent, type ContentData } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,11 +17,25 @@ import { Loader2, Save } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 
+export const ContentFormSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters.'),
+  description: z.string().min(10, 'Description must be at least 10 characters.'),
+  author: z.string().min(2, 'Author is required.'),
+  format: z.string({ required_error: 'Please select a format.' }),
+  difficulty: z.string({ required_error: 'Please select a difficulty.'}),
+  status: z.enum(['Draft', 'Published']),
+  releaseDate: z.string().optional(),
+  contentUrl: z.string().url().optional().or(z.literal('')),
+  tags: z.string().optional(),
+});
+
+export type ContentFormValues = z.infer<typeof ContentFormSchema>;
+
 const FORMATS = ['Primer', 'Course', 'Video Course', 'Archive'];
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced', 'All Levels'];
 
 interface ContentFormProps {
-  initialData?: Partial<ContentFormValues> & { id?: string };
+  initialData?: ContentData;
 }
 
 function FormSkeleton() {

@@ -1,6 +1,6 @@
 
 import { Suspense } from 'react';
-import { getContent } from './actions';
+import { getContent, type ContentData } from './actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
