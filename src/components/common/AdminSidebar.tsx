@@ -1,16 +1,15 @@
-
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, LayoutDashboard, BookText, Fingerprint } from 'lucide-react';
+import { Users, LayoutDashboard, BookText, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/admin731', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin731/members', label: 'Members', icon: Users },
   { href: '/admin731/content', label: 'Content', icon: BookText },
-  { href: '/admin731/id-system', label: 'ID System', icon: Fingerprint },
+  { href: '/admin731/create-member', label: 'Create Member', icon: UserPlus },
 ];
 
 export function AdminSidebar() {

@@ -92,6 +92,11 @@ const nextConfig: NextConfig = {
         destination: '/join/team',
         permanent: true,
       },
+      {
+        source: '/admin731/id-system',
+        destination: '/admin731/create-member',
+        permanent: true,
+      },
     ];
   },
 };
