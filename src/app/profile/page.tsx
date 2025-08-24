@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut, BookOpen, Package, Calendar, Clock, ArrowRight } from "lucide-react";
+import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut, BookOpen, Package, Calendar, Clock, ArrowRight, Target, Layers } from "lucide-react";
 import { getMemberProfile, type MemberProfile, logout } from './actions';
 import { getEvents, type Event as EventType } from '@/app/events/actions';
 import Link from 'next/link';
@@ -153,22 +153,28 @@ async function ProfilePageContent({ profile, upcomingEvents }: { profile: Member
                 </Card>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Learning Dashboard</CardTitle>
-                        <CardDescription>Your journey into architectural mastery starts here.</CardDescription>
+                        <CardTitle>Progress Tracker (Lite)</CardTitle>
+                        <CardDescription>Complete primers and join challenges to build your skills.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div>
-                             <label className="text-sm font-medium text-muted-foreground">Primer Progress</label>
-                             <div className="flex items-center gap-4">
-                                <Progress value={20} className="w-full" />
-                                <span className="text-sm font-bold">1/5</span>
-                             </div>
-                             <p className="text-xs text-muted-foreground mt-1">You've completed one primer. Keep it up!</p>
+                        <div className="flex items-center p-3 rounded-lg bg-muted/50">
+                            <Target className="w-6 h-6 mr-4 text-primary" />
+                            <div>
+                                <p className="font-semibold">Primers Completed</p>
+                                <p className="text-lg font-bold">0/3</p>
+                            </div>
+                        </div>
+                         <div className="flex items-center p-3 rounded-lg bg-muted/50">
+                            <Layers className="w-6 h-6 mr-4 text-primary" />
+                            <div>
+                                <p className="font-semibold">Challenges Joined</p>
+                                <p className="text-lg font-bold">0</p>
+                            </div>
                         </div>
 
                         <Button asChild className="w-full">
                             <Link href="/school/courses?difficulty=Beginner&format=Primer">
-                                <BookOpen className="mr-2" /> Start a New Primer
+                                <BookOpen className="mr-2" /> Start Your First Primer
                             </Link>
                         </Button>
                     </CardContent>
