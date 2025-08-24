@@ -27,7 +27,7 @@ export async function getEvents(): Promise<Event[]> {
     } = process.env;
 
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_EVENTS_TABLE_ID) {
-        console.error('Airtable credentials for events are not set in environment variables.');
+        console.warn('Airtable credentials for events are not set in environment variables.');
         return [];
     }
 
