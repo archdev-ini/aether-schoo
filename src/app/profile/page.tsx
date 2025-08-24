@@ -1,12 +1,15 @@
+
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut, BookOpen, Package } from "lucide-react";
+import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut, BookOpen, Package, Calendar, Clock, ArrowRight } from "lucide-react";
 import { getMemberProfile, type MemberProfile, logout } from './actions';
+import { getEvents, type Event as EventType } from '@/app/events/actions';
 import Link from 'next/link';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 // Inline SVG for Discord Icon
 const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -22,7 +25,7 @@ const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
-async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
+async function ProfilePageContent({ profile, upcomingEvents }: { profile: MemberProfile; upcomingEvents: EventType[] }) {
   const { fullName, aetherId, email, role, location, mainInterest, reasonToJoin } = profile;
   const firstName = fullName.split(' ')[0];
 
@@ -30,6 +33,11 @@ async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
     'use server';
     await logout();
     redirect('/login');
+  }
+  
+  function formatEventDate(dateStr: string) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'Africa/Lagos' });
   }
 
   return (
@@ -165,6 +173,37 @@ async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
                         </Button>
                     </CardContent>
                 </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Upcoming Events</CardTitle>
+                        <CardDescription>Join our live sessions and community calls.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {upcomingEvents.length > 0 ? (
+                            upcomingEvents.map(event => (
+                                <div key={event.id} className="flex items-center justify-between gap-4 p-3 -m-3 rounded-lg hover:bg-muted/50">
+                                    <div className="flex items-center gap-4">
+                                        <div className="bg-muted p-3 rounded-lg">
+                                            <Calendar className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold">{event.title}</p>
+                                            <p className="text-sm text-muted-foreground">{formatEventDate(event.date)}</p>
+                                        </div>
+                                    </div>
+                                    <Badge variant="secondary">{event.type}</Badge>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-muted-foreground text-center py-4">No upcoming events right now. Check back soon!</p>
+                        )}
+                         <Button asChild className="w-full" variant="outline">
+                            <Link href="/events">
+                                View All Events <ArrowRight className="ml-2" />
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         </div>
       </div>
@@ -180,9 +219,15 @@ export default async function ProfilePage() {
         redirect('/login');
     }
 
-    const result = await getMemberProfile(aetherId);
+    // Fetch profile and events in parallel
+    const [profileResult, allEvents] = await Promise.all([
+        getMemberProfile(aetherId),
+        getEvents()
+    ]);
+    
+    const upcomingEvents = allEvents.filter(e => e.status === 'Upcoming').slice(0, 3);
 
-    if (!result.success || !result.data) {
+    if (!profileResult.success || !profileResult.data) {
         // Clear potentially invalid cookies and redirect
         cookies().delete('aether_user_id');
         cookies().delete('aether_user_name');
@@ -191,7 +236,7 @@ export default async function ProfilePage() {
     
     return (
         <main className="container py-12 md:py-24 animate-in fade-in duration-500">
-            <ProfilePageContent profile={result.data} />
+            <ProfilePageContent profile={profileResult.data} upcomingEvents={upcomingEvents} />
         </main>
     );
 }
