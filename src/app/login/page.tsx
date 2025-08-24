@@ -79,7 +79,12 @@ function LoginForm() {
           description: `Welcome back, ${result.data.fullName.split(' ')[0]}.`,
         });
         
-        router.push('/profile');
+        if (result.data.isAdmin) {
+            router.push('/admin731');
+        } else {
+            router.push('/profile');
+        }
+
       } else {
          toast({
           title: 'Login Failed',

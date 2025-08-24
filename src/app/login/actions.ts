@@ -29,7 +29,7 @@ function generateVerificationId(entryNumber: number, founderKey: number): string
 }
 
 
-export async function loginUser(input: LoginInput): Promise<{ success: boolean; data?: { fullName: string, aetherId: string }; error?: string }> {
+export async function loginUser(input: LoginInput): Promise<{ success: boolean; data?: { fullName: string, aetherId: string, isAdmin: boolean }; error?: string }> {
     const parsedInput = LoginSchema.safeParse(input);
 
     if (!parsedInput.success) {
@@ -58,7 +58,7 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             filterByFormula: `{fullName} = "${fullName}"`,
             maxRecords: 1,
-            fields: ['fullName', 'entryNumber', 'aetherId'] 
+            fields: ['fullName', 'entryNumber', 'aetherId', 'role'] 
         }).firstPage();
 
         if (records.length === 0) {
@@ -75,24 +75,30 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
              return { success: false, error: 'The Aether ID does not match the name provided.' };
         }
 
-        // If entryNumber is missing for some reason, we cannot verify authenticity.
-        if (!entryNumber) {
-            return { success: false, error: 'Cannot verify this ID. Please contact support.' };
-        }
-        
-        // Re-generate the ID on the server to check its authenticity against tampering.
-        const expectedId = generateVerificationId(entryNumber, founderKey);
+        const isAdmin = recordedAetherId.toUpperCase().startsWith('ATM-');
 
-        if (recordedAetherId.toUpperCase() !== expectedId) {
-            // This indicates a forged or incorrect ID, even if the record was found.
-            return { success: false, error: 'Verification failed. The provided ID is invalid.' };
+        // Only verify community IDs
+        if (!isAdmin) {
+             // If entryNumber is missing for some reason, we cannot verify authenticity.
+            if (!entryNumber) {
+                return { success: false, error: 'Cannot verify this ID. Please contact support.' };
+            }
+            
+            // Re-generate the ID on the server to check its authenticity against tampering.
+            const expectedId = generateVerificationId(entryNumber, founderKey);
+
+            if (recordedAetherId.toUpperCase() !== expectedId) {
+                // This indicates a forged or incorrect ID, even if the record was found.
+                return { success: false, error: 'Verification failed. The provided ID is invalid.' };
+            }
         }
+
 
         // Set cookies for server-side authentication
         cookies().set('aether_user_id', recordedAetherId, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
         cookies().set('aether_user_name', recordedFullName, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
-        return { success: true, data: { fullName: recordedFullName, aetherId: recordedAetherId } };
+        return { success: true, data: { fullName: recordedFullName, aetherId: recordedAetherId, isAdmin } };
 
     } catch (error: any) {
         console.error('Airtable API error:', error);
