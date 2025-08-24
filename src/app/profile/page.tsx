@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut, BookOpen } from "lucide-react";
+import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut, BookOpen, Package } from "lucide-react";
 import { getMemberProfile, type MemberProfile, logout } from './actions';
 import Link from 'next/link';
 import { Progress } from '@/components/ui/progress';
@@ -106,6 +106,20 @@ async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
                             <Link href="#" target="_blank">
                                 <WhatsAppIcon className="mr-2" />
                                 Join WhatsApp
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Knowledge & Tools</CardTitle>
+                        <CardDescription>Access our starter kit for essential guides and resources.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild className="w-full" variant="outline">
+                            <Link href="#" target="_blank">
+                                <Package className="mr-2" />
+                                Open Starter Kit
                             </Link>
                         </Button>
                     </CardContent>
