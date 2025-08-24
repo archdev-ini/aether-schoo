@@ -18,7 +18,15 @@ const MemberSchema = z.object({
 
 export type Member = z.infer<typeof MemberSchema>;
 
-export async function getMembers(): Promise<Member[]> {
+interface GetMembersOptions {
+    search?: string;
+    role?: string;
+    interest?: string;
+    platform?: string;
+}
+
+export async function getMembers(options: GetMembersOptions = {}): Promise<Member[]> {
+  const { search, role, interest, platform } = options;
   const { AIRTABLE_API_KEY, AIRTABLE_BASE_ID, AIRTABLE_MEMBERS_TABLE_ID } = process.env;
 
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
@@ -28,9 +36,33 @@ export async function getMembers(): Promise<Member[]> {
 
   const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 
+  let filterParts: string[] = [];
+
+  if (search) {
+      const lowerSearch = search.toLowerCase();
+      // Search by name, email, or aetherId
+      filterParts.push(`OR(
+          FIND("${lowerSearch}", LOWER({fullName})),
+          FIND("${lowerSearch}", LOWER({email})),
+          FIND(UPPER("${search}"), UPPER({aetherId}))
+      )`);
+  }
+  if (role && role !== 'all') {
+      filterParts.push(`{role} = "${role}"`);
+  }
+  if (interest && interest !== 'all') {
+      filterParts.push(`{mainInterest} = "${interest}"`);
+  }
+  if (platform && platform !== 'all') {
+      filterParts.push(`{preferredPlatform} = "${platform}"`);
+  }
+
+  const filterByFormula = filterParts.length > 0 ? `AND(${filterParts.join(', ')})` : '';
+
   try {
     const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
       sort: [{ field: 'entryNumber', direction: 'desc' }],
+      filterByFormula,
     }).all();
 
     const members = records.map(record => ({

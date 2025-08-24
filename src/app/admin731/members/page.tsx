@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MemberFilters } from './filters';
 
-async function MembersTable() {
-  const members = await getMembers();
+async function MembersTable({ search, role, interest, platform }: { search?: string, role?: string, interest?: string, platform?: string }) {
+  const members = await getMembers({ search, role, interest, platform });
 
   return (
     <Card>
@@ -45,6 +46,13 @@ async function MembersTable() {
                 <TableCell>{member.preferredPlatform}</TableCell>
               </TableRow>
             ))}
+             {members.length === 0 && (
+                <TableRow>
+                    <TableCell colSpan={7} className="text-center h-24">
+                       No members found for the current filters.
+                    </TableCell>
+                </TableRow>
+             )}
           </TableBody>
         </Table>
       </CardContent>
@@ -94,15 +102,21 @@ function MembersTableSkeleton() {
     )
 }
 
-export default function MemberManagementPage() {
+export default function MemberManagementPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
+  const role = typeof searchParams.role === 'string' ? searchParams.role : undefined;
+  const interest = typeof searchParams.interest === 'string' ? searchParams.interest : undefined;
+  const platform = typeof searchParams.platform === 'string' ? searchParams.platform : undefined;
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Member Management</h1>
-        <p className="text-muted-foreground mt-1">View and manage community members.</p>
+        <p className="text-muted-foreground mt-1">View, search, and manage community members.</p>
       </div>
-      <Suspense fallback={<MembersTableSkeleton />}>
-        <MembersTable />
+      <MemberFilters />
+      <Suspense fallback={<MembersTableSkeleton />} key={`${search}-${role}-${interest}-${platform}`}>
+        <MembersTable search={search} role={role} interest={interest} platform={platform} />
       </Suspense>
     </div>
   );
