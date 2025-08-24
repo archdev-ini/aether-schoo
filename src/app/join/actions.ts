@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 import type { FormValues } from './page';
-import { createHash } from 'crypto';
+import { generateAetherId } from '@/lib/id-generator';
 
 const Airtable = require('airtable');
 
@@ -19,31 +19,6 @@ const FormSchema = z.object({
   reasonToJoin: z.string().optional(),
 });
 
-async function generateAetherId(base: any, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
-    const founderKey = parseInt(process.env.AETHER_FOUNDER_KEY || '731', 10);
-    const modulus = 999983; // Large prime modulus
-
-    // 1. Get the current count of records to determine N
-    const records = await base(tableId).select({ fields: [] }).all();
-    const N = records.length + 1;
-
-    // 2. Calculate the CODE
-    // Formula: CODE = BASE36(((N * K^3 + K * 97) mod M))
-    const codeValue = (N * Math.pow(founderKey, 3) + founderKey * 97) % modulus;
-    const code = codeValue.toString(36).toUpperCase();
-
-    // 3. Calculate the CHECKSUM
-    // First 2 characters of SHA1 hash of (N || K).
-    const hashInput = `${N}${founderKey}`;
-    const sha1Hash = createHash('sha1').update(hashInput).digest('hex');
-    const checksum = sha1Hash.substring(0, 2).toUpperCase();
-
-    // 4. Assemble the final ID
-    return {
-        aetherId: `AETH-${code}-${checksum}`,
-        entryNumber: N
-    };
-}
 
 export async function submitJoinForm(data: FormValues) {
     const parsedData = FormSchema.safeParse(data);
@@ -67,7 +42,7 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
+        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID, parsedData.data.role);
         const { 
             fullName, email, location, ageRange, role, 
             mainInterest, preferredPlatform, socialHandle, reasonToJoin 
@@ -85,6 +60,7 @@ export async function submitJoinForm(data: FormValues) {
             'socialHandle': socialHandle,
             'reasonToJoin': reasonToJoin,
             'entryNumber': entryNumber,
+            'status': 'Active', // Set default status
         };
 
         await base(AIRTABLE_MEMBERS_TABLE_ID).create([
