@@ -87,6 +87,11 @@ const nextConfig: NextConfig = {
         destination: '/coming-soon',
         permanent: false,
       },
+      {
+        source: '/join/staff',
+        destination: '/join/team',
+        permanent: true,
+      },
     ];
   },
 };
