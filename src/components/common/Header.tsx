@@ -18,6 +18,7 @@ import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { logout } from '@/app/profile/actions';
 
 const navLinks = [
   { href: '/events', label: 'Events' },
@@ -52,49 +53,26 @@ function ThemeToggle() {
   )
 }
 
+interface HeaderProps {
+  user: { name: string; id: string } | null;
+}
 
-export function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [userAetherId, setUserAetherId] = useState('');
+export function Header({ user }: HeaderProps) {
   const { toast } = useToast();
   const router = useRouter();
 
-  useEffect(() => {
-    const updateLoginState = () => {
-      const name = localStorage.getItem('aether_user_name');
-      const id = localStorage.getItem('aether_user_id');
-      if (name && id) {
-          setIsLoggedIn(true);
-          setUserName(name);
-          setUserAetherId(id);
-      } else {
-          setIsLoggedIn(false);
-          setUserName('');
-          setUserAetherId('');
-      }
-    };
-
-    updateLoginState();
-
-    // Listen for the custom event to update login state immediately
-    window.addEventListener('auth-change', updateLoginState);
-
-    return () => {
-      window.removeEventListener('auth-change', updateLoginState);
-    };
-  }, []);
-
   const handleLogout = async () => {
-    // Client-side cleanup
+    // Clear localStorage for immediate client-side UI update
     localStorage.removeItem('aether_user_id');
     localStorage.removeItem('aether_user_name');
     
-    // Dispatch event to update UI immediately
-    window.dispatchEvent(new CustomEvent('auth-change'));
+    // Call server action to clear cookie
+    await logout();
 
     toast({ description: "You have been logged out." });
-    router.push('/');
+    
+    // Refresh the page to ensure all server components reflect the logged-out state
+    router.refresh();
   }
 
   return (
@@ -142,7 +120,7 @@ export function Header() {
                       </Link>
                     ))}
                     <Separator className="my-2"/>
-                    {isLoggedIn ? (
+                    {user ? (
                        <>
                         <Link href="/profile" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
                             <User className="w-5 h-5"/> Profile
@@ -167,13 +145,13 @@ export function Header() {
           </div>
           <div className="flex items-center gap-2">
              <ThemeToggle />
-            {isLoggedIn ? (
+            {user ? (
                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                            <Avatar className="h-8 w-8">
-                                <AvatarImage src={`https://api.dicebear.com/7.x/bottts/svg?seed=${userAetherId}`} alt={userName} />
-                                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                                <AvatarImage src={`https://api.dicebear.com/7.x/bottts/svg?seed=${user.id}`} alt={user.name} />
+                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                            </Avatar>
                          </Button>
                     </DropdownMenuTrigger>

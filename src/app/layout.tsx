@@ -8,6 +8,7 @@ import { Footer } from '@/components/common/Footer';
 import { ThemeProvider } from '@/components/common/ThemeProvider';
 import { CookieConsentBanner } from '@/components/common/CookieConsentBanner';
 import { BottomNav } from '@/components/common/BottomNav';
+import { cookies } from 'next/headers';
 
 export const metadata: Metadata = {
   title: 'Aether | Architecture School & Creative Ecosystem',
@@ -37,6 +38,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const userName = cookieStore.get('aether_user_name')?.value;
+  const aetherId = cookieStore.get('aether_user_id')?.value;
+  
+  const user = (userName && aetherId) ? { name: userName, id: aetherId } : null;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -56,13 +63,13 @@ export default function RootLayout({
             disableTransitionOnChange
         >
             <div className="relative flex min-h-screen flex-col">
-              <Header />
+              <Header user={user} />
               <main className="flex-1 pb-20 md:pb-0">{children}</main>
               <Footer />
             </div>
             <Toaster />
             <CookieConsentBanner />
-            <BottomNav />
+            <BottomNav user={user} />
         </ThemeProvider>
       </body>
     </html>
