@@ -3,9 +3,10 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut } from "lucide-react";
+import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut, BookOpen } from "lucide-react";
 import { getMemberProfile, type MemberProfile, logout } from './actions';
 import Link from 'next/link';
+import { Progress } from '@/components/ui/progress';
 
 // Inline SVG for Discord Icon
 const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -111,9 +112,9 @@ async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
                 </Card>
             </aside>
 
-            {/* Right Column (Reason for joining) */}
-            <div className="lg:col-span-2">
-                <Card className="h-full">
+            {/* Right Column */}
+            <div className="lg:col-span-2 space-y-8">
+                <Card>
                     <CardHeader>
                         <CardTitle>Welcome, {firstName}!</CardTitle>
                         <CardDescription>A little about what you hope to achieve with Aether.</CardDescription>
@@ -126,6 +127,28 @@ async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
                         ) : (
                             <p className="text-muted-foreground italic">You didn't specify a reason for joining, but we're excited to have you! You can add this by editing your profile.</p>
                         )}
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Learning Dashboard</CardTitle>
+                        <CardDescription>Your journey into architectural mastery starts here.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div>
+                             <label className="text-sm font-medium text-muted-foreground">Primer Progress</label>
+                             <div className="flex items-center gap-4">
+                                <Progress value={20} className="w-full" />
+                                <span className="text-sm font-bold">1/5</span>
+                             </div>
+                             <p className="text-xs text-muted-foreground mt-1">You've completed one primer. Keep it up!</p>
+                        </div>
+
+                        <Button asChild className="w-full">
+                            <Link href="/school/courses?difficulty=Beginner&format=Primer">
+                                <BookOpen className="mr-2" /> Start a New Primer
+                            </Link>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
