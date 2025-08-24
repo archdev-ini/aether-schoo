@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -6,9 +7,9 @@ import { Users, LayoutDashboard, BookText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/members', label: 'Members', icon: Users },
-  { href: '/admin/content', label: 'Content', icon: BookText },
+  { href: '/admin731', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/admin731/members', label: 'Members', icon: Users },
+  { href: '/admin731/content', label: 'Content', icon: BookText },
 ];
 
 export function AdminSidebar() {

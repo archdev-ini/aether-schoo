@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
   const userId = request.cookies.get('aether_user_id')?.value;
 
   // If the user is trying to access an admin route
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  if (request.nextUrl.pathname.startsWith('/admin731')) {
     // And they are not an admin (or not logged in)
     if (!userId || !adminIds.includes(userId)) {
       // Redirect them to the login page
@@ -20,5 +20,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: '/admin/:path*',
+  matcher: '/admin731/:path*',
 };
