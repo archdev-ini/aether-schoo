@@ -56,13 +56,16 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
             
             // Airtable's "Created Time" field for loginTokenCreatedAt will auto-update if the field `loginToken` is updated.
 
-        await sendWelcomeEmail({
-            to: email,
-            name: record.get('fldcoLSWA6ntjtlYV') as string,
-            aetherId: record.get('fld7hoOSkHYaZrPr7') as string,
-            token: token
-        });
-
+            await sendWelcomeEmail({
+                to: email,
+                name: record.get('fldcoLSWA6ntjtlYV') as string,
+                aetherId: record.get('fld7hoOSkHYaZrPr7') as string,
+                token: token,
+                type: 'login'
+            });
+        }
+        
+        // Always return success to prevent leaking information about which emails are registered.
         return { success: true };
 
     } catch (error: any) {

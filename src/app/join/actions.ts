@@ -80,7 +80,8 @@ export async function submitJoinForm(data: FormValues) {
                 to: email,
                 name: record.get('fldcoLSWA6ntjtlYV') as string,
                 aetherId: record.get('fld7hoOSkHYaZrPr7') as string,
-                token: token
+                token: token,
+                type: 'welcome'
             });
             // Return success to show the same message to the user, preventing email enumeration
             return { success: true };
@@ -117,7 +118,8 @@ export async function submitJoinForm(data: FormValues) {
             to: email,
             name: fullName,
             aetherId: newAetherId,
-            token: token
+            token: token,
+            type: 'welcome'
         });
 
         return { success: true };
