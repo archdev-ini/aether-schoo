@@ -10,31 +10,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, KeyRound } from 'lucide-react';
+import { Loader2, KeyRound, MailCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { loginUser } from '../login/actions';
+import { sendLoginLink } from '../login/actions';
 import NotFoundPage from '../not-found';
 
 const FormSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(1, { message: 'Please enter your password.' }),
 });
 
 type FormValues = z.infer<typeof FormSchema>;
 
 function BridgePageContent() {
     const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
     const { toast } = useToast();
-    const router = useRouter();
     const searchParams = useSearchParams();
 
     const key = searchParams.get('key');
-    const isKeyValid = key === process.env.NEXT_PUBLIC_SYS_BRIDGE_KEY;
+    const isKeyValid = key === 'aether-admin-731' || key === 'aether-member-portal';
 
     const form = useForm<FormValues>({
         resolver: zodResolver(FormSchema),
-        defaultValues: { email: '', password: '' },
+        defaultValues: { email: '' },
     });
 
      useEffect(() => {
@@ -47,6 +46,7 @@ function BridgePageContent() {
             });
             localStorage.removeItem('aether_user_id');
             localStorage.removeItem('aether_user_name');
+            localStorage.removeItem('aether_user_role');
             window.dispatchEvent(new Event('auth-change'));
             form.reset();
         }
@@ -54,92 +54,97 @@ function BridgePageContent() {
 
     const onSubmit: SubmitHandler<FormValues> = async (data) => {
         setIsLoading(true);
+        setIsSubmitted(false);
         try {
-            const result = await loginUser({ email: data.email, password: data.password });
-            if (result.success && result.data) {
-                localStorage.setItem('aether_user_id', result.data.aetherId);
-                localStorage.setItem('aether_user_name', result.data.fullName);
-                window.dispatchEvent(new Event('auth-change'));
-                
-                toast({
-                title: 'Login Successful!',
-                description: `Welcome back, ${result.data.fullName.split(' ')[0]}.`,
-                });
-
-                router.replace('/profile');
-                router.refresh(); 
+            const result = await sendLoginLink({ email: data.email });
+            if (result.success) {
+                setIsSubmitted(true);
             } else {
                 toast({
                 title: 'Login Failed',
-                description: result.error || 'Please check your details and try again.',
+                description: result.error || 'Please check your email and try again.',
                 variant: 'destructive',
                 });
             }
         } catch (error: any) {
             toast({
                 title: 'Error',
-                description: error.message || 'There was a problem logging you in.',
+                description: error.message || 'There was a problem with your request.',
                 variant: 'destructive',
             });
         } finally {
             setIsLoading(false);
         }
     };
-
+    
     if (!isKeyValid) {
         return <NotFoundPage />;
     }
 
+    if (isSubmitted) {
+        return (
+             <main className="container py-12 md:py-24 animate-in fade-in duration-500">
+                <div className="max-w-md mx-auto">
+                     <Card>
+                        <CardHeader className="text-center">
+                            <MailCheck className="w-16 h-16 mx-auto text-primary" />
+                            <CardTitle className="text-3xl font-bold mt-4">Check Your Inbox!</CardTitle>
+                            <CardDescription>
+                                We've sent a secure login link to your email address. Please click the link to continue.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-center">
+                            <Button variant="link" onClick={() => {setIsSubmitted(false); form.reset();}}>
+                                Use a different email
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+             </main>
+        )
+    }
+
     return (
         <main className="container py-12 md:py-24 animate-in fade-in duration-500">
-        <div className="max-w-md mx-auto">
-            <div className="text-center mb-12">
-                <KeyRound className="w-12 h-12 mx-auto text-primary mb-4" />
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Member Portal</h1>
-                <p className="mt-4 text-muted-foreground md:text-xl">
-                    Enter your credentials to access your profile and learning dashboard.
-                </p>
-            </div>
+            <div className="max-w-md mx-auto">
+                <div className="text-center mb-12">
+                    <KeyRound className="w-12 h-12 mx-auto text-primary mb-4" />
+                    <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Member Portal</h1>
+                    <p className="mt-4 text-muted-foreground md:text-xl">
+                        Enter your email to receive a secure login link.
+                    </p>
+                </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Login</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField control={form.control} name="email" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="your@email.com" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )} />
-                        <FormField control={form.control} name="password" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input type="password" placeholder="Your password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )} />
-                        <Button type="submit" disabled={isLoading} size="lg" className="w-full">
-                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {isLoading ? 'Verifying...' : 'Enter Portal'}
-                        </Button>
-                    </form>
-                    </Form>
-                </CardContent>
-            </Card>
-            <div className="text-center mt-8">
-                <p className="text-muted-foreground">
-                    Don't have an account? <Link href="/join" className="text-primary underline">Join Aether now</Link>
-                </p>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Login</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            <FormField control={form.control} name="email" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="your@email.com" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <Button type="submit" disabled={isLoading} size="lg" className="w-full">
+                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isLoading ? 'Sending...' : 'Get Login Link'}
+                            </Button>
+                        </form>
+                        </Form>
+                    </CardContent>
+                </Card>
+                <div className="text-center mt-8">
+                    <p className="text-muted-foreground">
+                        Don't have an account? <Link href="/join" className="text-primary underline">Join Aether now</Link>
+                    </p>
+                </div>
             </div>
-        </div>
         </main>
     );
 }

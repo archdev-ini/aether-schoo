@@ -9,9 +9,9 @@ export default function LoginPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // This is a placeholder for the actual secret key which should be stored securely.
-        const secretKey = process.env.NEXT_PUBLIC_SYS_BRIDGE_KEY || 'YOUR_FALLBACK_KEY';
-        router.replace(`/sys-bridge?key=${secretKey}`);
+        // This key is for community members. Admins will have a different key.
+        const memberKey = 'aether-member-portal';
+        router.replace(`/sys-bridge?key=${memberKey}`);
     }, [router]);
 
     return (
