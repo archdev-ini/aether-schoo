@@ -2,15 +2,11 @@
 'use server';
 
 import Airtable from 'airtable';
+import { cookies } from 'next/headers';
 
 interface VerificationResult {
     success: boolean;
     error?: string;
-    data?: {
-        aetherId: string;
-        fullName: string;
-        role: string;
-    };
 }
 
 export async function verifyTokenAndLogin(token: string): Promise<VerificationResult> {
@@ -39,7 +35,7 @@ export async function verifyTokenAndLogin(token: string): Promise<VerificationRe
 
         const record = records[0];
         const tokenCreatedAtStr = record.get('loginTokenCreatedAt') as string;
-        const tokenDuration = record.get('loginTokenExpires') as number || 0; // Duration in seconds
+        const tokenDuration = record.get('loginTokenExpires') as number || 0; 
 
         if (!tokenCreatedAtStr || tokenDuration === 0) {
              return { success: false, error: 'Invalid activation record. Please sign up again.' };
@@ -49,7 +45,6 @@ export async function verifyTokenAndLogin(token: string): Promise<VerificationRe
         const expiresAt = new Date(tokenCreatedAt.getTime() + tokenDuration * 1000);
 
         if (new Date() > expiresAt) {
-            // Invalidate expired token
             await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, { 'loginToken': null });
             return { success: false, error: 'Activation link has expired. Please try signing up again.' };
         }
@@ -64,13 +59,14 @@ export async function verifyTokenAndLogin(token: string): Promise<VerificationRe
             'loginTokenExpires': null,
         });
 
+        // Set secure, HttpOnly cookies for session
+        const cookieStore = cookies();
+        cookieStore.set('aether_user_id', aetherId, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 60 * 24 * 7 }); // 1 week
+        cookieStore.set('aether_user_name', fullName, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 60 * 24 * 7 });
+        cookieStore.set('aether_user_role', role, { httpOnly: true, secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 60 * 60 * 24 * 7 });
+
         return { 
             success: true, 
-            data: {
-                fullName,
-                aetherId,
-                role
-            }
         };
     } catch (error) {
         console.error('Activation error:', error);

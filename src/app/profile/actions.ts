@@ -76,6 +76,9 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
 }
 
 export async function logout() {
-    cookies().delete('aether_user_id');
-    cookies().delete('aether_user_name');
+    const cookieStore = cookies();
+    cookieStore.delete('aether_user_id');
+    cookieStore.delete('aether_user_name');
+    cookieStore.delete('aether_user_role');
+    redirect('/login');
 }

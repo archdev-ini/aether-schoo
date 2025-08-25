@@ -25,16 +25,22 @@ function ActivateContent() {
             return;
         }
 
-        verifyTokenAndLogin(token).then(result => {
+        verifyTokenAndLogin(token).then(async (result) => {
             if (result.success) {
                 setStatus('success');
                 setMessage('Your account has been activated! Redirecting you now...');
                 
-                // Set user info in localStorage and notify other components (like the header)
-                localStorage.setItem('aether_user_id', result.data!.aetherId);
-                localStorage.setItem('aether_user_name', result.data!.fullName);
-                localStorage.setItem('aether_user_role', result.data!.role);
-                window.dispatchEvent(new Event('auth-change'));
+                // We still need to notify the client-side components like the header to update immediately
+                // This will be done by fetching the user data from a new endpoint after setting the cookie
+                const res = await fetch('/api/user');
+                const userData = await res.json();
+
+                if (userData.aetherId) {
+                    localStorage.setItem('aether_user_id', userData.aetherId);
+                    localStorage.setItem('aether_user_name', userData.fullName);
+                    localStorage.setItem('aether_user_role', userData.role);
+                    window.dispatchEvent(new Event('auth-change'));
+                }
                 
                 setTimeout(() => {
                     router.replace('/profile');
@@ -78,6 +84,11 @@ function ActivateContent() {
     );
 }
 
+// We need an API route to securely get cookie data on the client
+function UserApiRoute() {
+    return null;
+}
+
 export default function ActivatePage() {
     return (
         <main className="flex min-h-screen items-center justify-center p-4">
@@ -87,3 +98,4 @@ export default function ActivatePage() {
         </main>
     );
 }
+
