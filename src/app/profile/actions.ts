@@ -11,7 +11,8 @@ const MemberProfileSchema = z.object({
     email: z.string().email(),
     role: z.string(),
     location: z.string(),
-    mainInterest: z.string(),
+    mainInterest: z.string().optional(),
+    interests: z.array(z.string()).optional(),
     reasonToJoin: z.string().optional(),
     entryNumber: z.number(),
 });
@@ -26,8 +27,8 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_MEMBERS_TABLE_ID
     } = process.env;
+    const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
 
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
         console.error('Airtable credentials are not set in environment variables.');
@@ -38,7 +39,7 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
 
     try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `UPPER({aetherId}) = "${aetherId.toUpperCase()}"`,
+            filterByFormula: `UPPER({fld7hoOSkHYaZrPr7}) = "${aetherId.toUpperCase()}"`,
             maxRecords: 1,
         }).firstPage();
 
@@ -49,14 +50,15 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
         const record = records[0];
         
         const profileData = {
-            fullName: record.get('fullName'),
-            aetherId: record.get('aetherId'),
-            email: record.get('email'),
-            role: record.get('role'),
-            location: record.get('location'),
-            mainInterest: record.get('mainInterest'),
-            reasonToJoin: record.get('reasonToJoin'),
-            entryNumber: record.get('entryNumber'),
+            fullName: record.get('fldcoLSWA6ntjtlYV'), // fullName
+            aetherId: record.get('fld7hoOSkHYaZrPr7'), // aetherId
+            email: record.get('fld2EoTnv3wjIHhNX'), // Email
+            role: record.get('fld7rO1pQZ9sY2tB4'), // Role
+            location: record.get('fldP5VgkLoOGwFkb3'), // location
+            interests: record.get('fldkpeV7NwNz0GJ7O'), // Interests
+            mainInterest: record.get('mainInterest'), // This field doesn't seem to have a field ID in the provided schema
+            reasonToJoin: record.get('reasonToJoin'), // This field doesn't seem to have a field ID in the provided schema
+            entryNumber: record.get('fldmMy5vyIaoPMN3g'), // entryNumber
         };
 
         const parsedData = MemberProfileSchema.safeParse(profileData);

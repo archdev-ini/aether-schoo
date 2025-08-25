@@ -182,7 +182,7 @@ export default function JoinPage() {
                             <FormItem><FormLabel>Avatar URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://your-image-url.com/profile.png" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                          <FormField control={form.control} name="portfolioUrl" render={({ field }) => (
-                            <FormItem><FormLabel>Portfolio/LinkedIn URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://linkedin.com/in/yourprofile" {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>LinkedIn URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://linkedin.com/in/yourprofile" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
 
 
@@ -198,4 +198,3 @@ export default function JoinPage() {
     </main>
   );
 }
-

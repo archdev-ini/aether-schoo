@@ -49,8 +49,8 @@ export async function submitJoinForm(data: FormValues) {
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_MEMBERS_TABLE_ID
     } = process.env;
+    const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
 
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID || !process.env.AETHER_FOUNDER_KEY) {
         console.error('Airtable or Founder Key credentials are not set in environment variables.');
@@ -64,7 +64,7 @@ export async function submitJoinForm(data: FormValues) {
 
         // Check if email already exists
         const existingRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{Email} = "${email}"`,
+            filterByFormula: `{fld2EoTnv3wjIHhNX} = "${email}"`,
             maxRecords: 1,
         }).firstPage();
 
@@ -78,17 +78,17 @@ export async function submitJoinForm(data: FormValues) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const fields = {
-            'AetherID': newAetherId,
-            'Email': email,
-            'Password': hashedPassword,
-            'FullName': restOfData.fullName,
-            'Location': restOfData.location,
-            'Interests': restOfData.interests,
-            'AvatarURL': restOfData.avatarUrl,
-            'PortfolioURL': restOfData.portfolioUrl,
-            'EntryNumber': entryNumber,
-            'Role': 'Member',
-            'Status': 'Prelaunch-Active'
+            'fld7hoOSkHYaZrPr7': newAetherId,
+            'fld2EoTnv3wjIHhNX': email,
+            'fldXyYp2g4R3z9K1j': hashedPassword,
+            'fldcoLSWA6ntjtlYV': restOfData.fullName,
+            'fldP5VgkLoOGwFkb3': restOfData.location,
+            'fldkpeV7NwNz0GJ7O': restOfData.interests,
+            'fld7vKqZ1wX9jL8mO': restOfData.avatarUrl,
+            'fldzxVhA5njMpVaH3': restOfData.portfolioUrl,
+            'fldmMy5vyIaoPMN3g': entryNumber,
+            'fld7rO1pQZ9sY2tB4': 'Member',
+            'fldLzkrbVXuycummp': 'Prelaunch-Active'
         };
 
         await base(AIRTABLE_MEMBERS_TABLE_ID).create([

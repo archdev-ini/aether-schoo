@@ -41,8 +41,8 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_MEMBERS_TABLE_ID,
     } = process.env;
+    const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
 
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
         console.error('Airtable credentials are not set in environment variables.');
@@ -53,9 +53,9 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
 
     try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `LOWER({Email}) = "${email.toLowerCase()}"`,
+            filterByFormula: `LOWER({fld2EoTnv3wjIHhNX}) = "${email.toLowerCase()}"`,
             maxRecords: 1,
-            fields: ['fullName', 'entryNumber', 'aetherId', 'role'] 
+            fields: ['fldcoLSWA6ntjtlYV', 'fld7hoOSkHYaZrPr7', 'fldXyYp2g4R3z9K1j', 'fld7rO1pQZ9sY2tB4'] // fullName, aetherId, Password, Role
         }).firstPage();
 
         if (records.length === 0) {
@@ -63,37 +63,41 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
         }
 
         const record = records[0];
-        const entryNumber = record.get('entryNumber');
-        const recordedFullName = record.get('fullName');
-        const recordedAetherId = record.get('aetherId');
+        const hashedPassword = record.get('fldXyYp2g4R3z9K1j') as string; // Password
+        const recordedFullName = record.get('fldcoLSWA6ntjtlYV') as string; // fullName
+        const recordedAetherId = record.get('fld7hoOSkHYaZrPr7') as string; // aetherId
+        const role = record.get('fld7rO1pQZ9sY2tB4') as string; // Role
 
-        // Check if the submitted ID matches the one in the database
-        if (aetherId.toUpperCase() !== recordedAetherId.toUpperCase()) {
-             return { success: false, error: 'The Aether ID does not match the name provided.' };
+        if (!hashedPassword) {
+            return { success: false, error: 'Authentication cannot be performed for this account. Please reset your password.' };
+        }
+        
+        const passwordsMatch = await bcrypt.compare(password, hashedPassword);
+
+        if (!passwordsMatch) {
+            return { success: false, error: 'Invalid password. Please try again.' };
         }
 
-        const isAdmin = recordedAetherId.toUpperCase().startsWith('ATM-');
+        // If all checks pass, set auth cookie
+        cookies().set('aether_user_id', recordedAetherId, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: '/',
+        });
+         cookies().set('aether_user_name', recordedFullName, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: '/',
+        });
+        cookies().set('aether_user_role', role, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: '/',
+        });
 
-        // Only verify community IDs, not admin/team IDs
-        if (!isAdmin) {
-             // If entryNumber is missing for some reason, we cannot verify authenticity.
-            if (!entryNumber) {
-                return { success: false, error: 'Cannot verify this ID. Please contact support.' };
-            }
-            
-            // Re-generate the ID on the server to check its authenticity against tampering.
-            const expectedId = generateVerificationId(entryNumber, founderKey);
-
-            if (recordedAetherId.toUpperCase() !== expectedId) {
-                // This indicates a forged or incorrect ID, even if the record was found.
-                return { success: false, error: 'Verification failed. The provided ID is invalid.' };
-            }
-        }
-
-
-        // Set cookies for server-side authentication
-        cookies().set('aether_user_id', recordedAetherId, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
-        cookies().set('aether_user_name', recordedFullName, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
         return { success: true, data: { fullName: recordedFullName, aetherId: recordedAetherId, isAdmin } };
 
