@@ -5,9 +5,8 @@ import {fontFamily} from 'tailwindcss/defaultTheme';
 export default {
   darkMode: ['class'],
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{ts,tsx}',
+    './src/components/**/*.{ts,tsx}',
   ],
   theme: {
     container: {
@@ -21,7 +20,7 @@ export default {
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
         body: ['Satoshi', 'sans-serif'],
-        headline: ['Sora', 'sans-serif'],
+        headline: ['var(--font-sora)', 'sans-serif'],
         logo: ['Satoshi', 'sans-serif'],
       },
       colors: {
