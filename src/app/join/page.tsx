@@ -29,12 +29,10 @@ const interestsList = [
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters long.' }),
   location: z.string().min(3, { message: 'Please enter your city and country.' }),
   interests: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: 'You have to select at least one interest.',
   }),
-  avatarUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   portfolioUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
 
@@ -50,10 +48,8 @@ export default function JoinPage() {
     defaultValues: {
         fullName: '',
         email: '',
-        password: '',
         location: '',
         interests: [],
-        avatarUrl: '',
         portfolioUrl: '',
     },
   });
@@ -120,9 +116,6 @@ export default function JoinPage() {
                         <FormField control={form.control} name="email" render={({ field }) => (
                             <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="your@email.com" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
-                        <FormField control={form.control} name="password" render={({ field }) => (
-                            <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" placeholder="Create a secure password" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
                         <FormField control={form.control} name="location" render={({ field }) => (
                             <FormItem><FormLabel>City, Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
@@ -173,10 +166,6 @@ export default function JoinPage() {
                                 </FormItem>
                             )}
                         />
-
-                        <FormField control={form.control} name="avatarUrl" render={({ field }) => (
-                            <FormItem><FormLabel>Avatar URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://your-image-url.com/profile.png" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
                          <FormField control={form.control} name="portfolioUrl" render={({ field }) => (
                             <FormItem><FormLabel>LinkedIn URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://linkedin.com/in/yourprofile" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>

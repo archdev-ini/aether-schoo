@@ -4,17 +4,14 @@
 import { z } from 'zod';
 import type { FormValues } from './page';
 import { createHash, randomBytes } from 'crypto';
-import bcrypt from 'bcryptjs';
 import Airtable from 'airtable';
 import { sendWelcomeEmail } from '@/lib/email';
 
 const FormSchema = z.object({
   fullName: z.string(),
   email: z.string().email(),
-  password: z.string(),
   location: z.string(),
   interests: z.array(z.string()),
-  avatarUrl: z.string().url().optional().or(z.literal('')),
   portfolioUrl: z.string().url().optional().or(z.literal('')),
 });
 
@@ -60,7 +57,7 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const { email, password, fullName, ...restOfData } = parsedData.data;
+        const { email, fullName, ...restOfData } = parsedData.data;
 
         const existingRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             filterByFormula: `{Email} = "${email}"`,
@@ -72,7 +69,6 @@ export async function submitJoinForm(data: FormValues) {
         }
 
         const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
-        const hashedPassword = await bcrypt.hash(password, 10);
         
         // Generate a secure token for the magic link
         const token = randomBytes(32).toString('hex');
@@ -81,7 +77,6 @@ export async function submitJoinForm(data: FormValues) {
         const fields = {
             'fld7hoOSkHYaZrPr7': newAetherId,
             'fld2EoTnv3wjIHhNX': email,
-            'fldXyYp2g4R3z9K1j': hashedPassword,
             'fldcoLSWA6ntjtlYV': fullName,
             'fldP5VgkLoOGwFkb3': restOfData.location,
             'fldkpeV7NwNz0GJ7O': restOfData.interests,

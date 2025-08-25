@@ -69,7 +69,9 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
         const role = record.get('fld7rO1pQZ9sY2tB4') as string; // Role
 
         if (!hashedPassword) {
-            return { success: false, error: 'Authentication cannot be performed for this account. Please reset your password.' };
+            // This is likely a community member who signed up without a password.
+            // Deny login via this form and guide them to use their magic link.
+            return { success: false, error: 'This account uses magic link sign-in. Please use the link sent to your email.' };
         }
         
         const passwordsMatch = await bcrypt.compare(password, hashedPassword);
