@@ -12,7 +12,29 @@ interface BottomNavProps {
 
 export function BottomNav({ user }: BottomNavProps) {
   const pathname = usePathname();
-  const isLoggedIn = !!user;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // This effect runs on the client and can safely access localStorage.
+    // It's used for quickly updating the UI. The source of truth is the server cookie.
+    const updateLoginState = () => {
+      const name = localStorage.getItem('aether_user_name');
+      setIsLoggedIn(!!name);
+    };
+
+    updateLoginState();
+
+    // Listen for storage changes to update UI across tabs
+    window.addEventListener('storage', updateLoginState);
+    
+    // Also listen for a custom event that we can trigger after login/logout
+    window.addEventListener('auth-change', updateLoginState);
+
+    return () => {
+      window.removeEventListener('storage', updateLoginState);
+      window.removeEventListener('auth-change', updateLoginState);
+    };
+  }, [pathname]); // Re-run on pathname change to ensure it's up-to-date
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home, show: 'always' },

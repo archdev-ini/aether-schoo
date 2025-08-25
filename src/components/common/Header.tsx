@@ -66,31 +66,34 @@ export function Header({ user: initialUser }: HeaderProps) {
   }, [initialUser]);
 
   useEffect(() => {
-    const handleAuthChange = () => {
-        const storedId = localStorage.getItem('aether_user_id');
-        const storedName = localStorage.getItem('aether_user_name');
-        if (storedId && storedName) {
-            setUser({ id: storedId, name: storedName });
-        } else {
-            setUser(null);
-        }
-    };
-    window.addEventListener('auth-change', handleAuthChange);
-    // Initial check in case the prop is stale
-    handleAuthChange();
-    return () => {
-        window.removeEventListener('auth-change', handleAuthChange);
-    };
+    // This effect now primarily reads from localStorage for client-side display consistency.
+    // The actual auth state is managed by the server cookie.
+    const name = localStorage.getItem('aether_user_name');
+    const id = localStorage.getItem('aether_user_id');
+    if (name && id) {
+        setIsLoggedIn(true);
+        setUserName(name);
+        setUserAetherId(id);
+    } else {
+        setIsLoggedIn(false);
+        setUserName('');
+        setUserAetherId('');
+    }
   }, []);
 
   const handleLogout = async () => {
     // Clear localStorage for immediate client-side UI update
     localStorage.removeItem('aether_user_id');
     localStorage.removeItem('aether_user_name');
-    setUser(null);
-
-    // Call server action via API route to clear cookie
+    setIsLoggedIn(false);
+    setUserName('');
+    setUserAetherId('');
+    
+    // Server-side cleanup (calling a server action)
     await fetch('/api/logout', { method: 'POST' });
+
+    // This event will trigger the useEffect to update state
+    window.dispatchEvent(new Event('auth-change'));
 
     toast({ description: "You have been logged out." });
     

@@ -56,6 +56,7 @@ function LoginForm() {
         // Clear potentially stale localStorage
         localStorage.removeItem('aether_user_id');
         localStorage.removeItem('aether_user_name');
+        window.dispatchEvent(new Event('auth-change'));
         setRememberedUser(null);
         form.reset();
     }
@@ -70,6 +71,8 @@ function LoginForm() {
         // Save to localStorage for client-side components that need immediate access
         localStorage.setItem('aether_user_id', result.data.aetherId);
         localStorage.setItem('aether_user_name', result.data.fullName);
+        // Dispatch event to notify other components like Header
+        window.dispatchEvent(new Event('auth-change'));
         
         // Dispatch a custom event to notify other components (like the header) of the auth change
         window.dispatchEvent(new CustomEvent('auth-change'));
@@ -106,6 +109,7 @@ function LoginForm() {
   const handleLogout = () => {
     localStorage.removeItem('aether_user_id');
     localStorage.removeItem('aether_user_name');
+    window.dispatchEvent(new Event('auth-change'));
     setRememberedUser(null);
     form.reset();
     // Dispatch a custom event to notify other components (like the header) of the auth change
