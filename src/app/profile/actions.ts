@@ -39,7 +39,7 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
 
     try {
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `UPPER({aetherId}) = "${aetherId.toUpperCase()}"`,
+            filterByFormula: `UPPER({fld7hoOSkHYaZrPr7}) = "${aetherId.toUpperCase()}"`,
             maxRecords: 1,
         }).firstPage();
 
@@ -50,15 +50,15 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
         const record = records[0];
         
         const profileData = {
-            fullName: record.get('fullName'),
-            aetherId: record.get('aetherId'),
-            email: record.get('Email'),
-            role: record.get('Role'),
-            location: record.get('location'),
-            interests: record.get('Interests'),
+            fullName: record.get('fldcoLSWA6ntjtlYV'),
+            aetherId: record.get('fld7hoOSkHYaZrPr7'),
+            email: record.get('fld2EoTnv3wjIHhNX'),
+            role: record.get('fld7rO1pQZ9sY2tB4'),
+            location: record.get('fldP5VgkLoOGwFkb3'),
+            interests: record.get('fldkpeV7NwNz0GJ7O'),
             mainInterest: record.get('mainInterest'),
             reasonToJoin: record.get('reasonToJoin'),
-            entryNumber: record.get('entryNumber'),
+            entryNumber: record.get('fldmMy5vyIaoPMN3g'),
         };
 
         const parsedData = MemberProfileSchema.safeParse(profileData);
@@ -98,13 +98,13 @@ export async function getMemberLearningProgress(aetherId: string): Promise<Learn
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_COURSE_PROGRESS_TABLE_ID
     } = process.env;
 
     const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
     const AIRTABLE_COURSES_TABLE_ID = 'tblG6WAvnevMUOHln';
+    const AIRTABLE_COURSE_PROGRESS_TABLE_ID = 'tblDQ7M9Q4E3YyIhw';
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_COURSES_TABLE_ID || !AIRTABLE_COURSE_PROGRESS_TABLE_ID) {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID ) {
         console.error('Airtable credentials for learning are not fully set.');
         return [];
     }
@@ -114,7 +114,7 @@ export async function getMemberLearningProgress(aetherId: string): Promise<Learn
     try {
         // 1. Get Member's Record ID from Aether ID
         const memberRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{aetherId} = "${aetherId}"`,
+            filterByFormula: `{fld7hoOSkHYaZrPr7} = "${aetherId}"`,
             fields: [],
             maxRecords: 1,
         }).firstPage();
@@ -124,10 +124,10 @@ export async function getMemberLearningProgress(aetherId: string): Promise<Learn
 
         // 2. Get all completed course IDs for that member
         const completedProgressRecords = await base(AIRTABLE_COURSE_PROGRESS_TABLE_ID).select({
-            filterByFormula: `AND({Member} = '${memberRecordId}', {Status} = 'Completed')`,
-            fields: ['Course']
+            filterByFormula: `AND({fldQE9NNeGDnVGVdr} = '${memberRecordId}', {fld3JTiTa7EbOIfK0} = 'Completed')`,
+            fields: ['fld0gxA6RjbZKbxpy'] // Course
         }).all();
-        const completedCourseIds = new Set(completedProgressRecords.map(r => r.get('Course')).flat());
+        const completedCourseIds = new Set(completedProgressRecords.map(r => r.get('fld0gxA6RjbZKbxpy')).flat());
         
         // 3. Get all published primers from the Courses table using Field IDs
         const primerRecords = await base(AIRTABLE_COURSES_TABLE_ID).select({
