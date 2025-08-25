@@ -27,21 +27,6 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      {
-        source: '/admin',
-        destination: '/coming-soon',
-        permanent: false,
-      },
-      {
-        source: '/admin/:path*',
-        destination: '/coming-soon',
-        permanent: false,
-      },
-      {
-        source: '/school',
-        destination: '/coming-soon',
-        permanent: false,
-      },
        {
         source: '/school/:path*',
         destination: '/coming-soon',
@@ -87,15 +72,10 @@ const nextConfig: NextConfig = {
         destination: '/coming-soon',
         permanent: false,
       },
-      {
-        source: '/join/staff',
-        destination: '/join/team',
-        permanent: true,
-      },
-      {
-        source: '/admin731/id-system',
-        destination: '/admin731/create-member',
-        permanent: true,
+       {
+        source: '/admin731/:path*',
+        destination: '/sys-bridge?key=aether-admin-731',
+        permanent: false,
       },
     ];
   },

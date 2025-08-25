@@ -3,10 +3,10 @@
 
 import { z } from 'zod';
 import type { FormValues } from './page';
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import bcrypt from 'bcryptjs';
-
-const Airtable = require('airtable');
+import Airtable from 'airtable';
+import { sendWelcomeEmail } from '@/lib/email';
 
 const FormSchema = z.object({
   fullName: z.string(),
@@ -18,11 +18,11 @@ const FormSchema = z.object({
   portfolioUrl: z.string().url().optional().or(z.literal('')),
 });
 
-async function generateAetherId(base: any, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
+async function generateAetherId(base: Airtable.Base, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
     const founderKey = parseInt(process.env.AETHER_FOUNDER_KEY || '731', 10);
     const modulus = 999983; // Large prime modulus
 
-    const records = await base(tableId).select({ fields: [] }).all();
+    const records = await base(tableId).select({ fields: ['fldmMy5vyIaoPMN3g'] }).all();
     const N = records.length + 1;
 
     const codeValue = (N * Math.pow(founderKey, 3) + founderKey * 97) % modulus;
@@ -60,11 +60,10 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const { email, password, ...restOfData } = parsedData.data;
+        const { email, password, fullName, ...restOfData } = parsedData.data;
 
-        // Check if email already exists
         const existingRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{fld2EoTnv3wjIHhNX} = "${email}"`,
+            filterByFormula: `{Email} = "${email}"`,
             maxRecords: 1,
         }).firstPage();
 
@@ -73,29 +72,44 @@ export async function submitJoinForm(data: FormValues) {
         }
 
         const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
-        
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Generate a secure token for the magic link
+        const token = randomBytes(32).toString('hex');
+        const tokenExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
 
         const fields = {
             'fld7hoOSkHYaZrPr7': newAetherId,
             'fld2EoTnv3wjIHhNX': email,
             'fldXyYp2g4R3z9K1j': hashedPassword,
-            'fldcoLSWA6ntjtlYV': restOfData.fullName,
+            'fldcoLSWA6ntjtlYV': fullName,
             'fldP5VgkLoOGwFkb3': restOfData.location,
             'fldkpeV7NwNz0GJ7O': restOfData.interests,
-            'fld7vKqZ1wX9jL8mO': restOfData.avatarUrl,
             'fldzxVhA5njMpVaH3': restOfData.portfolioUrl,
             'fldmMy5vyIaoPMN3g': entryNumber,
             'fld7rO1pQZ9sY2tB4': 'Member',
-            'fldLzkrbVXuycummp': 'Prelaunch-Active'
+            'fldLzkrbVXuycummp': 'Prelaunch-Active',
+            'loginToken': token,
+            'loginTokenExpires': tokenExpires.toISOString(),
         };
 
-        await base(AIRTABLE_MEMBERS_TABLE_ID).create([
+        const createdRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).create([
             { fields },
         ], { typecast: true });
 
-        return { success: true, aetherId: newAetherId };
+        if (createdRecords.length === 0) {
+            throw new Error("Failed to create record in Airtable.");
+        }
+
+        // Send welcome email with magic link
+        await sendWelcomeEmail({
+            to: email,
+            name: fullName,
+            aetherId: newAetherId,
+            token: token
+        });
+
+        return { success: true };
 
     } catch (error: any) {
         console.error('Airtable API submission error:', error);

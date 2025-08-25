@@ -10,10 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowRight, Loader2, Eye, KeyRound } from 'lucide-react';
+import { Loader2, MailCheck } from 'lucide-react';
 import Link from 'next/link';
 import { submitJoinForm } from './actions';
-import { WelcomeCard } from '@/components/common/WelcomeCard';
 import { Checkbox } from '@/components/ui/checkbox';
 
 const interestsList = [
@@ -43,8 +42,6 @@ export type FormValues = z.infer<typeof FormSchema>;
 
 export default function JoinPage() {
   const [submitted, setSubmitted] = useState(false);
-  const [aetherId, setAetherId] = useState('');
-  const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -65,9 +62,7 @@ export default function JoinPage() {
     setIsLoading(true);
     try {
         const result = await submitJoinForm(data);
-        if (result.success && result.aetherId) {
-            setAetherId(result.aetherId);
-            setFullName(data.fullName);
+        if (result.success) {
             setSubmitted(true);
         } else {
             throw new Error(result.error || 'An unexpected error occurred.');
@@ -85,24 +80,25 @@ export default function JoinPage() {
   
   if (submitted) {
     return (
-        <main className="container py-12 md:py-24 lg:py-32 animate-in fade-in duration-500">
-            <div className="text-center max-w-2xl mx-auto space-y-8">
-                 <div>
-                    <h1 className="text-3xl font-bold font-headline">You're in. Welcome to Aether.</h1>
-                    <p className="text-muted-foreground mt-2">Your journey into the future of design starts now. Here is your personalized Aether ID card.</p>
-                </div>
-
-                <WelcomeCard fullName={fullName} aetherId={aetherId} />
-
-                 <Button asChild variant="outline" size="lg">
-                    <Link href="/sys-bridge?key=MY_SECRET_KEY">
-                        <KeyRound className="mr-2" />
-                        Proceed to Login
-                    </Link>
-                </Button>
-            </div>
-        </main>
-    )
+      <main className="container py-12 md:py-24 lg:py-32 animate-in fade-in duration-500">
+        <div className="text-center max-w-2xl mx-auto">
+          <Card>
+            <CardHeader>
+              <MailCheck className="w-16 h-16 mx-auto text-primary" />
+              <CardTitle className="text-3xl font-bold mt-4">Check Your Inbox!</CardTitle>
+              <CardDescription>
+                We've sent a welcome email with your new Aether ID and a special link to activate your account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground">
+                    Didn't receive an email? Check your spam folder or try signing up again.
+                </p>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
   }
 
   return (
