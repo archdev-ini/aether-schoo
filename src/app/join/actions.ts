@@ -3,22 +3,40 @@
 
 import { z } from 'zod';
 import type { FormValues } from './page';
-import { generateAetherId } from '@/lib/id-generator';
+import { createHash } from 'crypto';
+import bcrypt from 'bcryptjs';
 
 const Airtable = require('airtable');
 
 const FormSchema = z.object({
   fullName: z.string(),
   email: z.string().email(),
+  password: z.string(),
   location: z.string(),
-  ageRange: z.string(),
-  role: z.enum(['Student', 'Graduate', 'Professional']),
-  mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship']),
-  preferredPlatform: z.enum(['Discord', 'WhatsApp', 'Telegram']),
-  socialHandle: z.string().optional(),
-  reasonToJoin: z.string().optional(),
+  interests: z.array(z.string()),
+  avatarUrl: z.string().url().optional().or(z.literal('')),
+  portfolioUrl: z.string().url().optional().or(z.literal('')),
 });
 
+async function generateAetherId(base: any, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
+    const founderKey = parseInt(process.env.AETHER_FOUNDER_KEY || '731', 10);
+    const modulus = 999983; // Large prime modulus
+
+    const records = await base(tableId).select({ fields: [] }).all();
+    const N = records.length + 1;
+
+    const codeValue = (N * Math.pow(founderKey, 3) + founderKey * 97) % modulus;
+    const code = codeValue.toString(36).toUpperCase();
+
+    const hashInput = `${N}${founderKey}`;
+    const sha1Hash = createHash('sha1').update(hashInput).digest('hex');
+    const checksum = sha1Hash.substring(0, 2).toUpperCase();
+
+    return {
+        aetherId: `AETH-${code}-${checksum}`,
+        entryNumber: N
+    };
+}
 
 export async function submitJoinForm(data: FormValues) {
     const parsedData = FormSchema.safeParse(data);
@@ -42,30 +60,41 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID, parsedData.data.role);
-        const { 
-            fullName, email, location, ageRange, role, 
-            mainInterest, preferredPlatform, socialHandle, reasonToJoin 
-        } = parsedData.data;
+        const { email, password, ...restOfData } = parsedData.data;
+
+        // Check if email already exists
+        const existingRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
+            filterByFormula: `{Email} = "${email}"`,
+            maxRecords: 1,
+        }).firstPage();
+
+        if (existingRecords.length > 0) {
+            return { success: false, error: 'An account with this email already exists.' };
+        }
+
+        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
+        
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const fields = {
-            'aetherId': newAetherId,
-            'fullName': fullName,
-            'email': email,
-            'location': location,
-            'ageRange': ageRange,
-            'role': role,
-            'mainInterest': mainInterest,
-            'preferredPlatform': preferredPlatform,
-            'socialHandle': socialHandle,
-            'reasonToJoin': reasonToJoin,
-            'entryNumber': entryNumber,
-            'status': 'Active', // Set default status
+            'AetherID': newAetherId,
+            'Email': email,
+            'Password': hashedPassword,
+            'FullName': restOfData.fullName,
+            'Location': restOfData.location,
+            'Interests': restOfData.interests,
+            'AvatarURL': restOfData.avatarUrl,
+            'PortfolioURL': restOfData.portfolioUrl,
+            'EntryNumber': entryNumber,
+            'Role': 'Member',
+            'Status': 'Prelaunch-Active'
         };
 
         await base(AIRTABLE_MEMBERS_TABLE_ID).create([
             { fields },
         ], { typecast: true });
+
         return { success: true, aetherId: newAetherId };
 
     } catch (error: any) {

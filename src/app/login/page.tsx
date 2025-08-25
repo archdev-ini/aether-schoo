@@ -1,224 +1,25 @@
 
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, KeyRound } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { loginUser } from './actions';
-import { Skeleton } from '@/components/ui/skeleton';
-
-const FormSchema = z.object({
-  fullName: z.string().min(2, { message: 'Please enter your full name.' }),
-  aetherId: z.string().min(5, { message: 'Please enter a valid Aether ID.' }),
-});
-
-type FormValues = z.infer<typeof FormSchema>;
-
-function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [rememberedUser, setRememberedUser] = useState<{ id: string; name: string } | null>(null);
-  const { toast } = useToast();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: { fullName: '', aetherId: '' },
-  });
-
-  useEffect(() => {
-    // Check for remembered user on mount from localStorage
-    const storedId = localStorage.getItem('aether_user_id');
-    const storedName = localStorage.getItem('aether_user_name');
-    if (storedId && storedName) {
-      setRememberedUser({ id: storedId, name: storedName });
-      form.setValue('aetherId', storedId);
-      form.setValue('fullName', storedName);
-    }
-    
-    // Check for error from URL query params
-    const error = searchParams.get('error');
-    if (error === 'not_found') {
-        toast({
-            title: 'Session Error',
-            description: 'Your login session was invalid. Please log in again.',
-            variant: 'destructive',
-        });
-        // Clear potentially stale localStorage
-        localStorage.removeItem('aether_user_id');
-        localStorage.removeItem('aether_user_name');
-        window.dispatchEvent(new Event('auth-change'));
-        setRememberedUser(null);
-        form.reset();
-    }
-  }, [form, searchParams, toast]);
-
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setIsLoading(true);
-    const aetherId = data.aetherId.toUpperCase();
-    try {
-      const result = await loginUser({ fullName: data.fullName, aetherId });
-      if (result.success && result.data) {
-        // Save to localStorage for client-side components that need immediate access
-        localStorage.setItem('aether_user_id', result.data.aetherId);
-        localStorage.setItem('aether_user_name', result.data.fullName);
-        // Dispatch event to notify other components like Header
-        window.dispatchEvent(new Event('auth-change'));
-        
-        // Dispatch a custom event to notify other components (like the header) of the auth change
-        window.dispatchEvent(new CustomEvent('auth-change'));
-        
-        toast({
-          title: 'Login Successful!',
-          description: `Welcome back, ${result.data.fullName.split(' ')[0]}.`,
-        });
-        
-        if (result.data.isAdmin) {
-            router.push('/admin731');
-        } else {
-            router.push('/profile');
-        }
-
-      } else {
-         toast({
-          title: 'Login Failed',
-          description: result.error || 'Please check your details and try again.',
-          variant: 'destructive',
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'There was a problem logging you in.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('aether_user_id');
-    localStorage.removeItem('aether_user_name');
-    window.dispatchEvent(new Event('auth-change'));
-    setRememberedUser(null);
-    form.reset();
-    // Dispatch a custom event to notify other components (like the header) of the auth change
-    window.dispatchEvent(new CustomEvent('auth-change'));
-  }
-
-  return (
-     <main className="container py-12 md:py-24 animate-in fade-in duration-500">
-      <div className="max-w-md mx-auto">
-        <div className="text-center mb-12">
-          <KeyRound className="w-12 h-12 mx-auto text-primary mb-4" />
-          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Member Portal</h1>
-          <p className="mt-4 text-muted-foreground md:text-xl">
-            Enter your credentials to access your profile and learning dashboard.
-          </p>
-        </div>
-
-        <Card>
-            <CardHeader>
-                <CardTitle>Login</CardTitle>
-                {rememberedUser && (
-                     <CardDescription>
-                        Welcome back, {rememberedUser.name.split(' ')[0]}!
-                     </CardDescription>
-                )}
-            </CardHeader>
-            <CardContent>
-                <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField control={form.control} name="fullName" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Your full name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-                    <FormField control={form.control} name="aetherId" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Your Aether ID</FormLabel>
-                            <FormControl>
-                                <Input placeholder="AETH-A2DQ0-X7" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-                    <Button type="submit" disabled={isLoading} size="lg" className="w-full">
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoading ? 'Verifying...' : 'Enter Portal'}
-                    </Button>
-                </form>
-                </Form>
-                 {rememberedUser && (
-                    <div className="text-center mt-4">
-                        <Button variant="link" size="sm" onClick={handleLogout}>
-                            Not you? Log in with a different ID
-                        </Button>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
-         <div className="text-center mt-8">
-            <p className="text-muted-foreground">
-                Don't have an ID? <Link href="/join" className="text-primary underline">Join Aether now</Link>
-            </p>
-        </div>
-      </div>
-    </main>
-  )
-}
-
-function LoginPageSkeleton() {
-    return (
-         <main className="container py-12 md:py-24">
-            <div className="max-w-md mx-auto">
-                <div className="text-center mb-12 space-y-4">
-                    <Skeleton className="w-12 h-12 rounded-full mx-auto" />
-                    <Skeleton className="h-10 w-3/4 mx-auto" />
-                    <Skeleton className="h-6 w-full max-w-sm mx-auto" />
-                </div>
-                <Card>
-                    <CardHeader>
-                         <Skeleton className="h-8 w-24" />
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                         <div className="space-y-2">
-                             <Skeleton className="h-4 w-20" />
-                             <Skeleton className="h-10 w-full" />
-                         </div>
-                         <div className="space-y-2">
-                             <Skeleton className="h-4 w-20" />
-                             <Skeleton className="h-10 w-full" />
-                         </div>
-                         <Skeleton className="h-11 w-full" />
-                    </CardContent>
-                </Card>
-                 <div className="text-center mt-8">
-                     <Skeleton className="h-5 w-48 mx-auto" />
-                </div>
-            </div>
-        </main>
-    )
-}
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
+    const router = useRouter();
+
+    useEffect(() => {
+        // This is a placeholder for the actual secret key which should be stored securely.
+        const secretKey = process.env.NEXT_PUBLIC_SYS_BRIDGE_KEY || 'YOUR_FALLBACK_KEY';
+        router.replace(`/sys-bridge?key=${secretKey}`);
+    }, [router]);
+
     return (
-        <Suspense fallback={<LoginPageSkeleton />}>
-            <LoginForm />
-        </Suspense>
-    )
+        <div className="flex h-screen w-full items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-muted-foreground">Redirecting to secure login...</p>
+            </div>
+        </div>
+    );
 }

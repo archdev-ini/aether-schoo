@@ -3,12 +3,12 @@
 
 import { z } from 'zod';
 import Airtable from 'airtable';
-import { createHash } from 'crypto';
+import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 
 const LoginSchema = z.object({
-  fullName: z.string().min(2, 'Please enter your full name.'),
-  aetherId: z.string().min(5, 'Please enter a valid Aether ID.'),
+  email: z.string().email('Please enter a valid email address.'),
+  password: z.string().min(1, 'Please enter your password.'),
 });
 
 export type LoginInput = z.infer<typeof LoginSchema>;
@@ -36,33 +36,30 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
         return { success: false, error: 'Invalid data provided.' };
     }
 
-    const { fullName, aetherId } = parsedInput.data;
+    const { email, password } = parsedInput.data;
 
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
         AIRTABLE_MEMBERS_TABLE_ID,
-        AETHER_FOUNDER_KEY
     } = process.env;
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID || !AETHER_FOUNDER_KEY) {
-        console.error('Airtable or Founder Key credentials are not set in environment variables.');
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+        console.error('Airtable credentials are not set in environment variables.');
         return { success: false, error: 'Server configuration error.' };
     }
 
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
-    const founderKey = parseInt(AETHER_FOUNDER_KEY, 10);
 
     try {
-        // Find the record by full name first.
         const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{fullName} = "${fullName}"`,
+            filterByFormula: `LOWER({Email}) = "${email.toLowerCase()}"`,
             maxRecords: 1,
             fields: ['fullName', 'entryNumber', 'aetherId', 'role'] 
         }).firstPage();
 
         if (records.length === 0) {
-            return { success: false, error: 'Member not found. Please check your details and try again.' };
+            return { success: false, error: 'No account found with this email.' };
         }
 
         const record = records[0];

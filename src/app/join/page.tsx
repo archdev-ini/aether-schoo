@@ -9,41 +9,37 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowRight, Loader2, Eye } from 'lucide-react';
+import { ArrowRight, Loader2, Eye, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { submitJoinForm } from './actions';
 import { WelcomeCard } from '@/components/common/WelcomeCard';
-import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+
+const interestsList = [
+    { id: 'BIM', label: 'BIM' },
+    { id: 'Sustainability', label: 'Sustainability' },
+    { id: 'African Design', label: 'African Design Traditions' },
+    { id: 'Architecture', label: 'Architecture' },
+    { id: 'Web3', label: 'Web3 & Decentralization' },
+    { id: 'AI', label: 'AI in Design' },
+    { id: 'Urbanism', label: 'Urbanism' },
+    { id: 'Materials', label: 'Material Science' },
+];
 
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters long.' }),
   location: z.string().min(3, { message: 'Please enter your city and country.' }),
-  ageRange: z.string({ required_error: 'Please select your age range.' }),
-  role: z.enum(['Student', 'Graduate', 'Professional'], { required_error: 'Please select your current role.' }),
-  mainInterest: z.enum(['Courses', 'Studio', 'Community', 'Mentorship'], { required_error: 'Please select your main interest.' }),
-  preferredPlatform: z.enum(['Discord', 'WhatsApp', 'Telegram'], { required_error: 'Please select your preferred platform.'}),
-  socialHandle: z.string().optional(),
-  reasonToJoin: z.string().optional(),
+  interests: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: 'You have to select at least one interest.',
+  }),
+  avatarUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  portfolioUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
 
 export type FormValues = z.infer<typeof FormSchema>;
-
-// Inline SVG for Discord Icon
-const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.39 0 2.72-.28 3.96-.81.28.66.73 1.25 1.3 1.72.63.53 1.38.92 2.24 1.1.28.06.56.09.84.09.68 0 1.33-.21 1.88-.61.66-.48 1.15-1.16 1.4-1.95.29-.9.4-1.85.4-2.83 0-5.52-4.48-10-10-10zm-3.5 12.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-);
-// Inline SVG for Telegram Icon
-const TelegramIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 2l-7 20-4-9-9-4Z"/><path d="M22 2L11 13"/></svg>
-);
-// Inline SVG for WhatsApp Icon
-const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21.44 11.23c0 5.6-4.59 10.17-10.23 10.17-1.78 0-3.48-.46-4.96-1.29l-5.25 1.62 1.66-5.1c-.93-1.55-1.48-3.35-1.48-5.23C1.18 5.63 5.77 1.06 11.41 1.06c2.78 0 5.3.99 7.25 2.78 1.94 1.8 3.03 4.3 3.03 7.39z"/></svg>
-);
-
 
 export default function JoinPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -57,9 +53,11 @@ export default function JoinPage() {
     defaultValues: {
         fullName: '',
         email: '',
+        password: '',
         location: '',
-        socialHandle: '',
-        reasonToJoin: '',
+        interests: [],
+        avatarUrl: '',
+        portfolioUrl: '',
     },
   });
 
@@ -97,38 +95,11 @@ export default function JoinPage() {
                 <WelcomeCard fullName={fullName} aetherId={aetherId} />
 
                  <Button asChild variant="outline" size="lg">
-                    <Link href="/lobby">
-                        <Eye className="mr-2" />
-                        See a Sneak Peek of the Platform
+                    <Link href="/sys-bridge?key=MY_SECRET_KEY">
+                        <KeyRound className="mr-2" />
+                        Proceed to Login
                     </Link>
                 </Button>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Next Step: Join the Community</CardTitle>
-                        <CardDescription>Your Aether ID is your key. Use it to introduce yourself in our community hubs.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid sm:grid-cols-3 gap-4">
-                        <Button asChild size="lg" className="w-full">
-                            <Link href="https://discord.gg/D8g8dSf7GE" target="_blank">
-                                <DiscordIcon className="mr-2" />
-                                Join Discord
-                            </Link>
-                        </Button>
-                         <Button asChild size="lg" className="w-full bg-[#2AABEE] hover:bg-[#2AABEE]/90">
-                            <Link href="#" target="_blank">
-                                <TelegramIcon className="mr-2" />
-                                Join Telegram
-                            </Link>
-                        </Button>
-                         <Button asChild size="lg" className="w-full bg-[#25D366] hover:bg-[#25D366]/90">
-                            <Link href="#" target="_blank">
-                                <WhatsAppIcon className="mr-2" />
-                                Join WhatsApp
-                            </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
             </div>
         </main>
     )
@@ -140,94 +111,84 @@ export default function JoinPage() {
         <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Join the Aether Ecosystem</h1>
             <p className="mt-4 text-muted-foreground md:text-xl">
-                Get started with your Aether journey. Fill out this form to receive your unique Aether ID and access the ecosystem.
+                Create your Aether account to receive your unique ID and access the ecosystem.
             </p>
         </div>
         <Card>
             <CardContent className="p-6 md:p-8">
                  <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <FormField control={form.control} name="fullName" render={({ field }) => (
-                                <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="email" render={({ field }) => (
-                                <FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="your@email.com" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                        </div>
-
-                         <div className="grid md:grid-cols-2 gap-6">
-                            <FormField control={form.control} name="location" render={({ field }) => (
-                                <FormItem><FormLabel>City + Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                             <FormField control={form.control} name="ageRange" render={({ field }) => (
-                                <FormItem><FormLabel>Age Range</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="Select your age range" /></SelectTrigger></FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="<18">&lt;18</SelectItem>
-                                        <SelectItem value="18-24">18-24</SelectItem>
-                                        <SelectItem value="25-34">25-34</SelectItem>
-                                        <SelectItem value="35-44">35-44</SelectItem>
-                                        <SelectItem value="45-60">45-60</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage /></FormItem>
-                            )}/>
-                        </div>
-                        
-                        <div className="grid md:grid-cols-2 gap-6">
-                             <FormField control={form.control} name="role" render={({ field }) => (
-                                <FormItem><FormLabel>Current Role</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="Select your current role" /></SelectTrigger></FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Student">Student</SelectItem>
-                                        <SelectItem value="Graduate">Graduate</SelectItem>
-                                        <SelectItem value="Professional">Professional</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="mainInterest" render={({ field }) => (
-                                <FormItem><FormLabel>Main Interest</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl><SelectTrigger><SelectValue placeholder="Select your main interest" /></SelectTrigger></FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Courses">Courses & Learning</SelectItem>
-                                        <SelectItem value="Studio">Studio Projects & Collaboration</SelectItem>
-                                        <SelectItem value="Community">Community & Networking</SelectItem>
-                                        <SelectItem value="Mentorship">Mentorship</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage /></FormItem>
-                            )}/>
-                        </div>
-                        
-                         <FormField control={form.control} name="preferredPlatform" render={({ field }) => (
-                            <FormItem><FormLabel>Preferred Community Platform</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Where are you most active?" /></SelectTrigger></FormControl>
-                                <SelectContent>
-                                    <SelectItem value="Discord">Discord</SelectItem>
-                                    <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                                    <SelectItem value="Telegram">Telegram</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage /></FormItem>
+                        <FormField control={form.control} name="fullName" render={({ field }) => (
+                            <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="email" render={({ field }) => (
+                            <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="your@email.com" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="password" render={({ field }) => (
+                            <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" placeholder="Create a secure password" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="location" render={({ field }) => (
+                            <FormItem><FormLabel>City, Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
 
-                        <FormField control={form.control} name="socialHandle" render={({ field }) => (
-                            <FormItem><FormLabel>X (Twitter) or Instagram Handle <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="@yourhandle" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormField
+                            control={form.control}
+                            name="interests"
+                            render={() => (
+                                <FormItem>
+                                    <div className="mb-4">
+                                        <FormLabel className="text-base">What are your interests?</FormLabel>
+                                        <p className="text-sm text-muted-foreground">Select all that apply. This helps us recommend content for you.</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                    {interestsList.map((item) => (
+                                        <FormField
+                                            key={item.id}
+                                            control={form.control}
+                                            name="interests"
+                                            render={({ field }) => {
+                                                return (
+                                                <FormItem
+                                                    key={item.id}
+                                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                                >
+                                                    <FormControl>
+                                                    <Checkbox
+                                                        checked={field.value?.includes(item.id)}
+                                                        onCheckedChange={(checked) => {
+                                                        return checked
+                                                            ? field.onChange([...(field.value || []), item.id])
+                                                            : field.onChange(
+                                                                field.value?.filter(
+                                                                (value) => value !== item.id
+                                                                )
+                                                            )
+                                                        }}
+                                                    />
+                                                    </FormControl>
+                                                    <FormLabel className="font-normal">{item.label}</FormLabel>
+                                                </FormItem>
+                                                )
+                                            }}
+                                        />
+                                    ))}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField control={form.control} name="avatarUrl" render={({ field }) => (
+                            <FormItem><FormLabel>Avatar URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://your-image-url.com/profile.png" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                         <FormField control={form.control} name="portfolioUrl" render={({ field }) => (
+                            <FormItem><FormLabel>Portfolio/LinkedIn URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://linkedin.com/in/yourprofile" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
 
-                        <FormField control={form.control} name="reasonToJoin" render={({ field }) => (
-                            <FormItem><FormLabel>What do you hope to achieve with Aether? <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Textarea placeholder="e.g., 'To collaborate on innovative projects...'" className="resize-none" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
 
                         <Button type="submit" disabled={isLoading} size="lg" className="w-full">
                           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                          Get My Aether ID
+                          Create My Account & Get ID
                         </Button>
                     </form>
                 </Form>
@@ -237,3 +198,4 @@ export default function JoinPage() {
     </main>
   );
 }
+
