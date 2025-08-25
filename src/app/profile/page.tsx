@@ -4,16 +4,23 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Pencil, MapPin, Briefcase, Heart, LogOut, Download, Bot, Star, HardHat } from "lucide-react";
+import { User, Pencil, MapPin, Briefcase, Heart, LogOut, Download, Bot, Star, HardHat, Bell, Calendar, GraduationCap } from "lucide-react";
 import { getMemberProfile, type MemberProfile, logout, getMemberLearningProgress } from './actions';
 import Link from 'next/link';
 import { CommunityAccessHub } from '@/components/common/CommunityAccessHub';
 import { LearningProgress } from '@/components/common/LearningProgress';
+import { Badge } from '@/components/ui/badge';
 
 const starterKitItems = [
     { icon: Star, title: "Aether Onboarding PDF", description: "Your guide to the ecosystem.", href: "#" },
     { icon: Bot, title: "Access the AI toolkit", description: "Experiment with our AI design tools.", href: "#" },
     { icon: HardHat, title: "Figma Design System", description: "Templates for studio projects.", href: "#" },
+]
+
+const updatesFeedItems = [
+    { icon: GraduationCap, title: "New Primer Dropped", description: "'Sustainable Materials in West Africa' is now available.", timestamp: "2h ago", href: "/school/courses/2" },
+    { icon: Calendar, title: "Event Reminder", description: "Workshop: 'Intro to Parametric Design' starts tomorrow.", timestamp: "1d ago", href: "/events" },
+    { icon: Star, title: "Community Highlight", description: "Amina E.'s project was featured in the weekly roundup.", timestamp: "3d ago", href: "/community" },
 ]
 
 function StarterKit() {
@@ -42,6 +49,32 @@ function StarterKit() {
         </Card>
     )
 }
+
+
+function UpdatesFeed() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Bell /> Notifications & Updates</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 {updatesFeedItems.map((item, index) => (
+                    <Link key={index} href={item.href} className="flex items-start gap-4 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="bg-background rounded-full p-2 border">
+                           <item.icon className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-semibold">{item.title}</p>
+                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                        </div>
+                        <time className="text-xs text-muted-foreground whitespace-nowrap">{item.timestamp}</time>
+                    </Link>
+                ))}
+            </CardContent>
+        </Card>
+    )
+}
+
 
 async function ProfilePageContent({ profile, learningData }: { profile: MemberProfile, learningData: any }) {
   const { fullName, aetherId, email, role, location, mainInterest, reasonToJoin, entryNumber } = profile;
@@ -110,11 +143,11 @@ async function ProfilePageContent({ profile, learningData }: { profile: MemberPr
         <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column (Details & Community) */}
             <aside className="lg:col-span-1 space-y-8">
-                <Card>
+                 <Card>
                     <CardHeader>
-                        <CardTitle>Member Details</CardTitle>
+                        <CardTitle>Profile Summary</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3 text-sm">
+                    <CardContent className="space-y-4 text-sm">
                         <div className="flex items-start gap-3">
                             <Briefcase className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" />
                             <span>{role}</span>
@@ -127,31 +160,21 @@ async function ProfilePageContent({ profile, learningData }: { profile: MemberPr
                             <Heart className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" />
                             <span>Interested in {mainInterest || 'exploring the ecosystem'}.</span>
                         </div>
-                    </CardContent>
-                </Card>
-
-                 <CommunityAccessHub aetherId={aetherId} />
-
-            </aside>
-
-            {/* Right Column (Mission & Onboarding) */}
-            <div className="lg:col-span-2 space-y-8">
-                <Card className="h-full">
-                    <CardHeader>
-                        <CardTitle>Your Mission</CardTitle>
-                        <CardDescription>A little about what you hope to achieve with Aether.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {reasonToJoin ? (
-                             <blockquote className="border-l-4 border-primary/20 pl-4 italic text-muted-foreground">
+                         {reasonToJoin && (
+                             <blockquote className="border-l-2 border-primary/20 pl-3 italic text-muted-foreground text-xs pt-2">
                                 "{reasonToJoin}"
                             </blockquote>
-                        ) : (
-                            <p className="text-muted-foreground italic">You haven't set your mission yet. You can add this by editing your profile!</p>
                         )}
                     </CardContent>
                 </Card>
 
+                <UpdatesFeed />
+                <CommunityAccessHub aetherId={aetherId} />
+
+            </aside>
+
+            {/* Right Column (Learning & Onboarding) */}
+            <div className="lg:col-span-2 space-y-8">
                 <LearningProgress learningData={learningData} />
                 <StarterKit />
             </div>
