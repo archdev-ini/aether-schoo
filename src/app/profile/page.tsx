@@ -4,11 +4,44 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Pencil, MapPin, Briefcase, Heart, LogOut } from "lucide-react";
+import { User, Pencil, MapPin, Briefcase, Heart, LogOut, Download, Bot, Star, HardHat } from "lucide-react";
 import { getMemberProfile, type MemberProfile, logout, getMemberLearningProgress } from './actions';
 import Link from 'next/link';
 import { CommunityAccessHub } from '@/components/common/CommunityAccessHub';
 import { LearningProgress } from '@/components/common/LearningProgress';
+
+const starterKitItems = [
+    { icon: Star, title: "Aether Onboarding PDF", description: "Your guide to the ecosystem.", href: "#" },
+    { icon: Bot, title: "Access the AI toolkit", description: "Experiment with our AI design tools.", href: "#" },
+    { icon: HardHat, title: "Figma Design System", description: "Templates for studio projects.", href: "#" },
+]
+
+function StarterKit() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Knowledge &amp; Tools Starter Kit</CardTitle>
+                <CardDescription>Essential resources to kickstart your journey in the ecosystem.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+                {starterKitItems.map((item) => (
+                    <a key={item.title} href={item.href} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-4">
+                                <item.icon className="w-6 h-6 text-primary flex-shrink-0" />
+                                <div>
+                                    <p className="font-semibold">{item.title}</p>
+                                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                                </div>
+                            </div>
+                            <Download className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                    </a>
+                ))}
+            </CardContent>
+        </Card>
+    )
+}
 
 async function ProfilePageContent({ profile, learningData }: { profile: MemberProfile, learningData: any }) {
   const { fullName, aetherId, email, role, location, mainInterest, reasonToJoin, entryNumber } = profile;
@@ -120,6 +153,7 @@ async function ProfilePageContent({ profile, learningData }: { profile: MemberPr
                 </Card>
 
                 <LearningProgress learningData={learningData} />
+                <StarterKit />
             </div>
         </div>
       </div>
