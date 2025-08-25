@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import Airtable from 'airtable';
 import { randomBytes } from 'crypto';
-import { sendWelcomeEmail } from '@/lib/email'; // We can reuse this as it sends an activation/login link
+import { sendWelcomeEmail } from '@/lib/email'; 
 
 const LoginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -41,21 +41,20 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
             maxRecords: 1,
         }).firstPage();
 
-        if (records.length === 0) {
-            return { success: false, error: 'No account found with this email. Please sign up first.' };
-        }
-
-        const record = records[0];
-        
-        // Generate a new secure token for the magic link
-        const token = randomBytes(32).toString('hex');
-        
-        await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, {
-            'loginToken': token,
-            'loginTokenExpires': 900, // 15 minutes in seconds
-        });
-        
-        // Airtable's "Created Time" field for loginTokenCreatedAt will auto-update if the field `loginToken` is updated.
+        // Security best practice: To prevent email enumeration, we don't reveal if an account exists.
+        // We proceed with sending the email only if a record is found.
+        if (records.length > 0) {
+            const record = records[0];
+            
+            // Generate a new secure token for the magic link
+            const token = randomBytes(32).toString('hex');
+            
+            await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, {
+                'loginToken': token,
+                'loginTokenExpires': 900, // 15 minutes in seconds
+            });
+            
+            // Airtable's "Created Time" field for loginTokenCreatedAt will auto-update if the field `loginToken` is updated.
 
         await sendWelcomeEmail({
             to: email,
@@ -64,7 +63,7 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
             token: token
         });
 
-        return { success: true, data: { fullName: recordedFullName, aetherId: recordedAetherId } };
+        return { success: true };
 
     } catch (error: any) {
         console.error('Airtable API error:', error);

@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, KeyRound, MailCheck } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { sendLoginLink } from '../login/actions';
 import NotFoundPage from '../not-found';
 
@@ -90,7 +90,7 @@ function BridgePageContent() {
                             <MailCheck className="w-16 h-16 mx-auto text-primary" />
                             <CardTitle className="text-3xl font-bold mt-4">Check Your Inbox!</CardTitle>
                             <CardDescription>
-                                We've sent a secure login link to your email address. Please click the link to continue.
+                                If an account exists for {form.getValues('email')}, you will receive a secure login link.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="text-center">
