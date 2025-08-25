@@ -4,10 +4,11 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Award, Flame, MessageSquare, Pencil, CheckCircle, MapPin, Briefcase, Heart, LogOut, BookOpen, Package, Calendar, Clock, ArrowRight, Target, Layers } from "lucide-react";
+import { User, Pencil, MapPin, Briefcase, Heart, LogOut } from "lucide-react";
 import { getMemberProfile, type MemberProfile, logout } from './actions';
 import { getEvents, type Event as EventType } from '@/app/events/actions';
 import Link from 'next/link';
+import { CommunityAccessHub } from '@/components/common/CommunityAccessHub';
 
 async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
   const { fullName, aetherId, email, role, location, mainInterest, reasonToJoin, entryNumber } = profile;
@@ -74,7 +75,7 @@ async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
 
         {/* Dashboard Content */}
         <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left Column (Details) */}
+            {/* Left Column (Details & Community) */}
             <aside className="lg:col-span-1 space-y-8">
                 <Card>
                     <CardHeader>
@@ -95,11 +96,14 @@ async function ProfilePageContent({ profile }: { profile: MemberProfile }) {
                         </div>
                     </CardContent>
                 </Card>
+
+                 <CommunityAccessHub aetherId={aetherId} />
+
             </aside>
 
-            {/* Right Column */}
+            {/* Right Column (Mission & Onboarding) */}
             <div className="lg:col-span-2 space-y-8">
-                <Card>
+                <Card className="h-full">
                     <CardHeader>
                         <CardTitle>Your Mission</CardTitle>
                         <CardDescription>A little about what you hope to achieve with Aether.</CardDescription>
