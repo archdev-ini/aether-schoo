@@ -64,14 +64,30 @@ export async function submitJoinForm(data: FormValues) {
             maxRecords: 1,
         }).firstPage();
 
-        if (existingRecords.length > 0) {
-            return { success: false, error: 'An account with this email already exists.' };
-        }
-
-        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
-        
         // Generate a secure token for the magic link
         const token = randomBytes(32).toString('hex');
+        const tokenFields = {
+            'loginToken': token,
+            'loginTokenExpires': 900, // 15 minutes in seconds
+        };
+
+        if (existingRecords.length > 0) {
+            // User exists, re-send welcome email with a new token
+            const record = existingRecords[0];
+            await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, tokenFields);
+            
+            await sendWelcomeEmail({
+                to: email,
+                name: record.get('fldcoLSWA6ntjtlYV') as string,
+                aetherId: record.get('fld7hoOSkHYaZrPr7') as string,
+                token: token
+            });
+            // Return success to show the same message to the user, preventing email enumeration
+            return { success: true };
+        }
+
+
+        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
         
         const fields = {
             'fld7hoOSkHYaZrPr7': newAetherId,
@@ -83,8 +99,7 @@ export async function submitJoinForm(data: FormValues) {
             'fldmMy5vyIaoPMN3g': entryNumber,
             'fld7rO1pQZ9sY2tB4': 'Member',
             'fldLzkrbVXuycummp': 'Prelaunch-Active',
-            'loginToken': token,
-            'loginTokenExpires': 900, // 15 minutes in seconds, for the duration field
+            ...tokenFields
         };
 
         const createdRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).create([

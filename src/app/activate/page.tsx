@@ -17,6 +17,7 @@ async function verifyTokenAndLogin(token: string): Promise<{ success: boolean; e
     const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
 
      if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+        console.error('Server configuration error in activation');
         return { success: false, error: 'Server configuration error.' };
     }
 
@@ -44,6 +45,8 @@ async function verifyTokenAndLogin(token: string): Promise<{ success: boolean; e
         const expiresAt = new Date(tokenCreatedAt.getTime() + tokenDuration * 1000);
 
         if (new Date() > expiresAt) {
+            // Invalidate expired token
+            await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, { 'loginToken': null });
             return { success: false, error: 'Activation link has expired. Please try signing up again.' };
         }
         

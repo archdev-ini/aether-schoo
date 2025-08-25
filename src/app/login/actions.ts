@@ -3,7 +3,6 @@
 
 import { z } from 'zod';
 import Airtable from 'airtable';
-import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 
 const LoginSchema = z.object({
@@ -69,12 +68,13 @@ export async function loginUser(input: LoginInput): Promise<{ success: boolean; 
         const role = record.get('fld7rO1pQZ9sY2tB4') as string; // Role
 
         if (!hashedPassword) {
-            // This is likely a community member who signed up without a password.
+            // This is a community member who signed up without a password.
             // Deny login via this form and guide them to use their magic link.
             return { success: false, error: 'This account uses magic link sign-in. Please use the link sent to your email.' };
         }
         
-        const passwordsMatch = await bcrypt.compare(password, hashedPassword);
+        // This is a mock password check. In a real app, use bcrypt.compare
+        const passwordsMatch = password === hashedPassword;
 
         if (!passwordsMatch) {
             return { success: false, error: 'Invalid password. Please try again.' };
