@@ -7,7 +7,6 @@ import { Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
 import Airtable from 'airtable';
 
 async function verifyTokenAndLogin(token: string): Promise<{ success: boolean; error?: string }> {
@@ -34,9 +33,17 @@ async function verifyTokenAndLogin(token: string): Promise<{ success: boolean; e
         }
 
         const record = records[0];
-        const tokenExpires = new Date(record.get('loginTokenExpires') as string);
+        const tokenCreatedAtStr = record.get('loginTokenCreatedAt') as string;
+        const tokenDuration = record.get('loginTokenExpires') as number || 0; // Duration in seconds
 
-        if (new Date() > tokenExpires) {
+        if (!tokenCreatedAtStr || tokenDuration === 0) {
+             return { success: false, error: 'Invalid activation record. Please sign up again.' };
+        }
+        
+        const tokenCreatedAt = new Date(tokenCreatedAtStr);
+        const expiresAt = new Date(tokenCreatedAt.getTime() + tokenDuration * 1000);
+
+        if (new Date() > expiresAt) {
             return { success: false, error: 'Activation link has expired. Please try signing up again.' };
         }
         
@@ -44,9 +51,13 @@ async function verifyTokenAndLogin(token: string): Promise<{ success: boolean; e
         const aetherId = record.get('fld7hoOSkHYaZrPr7') as string;
         const role = record.get('fld7rO1pQZ9sY2tB4') as string;
         
-        cookies().set('aether_user_id', aetherId, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 60 * 60 * 24 * 7, path: '/' });
-        cookies().set('aether_user_name', fullName, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 60 * 60 * 24 * 7, path: '/' });
-        cookies().set('aether_user_role', role, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 60 * 60 * 24 * 7, path: '/' });
+        // This part needs to be a server action to set cookies securely.
+        // For now, using localStorage and signaling a change.
+        localStorage.setItem('aether_user_id', aetherId);
+        localStorage.setItem('aether_user_name', fullName);
+        localStorage.setItem('aether_user_role', role);
+        window.dispatchEvent(new Event('auth-change'));
+
 
         // Invalidate token after use
         await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, {
@@ -81,10 +92,6 @@ function ActivateContent() {
             if (result.success) {
                 setStatus('success');
                 setMessage('Your account has been activated! Redirecting you now...');
-                
-                // Use localStorage to signal header update, then redirect
-                localStorage.setItem('aether_user_id', 'temp'); // Dummy value to trigger storage event
-                window.dispatchEvent(new Event('auth-change'));
                 
                 setTimeout(() => {
                     router.replace('/profile');

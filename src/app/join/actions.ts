@@ -72,8 +72,7 @@ export async function submitJoinForm(data: FormValues) {
         
         // Generate a secure token for the magic link
         const token = randomBytes(32).toString('hex');
-        const tokenExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
-
+        
         const fields = {
             'fld7hoOSkHYaZrPr7': newAetherId,
             'fld2EoTnv3wjIHhNX': email,
@@ -85,7 +84,7 @@ export async function submitJoinForm(data: FormValues) {
             'fld7rO1pQZ9sY2tB4': 'Member',
             'fldLzkrbVXuycummp': 'Prelaunch-Active',
             'loginToken': token,
-            'loginTokenExpires': tokenExpires.toISOString(),
+            'loginTokenExpires': 900, // 15 minutes in seconds, for the duration field
         };
 
         const createdRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).create([
@@ -95,6 +94,8 @@ export async function submitJoinForm(data: FormValues) {
         if (createdRecords.length === 0) {
             throw new Error("Failed to create record in Airtable.");
         }
+        
+        // The `loginTokenCreatedAt` field will be auto-populated by Airtable.
 
         // Send welcome email with magic link
         await sendWelcomeEmail({
