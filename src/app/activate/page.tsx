@@ -4,76 +4,10 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import Airtable from 'airtable';
-
-async function verifyTokenAndLogin(token: string): Promise<{ success: boolean; error?: string }> {
-    const {
-        AIRTABLE_API_KEY,
-        AIRTABLE_BASE_ID,
-    } = process.env;
-    const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
-
-     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
-        console.error('Server configuration error in activation');
-        return { success: false, error: 'Server configuration error.' };
-    }
-
-    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
-
-    try {
-        const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{loginToken} = "${token}"`,
-            maxRecords: 1,
-        }).firstPage();
-
-        if (records.length === 0) {
-            return { success: false, error: 'Invalid or expired activation link.' };
-        }
-
-        const record = records[0];
-        const tokenCreatedAtStr = record.get('loginTokenCreatedAt') as string;
-        const tokenDuration = record.get('loginTokenExpires') as number || 0; // Duration in seconds
-
-        if (!tokenCreatedAtStr || tokenDuration === 0) {
-             return { success: false, error: 'Invalid activation record. Please sign up again.' };
-        }
-        
-        const tokenCreatedAt = new Date(tokenCreatedAtStr);
-        const expiresAt = new Date(tokenCreatedAt.getTime() + tokenDuration * 1000);
-
-        if (new Date() > expiresAt) {
-            // Invalidate expired token
-            await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, { 'loginToken': null });
-            return { success: false, error: 'Activation link has expired. Please try signing up again.' };
-        }
-        
-        const fullName = record.get('fldcoLSWA6ntjtlYV') as string;
-        const aetherId = record.get('fld7hoOSkHYaZrPr7') as string;
-        const role = record.get('fld7rO1pQZ9sY2tB4') as string;
-        
-        // This part needs to be a server action to set cookies securely.
-        // For now, using localStorage and signaling a change.
-        localStorage.setItem('aether_user_id', aetherId);
-        localStorage.setItem('aether_user_name', fullName);
-        localStorage.setItem('aether_user_role', role);
-        window.dispatchEvent(new Event('auth-change'));
-
-
-        // Invalidate token after use
-        await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, {
-            'loginToken': null,
-            'loginTokenExpires': null,
-        });
-
-        return { success: true };
-    } catch (error) {
-        console.error('Activation error:', error);
-        return { success: false, error: 'An unexpected error occurred during activation.' };
-    }
-}
+import { verifyTokenAndLogin } from './actions';
 
 
 function ActivateContent() {
@@ -95,6 +29,12 @@ function ActivateContent() {
             if (result.success) {
                 setStatus('success');
                 setMessage('Your account has been activated! Redirecting you now...');
+                
+                // Set user info in localStorage and notify other components (like the header)
+                localStorage.setItem('aether_user_id', result.data!.aetherId);
+                localStorage.setItem('aether_user_name', result.data!.fullName);
+                localStorage.setItem('aether_user_role', result.data!.role);
+                window.dispatchEvent(new Event('auth-change'));
                 
                 setTimeout(() => {
                     router.replace('/profile');
