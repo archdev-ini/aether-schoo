@@ -98,9 +98,11 @@ export async function getMemberLearningProgress(aetherId: string): Promise<Learn
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_COURSES_TABLE_ID,
         AIRTABLE_COURSE_PROGRESS_TABLE_ID
     } = process.env;
+
+    const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
+    const AIRTABLE_COURSES_TABLE_ID = 'tblG6WAvnevMUOHln';
 
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_COURSES_TABLE_ID || !AIRTABLE_COURSE_PROGRESS_TABLE_ID) {
         console.error('Airtable credentials for learning are not fully set.');
@@ -111,7 +113,7 @@ export async function getMemberLearningProgress(aetherId: string): Promise<Learn
 
     try {
         // 1. Get Member's Record ID from Aether ID
-        const memberRecords = await base('Members').select({
+        const memberRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             filterByFormula: `{aetherId} = "${aetherId}"`,
             fields: [],
             maxRecords: 1,
@@ -121,25 +123,25 @@ export async function getMemberLearningProgress(aetherId: string): Promise<Learn
         const memberRecordId = memberRecords[0].id;
 
         // 2. Get all completed course IDs for that member
-        const completedProgressRecords = await base('CourseProgress').select({
+        const completedProgressRecords = await base(AIRTABLE_COURSE_PROGRESS_TABLE_ID).select({
             filterByFormula: `AND({Member} = '${memberRecordId}', {Status} = 'Completed')`,
             fields: ['Course']
         }).all();
         const completedCourseIds = new Set(completedProgressRecords.map(r => r.get('Course')).flat());
         
-        // 3. Get all published primers
-        const primerRecords = await base('Courses').select({
-            filterByFormula: "AND({IsPublished} = 1, {Format} = 'Primer')",
-            fields: ['Title', 'Description', 'Format', 'Slug'],
+        // 3. Get all published primers from the Courses table using Field IDs
+        const primerRecords = await base(AIRTABLE_COURSES_TABLE_ID).select({
+            filterByFormula: "AND({fldgbnGxLp5G4XyCi} = 1, {fldGK04OgOAtmCdce} = 'Primer')", // IsPublished and Format
+            fields: ['fld4yNKUC0jgnjNnl', 'fldOi4fl2p2eyBpk4', 'fldGK04OgOAtmCdce', 'fldBihBUYiKQJrWe0'], // Title, Description, Format, Slug
         }).all();
 
         // 4. Map primers to LearningItem, checking completion status
         const learningItems = primerRecords.map(record => ({
             id: record.id,
-            title: record.get('Title') || 'Untitled',
-            description: record.get('Description'),
-            format: record.get('Format') || 'Primer',
-            slug: record.get('Slug') || '',
+            title: record.get('fld4yNKUC0jgnjNnl') || 'Untitled',
+            description: record.get('fldOi4fl2p2eyBpk4'),
+            format: record.get('fldGK04OgOAtmCdce') || 'Primer',
+            slug: record.get('fldBihBUYiKQJrWe0') || '',
             isCompleted: completedCourseIds.has(record.id),
         }));
 
