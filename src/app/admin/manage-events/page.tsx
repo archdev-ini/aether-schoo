@@ -3,23 +3,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 
-export default function ContentManagementPage() {
+export default function ManageEventsDashboardPage() {
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold md:text-2xl">Content Control</h1>
-                <Button>
+                <h1 className="text-lg font-semibold md:text-2xl">Events Manager</h1>
+                 <Button>
                     <PlusCircle className="mr-2" />
-                    Create New Course
+                    Create New Event
                 </Button>
             </div>
              <Card>
                 <CardHeader>
-                    <CardTitle>Course List</CardTitle>
-                    <CardDescription>Upload, edit, and release primers and resources.</CardDescription>
+                    <CardTitle>Event Calendar</CardTitle>
+                    <CardDescription>Create and manage early design challenges and events.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-sm text-muted-foreground">Course management table coming soon...</p>
+                    <p className="text-sm text-muted-foreground">Event management tools coming soon...</p>
                 </CardContent>
             </Card>
         </main>
