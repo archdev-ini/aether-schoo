@@ -53,16 +53,43 @@ export async function getCourses(): Promise<Course[]> {
 
 
 const CreateCourseSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters.'),
-  format: z.enum(['Primer', 'Video Course', 'Archive']),
-  slug: z.string().min(3, 'Slug must be at least 3 characters.').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
+  title: z.string().min(3, { message: 'Title must be at least 3 characters.' }),
+  format: z.enum(['Primer', 'Video Course', 'Archive', 'External Link']),
+  slug: z.string().optional(),
+  externalUrl: z.string().url().optional().or(z.literal('')),
+}).refine((data) => {
+    if (data.format === 'External Link') {
+        return !!data.externalUrl;
+    }
+    return !!data.slug;
+}, {
+    message: 'Slug is required for internal content, URL for external links.',
+    path: ['slug'], // You can decide where to show the error
+}).refine(data => {
+    if (data.format !== 'External Link' && data.slug) {
+        return /^[a-z0-9-]+$/.test(data.slug);
+    }
+    return true;
+}, {
+    message: 'Slug can only contain lowercase letters, numbers, and hyphens.',
+    path: ['slug'],
+}).refine(data => {
+    if (data.format !== 'External Link' && data.slug) {
+        return data.slug.length >= 3;
+    }
+    return true;
+}, {
+    message: 'Slug must be at least 3 characters.',
+    path: ['slug'],
 });
+
 
 export type CreateCourseState = {
   errors?: {
     title?: string[];
     format?: string[];
     slug?: string[];
+    externalUrl?: string[];
     _form?: string[];
   };
   message?: string | null;
@@ -73,6 +100,7 @@ export async function createCourse(prevState: CreateCourseState, formData: FormD
         title: formData.get('title'),
         format: formData.get('format'),
         slug: formData.get('slug'),
+        externalUrl: formData.get('externalUrl'),
     });
 
     if (!validatedFields.success) {
@@ -82,7 +110,7 @@ export async function createCourse(prevState: CreateCourseState, formData: FormD
         };
     }
     
-    const { title, format, slug } = validatedFields.data;
+    const { title, format, slug, externalUrl } = validatedFields.data;
 
     const {
         AIRTABLE_API_KEY,
@@ -97,15 +125,20 @@ export async function createCourse(prevState: CreateCourseState, formData: FormD
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
 
     try {
+        const fields: Airtable.FieldSet = {
+            'fld4yNKUC0jgnjNnl': title,
+            'fldGK04OgOAtmCdce': format,
+            'fldgbnGxLp5G4XyCi': false, // Default to Draft
+        };
+
+        if (format === 'External Link') {
+            fields['fldUa8bCdeFghIjKl'] = externalUrl; // Assumes field ID for External URL
+        } else {
+            fields['fldBihBUYiKQJrWe0'] = slug;
+        }
+
         await base(AIRTABLE_COURSES_TABLE_ID).create([
-            {
-                fields: {
-                    'fld4yNKUC0jgnjNnl': title,
-                    'fldGK04OgOAtmCdce': format,
-                    'fldBihBUYiKQJrWe0': slug,
-                    'fldgbnGxLp5G4XyCi': false, // Default to Draft
-                }
-            }
+            { fields }
         ], { typecast: true });
     } catch(error) {
         console.error('Airtable create course error:', error);
