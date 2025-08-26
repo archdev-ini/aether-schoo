@@ -1,5 +1,6 @@
 
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, CheckCircle, Clock } from 'lucide-react';
@@ -99,9 +100,11 @@ export default function ContentManagementPage() {
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="flex items-center justify-between">
                 <h1 className="text-lg font-semibold md:text-2xl">Content Control</h1>
-                <Button>
-                    <PlusCircle className="mr-2" />
-                    Create New Course
+                <Button asChild>
+                    <Link href="/admin/content/new">
+                        <PlusCircle className="mr-2" />
+                        Create New Course
+                    </Link>
                 </Button>
             </div>
              <Card>
