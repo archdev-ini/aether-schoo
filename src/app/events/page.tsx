@@ -2,9 +2,9 @@
 import { Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, User, Loader2 } from "lucide-react";
+import { Calendar, Clock, User, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { getEvents, Event } from './actions';
+import { getEvents, type Event } from './actions';
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -40,12 +40,13 @@ async function EventsList() {
         {events.map((event) => {
           const { date, time } = formatEventTime(event.date);
           const speakers = event.speaker.split(';').map(s => s.trim());
+          const canRsvp = event.status === 'Upcoming' && event.eventCode;
 
           return (
             <Card key={event.id} className="grid md:grid-cols-[300px_1fr] overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 duration-300">
                 <div className="relative h-48 md:h-full">
                     <Image
-                        src={event.coverImage || 'https://placehold.co/600x400.png'}
+                        src={event.coverImage || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
                         alt={event.title}
                         fill
                         data-ai-hint="event cover"
@@ -74,9 +75,10 @@ async function EventsList() {
                         </div>
                     </CardContent>
                     <div className="p-6 pt-0 mt-auto">
-                        <Button asChild className="w-full mt-4" size="lg" disabled={!event.registrationUrl || event.status === 'Past'}>
-                            <Link href={event.registrationUrl || '#'} target="_blank">
-                                {event.status === 'Upcoming' ? (event.registrationUrl ? 'Register Now' : 'Registration Opening Soon') : 'View Recording'}
+                        <Button asChild className="w-full mt-4" size="lg" disabled={!canRsvp}>
+                            <Link href={canRsvp ? `/events/${event.eventCode}` : '#'}>
+                                {event.status === 'Upcoming' ? 'View Event & RSVP' : 'View Event Details'}
+                                <ArrowRight className="ml-2" />
                             </Link>
                         </Button>
                     </div>
