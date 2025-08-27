@@ -20,7 +20,7 @@ export default {
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
         body: ['Satoshi', 'sans-serif'],
-        headline: ['var(--font-sora)', 'sans-serif'],
+        headline: ['sans-serif'],
         logo: ['Satoshi', 'sans-serif'],
       },
       colors: {
