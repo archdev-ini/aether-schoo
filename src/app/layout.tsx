@@ -1,5 +1,6 @@
 
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
@@ -8,6 +9,9 @@ import { Footer } from '@/components/common/Footer';
 import { ThemeProvider } from '@/components/common/ThemeProvider';
 import { CookieConsentBanner } from '@/components/common/CookieConsentBanner';
 import { BottomNav } from '@/components/common/BottomNav';
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
   title: 'Aether | Architecture School & Creative Ecosystem',
@@ -44,7 +48,7 @@ export default function RootLayout({
   const user = (userName && aetherId) ? { name: userName, id: aetherId } : null;
 
   return (
-    <html lang="en" suppressHydrationWarning className={`${sora.variable} ${workSans.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
