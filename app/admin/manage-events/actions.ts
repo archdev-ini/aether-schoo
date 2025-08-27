@@ -12,7 +12,7 @@ const AdminEventSchema = z.object({
   date: z.string(),
   type: z.string(),
   isPublished: z.boolean(),
-  rsvpCount: z.number(), // This might need to be adjusted if there's no RSVP field
+  rsvpCount: z.number(),
 });
 
 export type AdminEvent = z.infer<typeof AdminEventSchema>;
@@ -42,7 +42,7 @@ export async function getAdminEvents(): Promise<AdminEvent[]> {
             date: record.get('fldZqEcg7wovGdynX'), // Date
             type: record.get('fldDkeL5skl6n3F9A') || 'General', // Type
             isPublished: record.get('fldQwNwXW5g9YWsVm') || false, // Published
-            rsvpCount: 0, // Placeholder, as there's no RSVP count field in the new schema
+            rsvpCount: record.get('fldzY2jK7lW1tZ0Xq') || 0, // RSVP Count from new schema
         }));
         
         return AdminEventSchema.array().parse(events);
@@ -58,6 +58,7 @@ const CreateEventSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters.' }),
   date: z.date({ required_error: "An event date is required." }),
   type: z.enum(['Workshop', 'Horizon Studio', 'Webinar']),
+  eventCode: z.string().min(3, { message: 'Event code must be at least 3 characters.' }).regex(/^[A-Z0-9-]+$/, { message: 'Use uppercase letters, numbers, and hyphens only.' }),
 });
 
 export type CreateEventState = {
@@ -65,6 +66,7 @@ export type CreateEventState = {
     title?: string[];
     date?: string[];
     type?: string[];
+    eventCode?: string[];
     _form?: string[];
   };
   message?: string | null;
@@ -76,6 +78,7 @@ export async function createEvent(prevState: CreateEventState, formData: FormDat
         title: formData.get('title'),
         date: new Date(formData.get('date') as string),
         type: formData.get('type'),
+        eventCode: formData.get('eventCode'),
     });
 
      if (!validatedFields.success) {
@@ -85,7 +88,7 @@ export async function createEvent(prevState: CreateEventState, formData: FormDat
         };
     }
     
-    const { title, date, type } = validatedFields.data;
+    const { title, date, type, eventCode } = validatedFields.data;
 
     const {
         AIRTABLE_API_KEY,
@@ -101,9 +104,10 @@ export async function createEvent(prevState: CreateEventState, formData: FormDat
 
      try {
         const fields: Airtable.FieldSet = {
-            'fldsWDjmyzCEDVLq1': title, // Title
-            'fldZqEcg7wovGdynX': date.toISOString(), // Date
-            'fldDkeL5skl6n3F9A': type, // Type
+            'fldsWDjmyzCEDVLq1': title,
+            'fldZqEcg7wovGdynX': date.toISOString(),
+            'fldDkeL5skl6n3F9A': type,
+            'fldXJZa542DQ1eSV9': eventCode,
             'fldQwNwXW5g9YWsVm': false, // Published, default to Draft
         };
 

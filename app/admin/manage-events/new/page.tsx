@@ -126,6 +126,25 @@ export default function NewEventPage() {
                     </div>
                 </div>
             </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="eventCode">Event Code</Label>
+              <Input
+                id="eventCode"
+                name="eventCode"
+                placeholder="e.g., WAD-2025 (must be unique)"
+                aria-describedby="eventCode-error"
+                className="font-mono uppercase"
+              />
+              <div id="eventCode-error" aria-live="polite" aria-atomic="true">
+                {state.errors?.eventCode &&
+                  state.errors.eventCode.map((error: string) => (
+                    <p className="mt-2 text-sm text-destructive" key={error}>
+                      {error}
+                    </p>
+                  ))}
+              </div>
+            </div>
 
             <div aria-live="polite" aria-atomic="true">
                 {state.message ? (
