@@ -35,7 +35,7 @@ function BlueprintBackground() {
                          <path d="M50 40 L0 40 M50 30 L0 30 M50 20 L0 20 M50 10 L0 10" fill="none" stroke="hsl(var(--foreground))" strokeWidth="0.5"/>
                     </pattern>
                 </defs>
-                <rect width="100%" height="100%" fill="url(#blueprint)"/>
+                <rect width="100%" height="100%" fill="url(#blueprint)" />
             </svg>
         </div>
     )
