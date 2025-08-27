@@ -112,9 +112,8 @@ export default function NewEventPage() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="Workshop">Workshop</SelectItem>
-                            <SelectItem value="AMA">AMA</SelectItem>
-                            <SelectItem value="Design Challenge">Design Challenge</SelectItem>
-                            <SelectItem value="Community Call">Community Call</SelectItem>
+                            <SelectItem value="Horizon Studio">Horizon Studio</SelectItem>
+                            <SelectItem value="Webinar">Webinar</SelectItem>
                         </SelectContent>
                     </Select>
                     <div id="type-error" aria-live="polite" aria-atomic="true">

@@ -12,7 +12,7 @@ const AdminEventSchema = z.object({
   date: z.string(),
   type: z.string(),
   isPublished: z.boolean(),
-  rsvpCount: z.number(),
+  rsvpCount: z.number(), // This might need to be adjusted if there's no RSVP field
 });
 
 export type AdminEvent = z.infer<typeof AdminEventSchema>;
@@ -22,7 +22,7 @@ export async function getAdminEvents(): Promise<AdminEvent[]> {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
     } = process.env;
-    const AIRTABLE_EVENTS_TABLE_ID = 'tblv6PzXgqK8rL9yB';
+    const AIRTABLE_EVENTS_TABLE_ID = 'tbl5Dwc9n31gKW4eu';
 
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_EVENTS_TABLE_ID) {
         console.error('Airtable credentials for events are not set.');
@@ -33,16 +33,16 @@ export async function getAdminEvents(): Promise<AdminEvent[]> {
     
     try {
         const records = await base(AIRTABLE_EVENTS_TABLE_ID).select({
-            sort: [{field: "fldB5cK3jL8xP1nB2", direction: "desc"}],
+            sort: [{field: "fldZqEcg7wovGdynX", direction: "desc"}], // Date
         }).all();
 
         const events = records.map(record => ({
             id: record.id,
-            title: record.get('fldA4nB2cK3jL8xP1') || 'Untitled Event',
-            date: record.get('fldB5cK3jL8xP1nB2'),
-            type: record.get('fldC6dK3jL8xP1nB3') || 'General',
-            isPublished: record.get('fldD7eK3jL8xP1nB4') || false,
-            rsvpCount: record.get('fldE8fK3jL8xP1nB5') || 0,
+            title: record.get('fldsWDjmyzCEDVLq1') || 'Untitled Event', // Title
+            date: record.get('fldZqEcg7wovGdynX'), // Date
+            type: record.get('fldDkeL5skl6n3F9A') || 'General', // Type
+            isPublished: record.get('fldQwNwXW5g9YWsVm') || false, // Published
+            rsvpCount: 0, // Placeholder, as there's no RSVP count field in the new schema
         }));
         
         return AdminEventSchema.array().parse(events);
@@ -57,7 +57,7 @@ export async function getAdminEvents(): Promise<AdminEvent[]> {
 const CreateEventSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters.' }),
   date: z.date({ required_error: "An event date is required." }),
-  type: z.enum(['Workshop', 'AMA', 'Design Challenge', 'Community Call']),
+  type: z.enum(['Workshop', 'Horizon Studio', 'Webinar']),
 });
 
 export type CreateEventState = {
@@ -91,7 +91,7 @@ export async function createEvent(prevState: CreateEventState, formData: FormDat
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
     } = process.env;
-    const AIRTABLE_EVENTS_TABLE_ID = 'tblv6PzXgqK8rL9yB';
+    const AIRTABLE_EVENTS_TABLE_ID = 'tbl5Dwc9n31gKW4eu';
 
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_EVENTS_TABLE_ID) {
         return { message: 'Airtable credentials for events are not set.' };
@@ -101,10 +101,10 @@ export async function createEvent(prevState: CreateEventState, formData: FormDat
 
      try {
         const fields: Airtable.FieldSet = {
-            'fldA4nB2cK3jL8xP1': title,
-            'fldB5cK3jL8xP1nB2': date.toISOString(),
-            'fldC6dK3jL8xP1nB3': type,
-            'fldD7eK3jL8xP1nB4': false, // Default to Draft
+            'fldsWDjmyzCEDVLq1': title, // Title
+            'fldZqEcg7wovGdynX': date.toISOString(), // Date
+            'fldDkeL5skl6n3F9A': type, // Type
+            'fldQwNwXW5g9YWsVm': false, // Published, default to Draft
         };
 
         await base(AIRTABLE_EVENTS_TABLE_ID).create([
