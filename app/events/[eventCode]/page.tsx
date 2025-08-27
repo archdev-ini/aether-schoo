@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { notFound, useRouter } from 'next/navigation';
 import { getEventDetails, submitRsvp, type EventDetail } from './actions';
@@ -9,10 +9,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ArrowLeft, Calendar, User, Clock, Users, Ticket, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Clock, Users, CheckCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 function formatEventTime(dateStr: string) {
@@ -25,14 +24,8 @@ function formatEventTime(dateStr: string) {
     }
 }
 
-function RsvpButton({ hasRsvpd, eventStatus, onRsvpSubmit }: { hasRsvpd: boolean, eventStatus: string, onRsvpSubmit: () => Promise<void> }) {
-    const [isPending, setIsPending] = useState(false);
-
-    const handleClick = async () => {
-        setIsPending(true);
-        await onRsvpSubmit();
-        setIsPending(false);
-    };
+function RsvpButton({ hasRsvpd, eventStatus }: { hasRsvpd: boolean; eventStatus: string }) {
+    const { pending } = useFormStatus();
 
     if (eventStatus === 'Past') {
         return <Button size="lg" className="w-full" disabled>This event has ended</Button>;
@@ -47,8 +40,8 @@ function RsvpButton({ hasRsvpd, eventStatus, onRsvpSubmit }: { hasRsvpd: boolean
     }
     
     return (
-        <Button onClick={handleClick} size="lg" className="w-full" disabled={isPending}>
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button type="submit" size="lg" className="w-full" disabled={pending}>
+            {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             RSVP Now
         </Button>
     );
@@ -58,9 +51,8 @@ function RsvpForm({ event, isLoggedIn }: { event: EventDetail, isLoggedIn: boole
     const { toast } = useToast();
     const router = useRouter();
 
-    const handleRsvpSubmit = async () => {
+    const formAction = async (formData: FormData) => {
         const result = await submitRsvp(event.id);
-
         if (result.success) {
             toast({
                 title: 'Success!',
@@ -86,7 +78,11 @@ function RsvpForm({ event, isLoggedIn }: { event: EventDetail, isLoggedIn: boole
         )
     }
     
-    return <RsvpButton hasRsvpd={event.hasRsvpd} eventStatus={event.status} onRsvpSubmit={handleRsvpSubmit} />;
+    return (
+        <form action={formAction}>
+            <RsvpButton hasRsvpd={event.hasRsvpd} eventStatus={event.status} />
+        </form>
+    );
 }
 
 
@@ -169,9 +165,18 @@ export default function EventDetailPage({ params }: { params: { eventCode: strin
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     
     useEffect(() => {
-        setIsLoggedIn(!!localStorage.getItem('aether_user_id'));
+        const checkLogin = () => !!document.cookie.includes('aether_user_id');
+        setIsLoggedIn(checkLogin());
         
         getEventDetails(params.eventCode).then(setEvent);
+
+        const handleAuthChange = () => {
+            setIsLoggedIn(checkLogin());
+        };
+        window.addEventListener('auth-change', handleAuthChange);
+        return () => {
+            window.removeEventListener('auth-change', handleAuthChange);
+        };
     }, [params.eventCode]);
 
     if (event === undefined) {
