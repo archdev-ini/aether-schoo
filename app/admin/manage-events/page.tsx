@@ -1,5 +1,6 @@
 
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, CheckCircle, Clock, Users } from 'lucide-react';
@@ -104,9 +105,11 @@ export default function ManageEventsDashboardPage() {
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="flex items-center justify-between">
                 <h1 className="text-lg font-semibold md:text-2xl">Events Manager</h1>
-                 <Button>
-                    <PlusCircle className="mr-2" />
-                    Create New Event
+                 <Button asChild>
+                    <Link href="/admin/manage-events/new">
+                        <PlusCircle className="mr-2" />
+                        Create New Event
+                    </Link>
                 </Button>
             </div>
              <Card>
