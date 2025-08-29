@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, Users, LogIn, User } from 'lucide-react';
+import { Home, Calendar, Users, LogIn, User, BookCopy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
@@ -40,6 +40,7 @@ export function BottomNav({ user }: BottomNavProps) {
   const navItems = [
     { href: '/', label: 'Home', icon: Home, show: 'always' },
     { href: '/events', label: 'Events', icon: Calendar, show: 'always' },
+    { href: '/programs', label: 'Programs', icon: BookCopy, show: 'always' },
     { href: '/profile', label: 'Profile', icon: User, show: 'loggedIn' },
     { href: '/login', label: 'Login', icon: LogIn, show: 'loggedOut' },
   ];

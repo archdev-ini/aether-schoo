@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 const navLinks = [
+  { href: '/programs', label: 'Programs' },
   { href: '/events', label: 'Events' },
   { href: '/about', label: 'About' },
   { href: '/faq', label: 'FAQ' },
@@ -59,11 +60,14 @@ interface HeaderProps {
 export function Header({ user: initialUser }: HeaderProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const [user, setUser] = useState(initialUser);
   const [isLoggedIn, setIsLoggedIn] = useState(!!initialUser);
   const [userName, setUserName] = useState(initialUser?.name || '');
   const [userAetherId, setUserAetherId] = useState(initialUser?.id || '');
 
+
   useEffect(() => {
+    setUser(initialUser);
     setIsLoggedIn(!!initialUser);
     setUserName(initialUser?.name || '');
     setUserAetherId(initialUser?.id || '');
