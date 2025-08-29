@@ -59,45 +59,49 @@ interface HeaderProps {
 export function Header({ user: initialUser }: HeaderProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [user, setUser] = useState(initialUser);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!initialUser);
+  const [userName, setUserName] = useState(initialUser?.name || '');
+  const [userAetherId, setUserAetherId] = useState(initialUser?.id || '');
 
   useEffect(() => {
-    setUser(initialUser);
+    setIsLoggedIn(!!initialUser);
+    setUserName(initialUser?.name || '');
+    setUserAetherId(initialUser?.id || '');
   }, [initialUser]);
 
   useEffect(() => {
-    // This effect now primarily reads from localStorage for client-side display consistency.
-    // The actual auth state is managed by the server cookie.
-    const name = localStorage.getItem('aether_user_name');
-    const id = localStorage.getItem('aether_user_id');
-    if (name && id) {
-        setIsLoggedIn(true);
-        setUserName(name);
-        setUserAetherId(id);
-    } else {
-        setIsLoggedIn(false);
-        setUserName('');
-        setUserAetherId('');
-    }
+    const checkAuth = () => {
+      const name = localStorage.getItem('aether_user_name');
+      const id = localStorage.getItem('aether_user_id');
+      if (name && id) {
+          setIsLoggedIn(true);
+          setUserName(name);
+          setUserAetherId(id);
+      } else {
+          setIsLoggedIn(false);
+          setUserName('');
+          setUserAetherId('');
+      }
+    };
+    checkAuth();
+
+    window.addEventListener('auth-change', checkAuth);
+    return () => {
+      window.removeEventListener('auth-change', checkAuth);
+    };
   }, []);
 
   const handleLogout = async () => {
-    // Clear localStorage for immediate client-side UI update
+    await fetch('/api/logout', { method: 'POST' });
+    
     localStorage.removeItem('aether_user_id');
     localStorage.removeItem('aether_user_name');
-    setIsLoggedIn(false);
-    setUserName('');
-    setUserAetherId('');
-    
-    // Server-side cleanup (calling a server action)
-    await fetch('/api/logout', { method: 'POST' });
+    localStorage.removeItem('aether_user_role');
 
-    // This event will trigger the useEffect to update state
     window.dispatchEvent(new Event('auth-change'));
 
     toast({ description: "You have been logged out." });
     
-    // Refresh the page to ensure all server components reflect the logged-out state
     router.push('/');
     router.refresh();
   }
@@ -147,7 +151,7 @@ export function Header({ user: initialUser }: HeaderProps) {
                       </Link>
                     ))}
                     <Separator className="my-2"/>
-                    {user ? (
+                    {isLoggedIn ? (
                        <>
                         <Link href="/profile" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
                             <User className="w-5 h-5"/> Profile
@@ -172,13 +176,13 @@ export function Header({ user: initialUser }: HeaderProps) {
           </div>
           <div className="flex items-center gap-2">
              <ThemeToggle />
-            {user ? (
+            {isLoggedIn ? (
                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                            <Avatar className="h-8 w-8">
-                                <AvatarImage src={`https://api.dicebear.com/7.x/bottts/svg?seed=${user.id}`} alt={user.name} />
-                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                <AvatarImage src={`https://api.dicebear.com/7.x/bottts/svg?seed=${userAetherId}`} alt={userName} />
+                                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
                            </Avatar>
                          </Button>
                     </DropdownMenuTrigger>
