@@ -7,6 +7,12 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
 
+const AttendeeSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    aetherId: z.string(),
+});
+
 const EventDetailSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -19,6 +25,7 @@ const EventDetailSchema = z.object({
   eventCode: z.string(),
   rsvpCount: z.number(),
   hasRsvpd: z.boolean(),
+  attendees: z.array(AttendeeSchema),
 });
 
 export type EventDetail = z.infer<typeof EventDetailSchema>;
@@ -51,24 +58,32 @@ export async function getEventDetails(eventCode: string): Promise<EventDetail | 
 
         if (eventRecords.length === 0) return null;
         const eventRecord = eventRecords[0];
+        const eventId = eventRecord.id;
 
-        let hasRsvpd = false;
-        const aetherId = cookies().get('aether_user_id')?.value;
-        
-        if (aetherId) {
+        // Fetch all RSVPs for this event
+        const rsvpRecords = await base(TABLE_IDS.RSVPS).select({
+            filterByFormula: `{${RF.EVENT}} = '${eventId}'`
+        }).all();
+        const memberRecordIds = rsvpRecords.map(r => r.get(RF.MEMBER)).flat();
+
+        let attendees: z.infer<typeof AttendeeSchema>[] = [];
+        if (memberRecordIds.length > 0) {
+            const memberFilter = "OR(" + memberRecordIds.map(id => `RECORD_ID() = '${id}'`).join(',') + ")";
             const memberRecords = await base(TABLE_IDS.MEMBERS).select({
-                filterByFormula: `{${MF.AETHER_ID}} = "${aetherId}"`,
-                maxRecords: 1
-            }).firstPage();
-
-            if (memberRecords.length > 0) {
-                const memberRecordId = memberRecords[0].id;
-                const rsvpRecords = await base(TABLE_IDS.RSVPS).select({
-                     filterByFormula: `AND({${RF.EVENT}} = '${eventRecord.id}', {${RF.MEMBER}} = '${memberRecordId}')`,
-                     maxRecords: 1,
-                }).firstPage();
-                hasRsvpd = rsvpRecords.length > 0;
-            }
+                filterByFormula: memberFilter,
+                fields: [MF.AETHER_ID, MF.FULL_NAME]
+            }).all();
+            attendees = memberRecords.map(rec => ({
+                id: rec.id,
+                name: rec.get(MF.FULL_NAME) as string,
+                aetherId: rec.get(MF.AETHER_ID) as string
+            }));
+        }
+        
+        let hasRsvpd = false;
+        const currentAetherId = cookies().get('aether_user_id')?.value;
+        if (currentAetherId) {
+            hasRsvpd = attendees.some(attendee => attendee.aetherId === currentAetherId);
         }
         
         const coverImageField = eventRecord.get(EF.COVER_IMAGE);
@@ -81,7 +96,7 @@ export async function getEventDetails(eventCode: string): Promise<EventDetail | 
         const eventDate = new Date(eventDateStr);
         
         const event = {
-            id: eventRecord.id,
+            id: eventId,
             title: eventRecord.get(EF.TITLE) || 'Untitled Event',
             date: eventDateStr,
             type: eventRecord.get(EF.TYPE) || 'General',
@@ -92,6 +107,7 @@ export async function getEventDetails(eventCode: string): Promise<EventDetail | 
             eventCode: eventRecord.get(EF.EVENT_CODE) as string,
             rsvpCount: eventRecord.get(EF.RSVP_COUNT) || 0,
             hasRsvpd: hasRsvpd,
+            attendees: attendees,
         };
         
         return EventDetailSchema.parse(event);
@@ -145,12 +161,11 @@ export async function submitRsvp(eventId: string): Promise<{ success: boolean; e
             }
         ]);
         
+        // Airtable's rollup field for RSVP count might have a delay.
+        // We can manually increment for immediate feedback if needed, but for now we'll rely on the rollup.
+        // The revalidatePath call should eventually show the updated count.
+        
         const eventRecord = await base(TABLE_IDS.EVENTS).find(eventId);
-        const currentRsvpCount = eventRecord.get(EF.RSVP_COUNT) as number || 0;
-        await base(TABLE_IDS.EVENTS).update(eventId, {
-            [EF.RSVP_COUNT]: currentRsvpCount + 1,
-        });
-
         const eventCode = eventRecord.get(EF.EVENT_CODE);
         revalidatePath(`/events/${eventCode}`);
         
