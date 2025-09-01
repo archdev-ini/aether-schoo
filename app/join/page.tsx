@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress"
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft, MailCheck } from 'lucide-react';
 import { generateAetherIdForUser, submitJoinForm } from './actions';
+import { WelcomeCard } from '@/components/common/WelcomeCard';
 
 const steps = [
   { id: 'Step 1', name: 'Account Basics', fields: ['fullName', 'username', 'email'] },
@@ -89,7 +90,6 @@ export default function JoinPage() {
     setIsLoading(true);
     setLoadingMessage(loadingMessages[currentStep]);
 
-
     // Simulate network delay for a better UX
     await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -149,11 +149,14 @@ export default function JoinPage() {
          )}
         
         {currentStep === 4 ? (
-             <div className="text-center space-y-6 animate-in fade-in duration-300">
+            <div className="text-center space-y-6 animate-in fade-in duration-300">
                 <MailCheck className="w-16 h-16 mx-auto text-primary" />
                  <div>
                     <h3 className="text-2xl font-bold font-headline">Check your inbox!</h3>
                     <p className="text-muted-foreground mt-2 max-w-md mx-auto">We've sent a magic link to <strong>{submittedEmail}</strong>. Click the link to activate your account and access the ecosystem.</p>
+                </div>
+                 <div className="mt-8">
+                     <WelcomeCard fullName={getValues('fullName')} aetherId={aetherId} />
                 </div>
             </div>
         ) : (
