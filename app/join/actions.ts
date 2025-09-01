@@ -9,6 +9,7 @@ import { sendWelcomeEmail } from '@/lib/email';
 
 const FormSchema = z.object({
   fullName: z.string(),
+  username: z.string(),
   email: z.string().email(),
   location: z.string(),
   role: z.string(),
@@ -72,7 +73,7 @@ export async function submitJoinForm(data: FormValues, aetherId: string, entryNu
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const { email, fullName, ...restOfData } = parsedData.data;
+        const { email, fullName, username, ...restOfData } = parsedData.data;
 
         const existingRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
             filterByFormula: `{Email} = "${email}"`,
@@ -103,6 +104,7 @@ export async function submitJoinForm(data: FormValues, aetherId: string, entryNu
             'fld7hoOSkHYaZrPr7': aetherId,
             'fld2EoTnv3wjIHhNX': email,
             'fldcoLSWA6ntjtlYV': fullName,
+            'fldR7jeaYn5qD4bCe': username,
             'fldP5VgkLoOGwFkb3': restOfData.location,
             'fld7rO1pQZ9sY2tB4': restOfData.role, // Role
             'fldkpeV7NwNz0GJ7O': restOfData.interests, // Interests

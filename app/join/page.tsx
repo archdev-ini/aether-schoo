@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from "@/components/ui/progress"
@@ -18,14 +18,15 @@ import { generateAetherIdForUser, submitJoinForm } from './actions';
 import { WelcomeCard } from '@/components/common/WelcomeCard';
 
 const steps = [
-  { id: 'Step 1', name: 'Your Identity', fields: ['fullName', 'email', 'location', 'role'] },
+  { id: 'Step 1', name: 'Account Basics', fields: ['fullName', 'username', 'email'] },
   { id: 'Step 2', name: 'Your Aether ID' },
-  { id: 'Step 3', name: 'Your Interests', fields: ['interests', 'portfolioUrl'] },
+  { id: 'Step 3', name: 'Your Interests', fields: ['interests', 'portfolioUrl', 'location', 'role'] },
   { id: 'Step 4', name: 'Confirmation' },
 ]
 
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
+  username: z.string().min(3, { message: 'Username must be at least 3 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   location: z.string().min(3, { message: 'Please enter your city and country.' }),
   role: z.string({ required_error: 'Please select your current status.' }),
@@ -38,8 +39,8 @@ const FormSchema = z.object({
 export type FormValues = z.infer<typeof FormSchema>;
 
 const interestsList = [
-    { id: 'Learning', label: 'Learning (Courses & Primers)' },
-    { id: 'Projects', label: 'Projects (Horizon Studio)' },
+    { id: 'Learning', label: 'Learning (School)' },
+    { id: 'Projects', label: 'Projects (Build)' },
     { id: 'Competitions', label: 'Competitions' },
     { id: 'Community', label: 'Community & Networking' },
 ];
@@ -55,7 +56,7 @@ export default function JoinPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-        fullName: '', email: '', location: '', role: '', interests: [], portfolioUrl: '',
+        fullName: '', username: '', email: '', location: '', role: '', interests: [], portfolioUrl: '',
     },
   });
 
@@ -122,6 +123,7 @@ export default function JoinPage() {
             <CardHeader>
                 <Progress value={(currentStep + 1) / steps.length * 100} className="mb-4" />
                 <CardTitle>{steps[currentStep].name}</CardTitle>
+                 {currentStep === 0 && <CardDescription>✨ Let’s Get Started</CardDescription>}
             </CardHeader>
             <CardContent>
                  <Form {...form}>
@@ -130,24 +132,28 @@ export default function JoinPage() {
                         {currentStep === 0 && (
                             <div className="space-y-6 animate-in fade-in duration-300">
                                 <FormField control={form.control} name="fullName" render={({ field }) => (
-                                    <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem>
+                                        <FormLabel>Full Name</FormLabel>
+                                        <FormControl><Input placeholder="Your full name" {...field} /></FormControl>
+                                        <FormDescription>Use your real name. This helps us personalize your Aether ID.</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="username" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Username</FormLabel>
+                                        <FormControl><Input placeholder="yourusername" {...field} /></FormControl>
+                                         <FormDescription>This is your public name inside Aether. Choose something short & recognizable.</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}/>
                                 <FormField control={form.control} name="email" render={({ field }) => (
-                                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="your@email.com" {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="location" render={({ field }) => (
-                                    <FormItem><FormLabel>City, Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="role" render={({ field }) => (
-                                    <FormItem><FormLabel>Current Status</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select your status" /></SelectTrigger></FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="Student">Student</SelectItem>
-                                            <SelectItem value="Graduate">Graduate</SelectItem>
-                                            <SelectItem value="Professional">Professional</SelectItem>
-                                            <SelectItem value="Enthusiast">Enthusiast</SelectItem>
-                                        </SelectContent>
-                                    </Select><FormMessage /></FormItem>
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl><Input type="email" placeholder="your@email.com" {...field} /></FormControl>
+                                         <FormDescription>We’ll send your magic link here to activate your account.</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}/>
                             </div>
                         )}
@@ -168,6 +174,20 @@ export default function JoinPage() {
 
                         {currentStep === 2 && (
                              <div className="space-y-6 animate-in fade-in duration-300">
+                                <FormField control={form.control} name="location" render={({ field }) => (
+                                    <FormItem><FormLabel>City, Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="role" render={({ field }) => (
+                                    <FormItem><FormLabel>Current Status</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select your status" /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="Student">Student</SelectItem>
+                                            <SelectItem value="Graduate">Graduate</SelectItem>
+                                            <SelectItem value="Professional">Professional</SelectItem>
+                                            <SelectItem value="Enthusiast">Enthusiast</SelectItem>
+                                        </SelectContent>
+                                    </Select><FormMessage /></FormItem>
+                                )}/>
                                 <FormField control={form.control} name="interests" render={() => (
                                     <FormItem>
                                         <FormLabel>What are you most interested in?</FormLabel>
@@ -210,13 +230,14 @@ export default function JoinPage() {
                             
                             {currentStep === 0 && <div/>}
 
-                            {currentStep < steps.length - 2 && (
+                             {currentStep < 2 && (
                                 <Button type="button" onClick={handleNext} disabled={isLoading}>
-                                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Next'} <ArrowRight className="ml-2" />
+                                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {currentStep === 0 ? <>👉 Next</> : <>Next <ArrowRight className="ml-2" /></> }
                                 </Button>
                             )}
 
-                             {currentStep === steps.length - 2 && (
+                             {currentStep === 2 && (
                                 <Button type="submit" disabled={isLoading}>
                                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Complete Registration
