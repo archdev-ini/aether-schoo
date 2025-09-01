@@ -3,6 +3,7 @@
 
 import { z } from 'zod';
 import Airtable from 'airtable';
+import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
 
 const MemberSchema = z.object({
   id: z.string(),
@@ -20,29 +21,29 @@ export async function getMembers(): Promise<Member[]> {
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_MEMBERS_TABLE_ID,
     } = process.env;
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.MEMBERS) {
         console.error('Airtable member credentials are not set.');
         return [];
     }
 
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+    const F = FIELDS.MEMBERS;
     
     try {
-        const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            sort: [{field: "Created time", direction: "desc"}],
+        const records = await base(TABLE_IDS.MEMBERS).select({
+            sort: [{field: F.CREATED_TIME, direction: "desc"}],
         }).all();
 
         const members = records.map(record => ({
             id: record.id,
-            fullName: record.get('fldcoLSWA6ntjtlYV') || 'N/A',
-            email: record.get('fld2EoTnv3wjIHhNX') || 'N/A',
-            aetherId: record.get('fld7hoOSkHYaZrPr7') || 'N/A',
-            location: record.get('fldP5VgkLoOGwFkb3') || 'Unknown',
-            status: record.get('fldLzkrbVXuycummp') || 'Unknown',
-            createdTime: record.get('Created time'),
+            fullName: record.get(F.FULL_NAME) || 'N/A',
+            email: record.get(F.EMAIL) || 'N/A',
+            aetherId: record.get(F.AETHER_ID) || 'N/A',
+            location: record.get(F.LOCATION) || 'Unknown',
+            status: record.get(F.STATUS) || 'Unknown',
+            createdTime: record.get(F.CREATED_TIME),
         }));
         
         return MemberSchema.array().parse(members);

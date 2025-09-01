@@ -5,6 +5,7 @@ import { z } from 'zod';
 import Airtable from 'airtable';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
+import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
 
 const EventDetailSchema = z.object({
   id: z.string(),
@@ -33,62 +34,63 @@ async function getAirtableBase() {
 
 
 export async function getEventDetails(eventCode: string): Promise<EventDetail | null> {
-    const { AIRTABLE_EVENTS_TABLE_ID, AIRTABLE_RSVPS_TABLE_ID, AIRTABLE_MEMBERS_TABLE_ID } = process.env;
-    if (!AIRTABLE_EVENTS_TABLE_ID || !AIRTABLE_RSVPS_TABLE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+    if (!TABLE_IDS.EVENTS || !TABLE_IDS.RSVPS || !TABLE_IDS.MEMBERS) {
         console.error("Airtable table IDs for events/rsvps are not fully configured.");
         return null;
     }
     const base = await getAirtableBase();
+    const EF = FIELDS.EVENTS;
+    const MF = FIELDS.MEMBERS;
+    const RF = FIELDS.RSVPS;
     
     try {
-        const eventRecords = await base(AIRTABLE_EVENTS_TABLE_ID).select({
-            filterByFormula: `UPPER({fldXJZa542DQ1eSV9}) = "${eventCode.toUpperCase()}"`,
+        const eventRecords = await base(TABLE_IDS.EVENTS).select({
+            filterByFormula: `UPPER({${EF.EVENT_CODE}}) = "${eventCode.toUpperCase()}"`,
             maxRecords: 1,
         }).firstPage();
 
         if (eventRecords.length === 0) return null;
         const eventRecord = eventRecords[0];
 
-        // Check if current user has RSVP'd
         let hasRsvpd = false;
         const aetherId = cookies().get('aether_user_id')?.value;
         
         if (aetherId) {
-            const memberRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-                filterByFormula: `{fld7hoOSkHYaZrPr7} = "${aetherId}"`,
+            const memberRecords = await base(TABLE_IDS.MEMBERS).select({
+                filterByFormula: `{${MF.AETHER_ID}} = "${aetherId}"`,
                 maxRecords: 1
             }).firstPage();
 
             if (memberRecords.length > 0) {
                 const memberRecordId = memberRecords[0].id;
-                const rsvpRecords = await base(AIRTABLE_RSVPS_TABLE_ID).select({
-                     filterByFormula: `AND({fldUvWxYzAbCdEfGh} = '${eventRecord.id}', {fldIjKlMnOpQrStUv} = '${memberRecordId}')`,
+                const rsvpRecords = await base(TABLE_IDS.RSVPS).select({
+                     filterByFormula: `AND({${RF.EVENT}} = '${eventRecord.id}', {${RF.MEMBER}} = '${memberRecordId}')`,
                      maxRecords: 1,
                 }).firstPage();
                 hasRsvpd = rsvpRecords.length > 0;
             }
         }
         
-        const coverImageField = eventRecord.get('fldoXDEfNslvE50WF');
+        const coverImageField = eventRecord.get(EF.COVER_IMAGE);
         let coverImageUrl;
         if (Array.isArray(coverImageField) && coverImageField.length > 0) {
             coverImageUrl = coverImageField[0].url;
         }
 
-        const eventDateStr = eventRecord.get('fldZqEcg7wovGdynX') as string;
+        const eventDateStr = eventRecord.get(EF.DATE) as string;
         const eventDate = new Date(eventDateStr);
         
         const event = {
             id: eventRecord.id,
-            title: eventRecord.get('fldsWDjmyzCEDVLq1') || 'Untitled Event',
+            title: eventRecord.get(EF.TITLE) || 'Untitled Event',
             date: eventDateStr,
-            type: eventRecord.get('fldDkeL5skl6n3F9A') || 'General',
-            speaker: eventRecord.get('fldA6qlmJI4DVdCCV') || 'TBA',
-            description: eventRecord.get('fld2rolAMxiIEjh7x') || 'No description provided.',
+            type: eventRecord.get(EF.TYPE) || 'General',
+            speaker: eventRecord.get(EF.SPEAKER) || 'TBA',
+            description: eventRecord.get(EF.DESCRIPTION) || 'No description provided.',
             status: eventDate >= new Date() ? 'Upcoming' : 'Past',
             coverImage: coverImageUrl,
-            eventCode: eventRecord.get('fldXJZa542DQ1eSV9') as string,
-            rsvpCount: eventRecord.get('fldzY2jK7lW1tZ0Xq') || 0, // RSVP Count field ID from new schema
+            eventCode: eventRecord.get(EF.EVENT_CODE) as string,
+            rsvpCount: eventRecord.get(EF.RSVP_COUNT) || 0,
             hasRsvpd: hasRsvpd,
         };
         
@@ -106,16 +108,17 @@ export async function submitRsvp(eventId: string): Promise<{ success: boolean; e
         return { success: false, error: 'You must be logged in to RSVP.' };
     }
 
-    const { AIRTABLE_EVENTS_TABLE_ID, AIRTABLE_RSVPS_TABLE_ID, AIRTABLE_MEMBERS_TABLE_ID } = process.env;
-    if (!AIRTABLE_EVENTS_TABLE_ID || !AIRTABLE_RSVPS_TABLE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+    if (!TABLE_IDS.EVENTS || !TABLE_IDS.RSVPS || !TABLE_IDS.MEMBERS) {
         return { success: false, error: 'Server RSVP functionality is not configured.' };
     }
     const base = await getAirtableBase();
+    const EF = FIELDS.EVENTS;
+    const MF = FIELDS.MEMBERS;
+    const RF = FIELDS.RSVPS;
 
     try {
-        // 1. Get Member's Record ID
-        const memberRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{fld7hoOSkHYaZrPr7} = "${aetherId}"`,
+        const memberRecords = await base(TABLE_IDS.MEMBERS).select({
+            filterByFormula: `{${MF.AETHER_ID}} = "${aetherId}"`,
             maxRecords: 1,
         }).firstPage();
 
@@ -124,9 +127,8 @@ export async function submitRsvp(eventId: string): Promise<{ success: boolean; e
         }
         const memberRecordId = memberRecords[0].id;
         
-        // 2. Check for existing RSVP
-        const existingRsvp = await base(AIRTABLE_RSVPS_TABLE_ID).select({
-            filterByFormula: `AND({fldUvWxYzAbCdEfGh} = '${eventId}', {fldIjKlMnOpQrStUv} = '${memberRecordId}')`,
+        const existingRsvp = await base(TABLE_IDS.RSVPS).select({
+            filterByFormula: `AND({${RF.EVENT}} = '${eventId}', {${RF.MEMBER}} = '${memberRecordId}')`,
             maxRecords: 1,
         }).firstPage();
 
@@ -134,25 +136,22 @@ export async function submitRsvp(eventId: string): Promise<{ success: boolean; e
             return { success: false, error: "You've already RSVP'd to this event." };
         }
 
-        // 3. Create the RSVP Record
-        await base(AIRTABLE_RSVPS_TABLE_ID).create([
+        await base(TABLE_IDS.RSVPS).create([
             {
                 fields: {
-                    'fldUvWxYzAbCdEfGh': [eventId],
-                    'fldIjKlMnOpQrStUv': [memberRecordId],
+                    [RF.EVENT]: [eventId],
+                    [RF.MEMBER]: [memberRecordId],
                 }
             }
         ]);
         
-        // 4. Update the RSVP count on the event
-        const eventRecord = await base(AIRTABLE_EVENTS_TABLE_ID).find(eventId);
-        const currentRsvpCount = eventRecord.get('fldzY2jK7lW1tZ0Xq') as number || 0;
-        await base(AIRTABLE_EVENTS_TABLE_ID).update(eventId, {
-            'fldzY2jK7lW1tZ0Xq': currentRsvpCount + 1,
+        const eventRecord = await base(TABLE_IDS.EVENTS).find(eventId);
+        const currentRsvpCount = eventRecord.get(EF.RSVP_COUNT) as number || 0;
+        await base(TABLE_IDS.EVENTS).update(eventId, {
+            [EF.RSVP_COUNT]: currentRsvpCount + 1,
         });
 
-        // 5. Revalidate the path to show the updated RSVP status
-        const eventCode = eventRecord.get('fldXJZa542DQ1eSV9');
+        const eventCode = eventRecord.get(EF.EVENT_CODE);
         revalidatePath(`/events/${eventCode}`);
         
         return { success: true };

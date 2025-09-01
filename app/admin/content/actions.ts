@@ -5,6 +5,7 @@ import { z } from 'zod';
 import Airtable from 'airtable';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
 
 const CourseSchema = z.object({
   id: z.string(),
@@ -21,26 +22,26 @@ export async function getCourses(): Promise<Course[]> {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
     } = process.env;
-    const AIRTABLE_COURSES_TABLE_ID = 'tblG6WAvnevMUOHln';
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_COURSES_TABLE_ID) {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.COURSES) {
         console.error('Airtable credentials for courses are not set.');
         return [];
     }
 
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+    const F = FIELDS.COURSES;
     
     try {
-        const records = await base(AIRTABLE_COURSES_TABLE_ID).select({
-            sort: [{field: "fldb7G8yJqx3V8vA1", direction: "desc"}],
+        const records = await base(TABLE_IDS.COURSES).select({
+            sort: [{field: F.CREATED_TIME, direction: "desc"}],
         }).all();
 
         const courses = records.map(record => ({
             id: record.id,
-            title: record.get('fld4yNKUC0jgnjNnl') || 'Untitled Course',
-            format: record.get('fldGK04OgOAtmCdce') || 'Unknown',
-            isPublished: record.get('fldgbnGxLp5G4XyCi') || false,
-            createdTime: record.get('fldb7G8yJqx3V8vA1'),
+            title: record.get(F.TITLE) || 'Untitled Course',
+            format: record.get(F.FORMAT) || 'Unknown',
+            isPublished: record.get(F.IS_PUBLISHED) || false,
+            createdTime: record.get(F.CREATED_TIME),
         }));
         
         return CourseSchema.array().parse(courses);
@@ -64,7 +65,7 @@ const CreateCourseSchema = z.object({
     return !!data.slug;
 }, {
     message: 'Slug is required for internal content, URL for external links.',
-    path: ['slug'], // You can decide where to show the error
+    path: ['slug'],
 }).refine(data => {
     if (data.format !== 'External Link' && data.slug) {
         return /^[a-z0-9-]+$/.test(data.slug);
@@ -116,28 +117,28 @@ export async function createCourse(prevState: CreateCourseState, formData: FormD
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
     } = process.env;
-    const AIRTABLE_COURSES_TABLE_ID = 'tblG6WAvnevMUOHln';
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_COURSES_TABLE_ID) {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.COURSES) {
         return { message: 'Airtable credentials are not set.' };
     }
 
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+    const F = FIELDS.COURSES;
 
     try {
         const fields: Airtable.FieldSet = {
-            'fld4yNKUC0jgnjNnl': title,
-            'fldGK04OgOAtmCdce': format,
-            'fldgbnGxLp5G4XyCi': false, // Default to Draft
+            [F.TITLE]: title,
+            [F.FORMAT]: format,
+            [F.IS_PUBLISHED]: false, // Default to Draft
         };
 
         if (format === 'External Link') {
-            fields['fldUa8bCdeFghIjKl'] = externalUrl; // Assumes field ID for External URL
+            fields[F.EXTERNAL_URL] = externalUrl;
         } else {
-            fields['fldBihBUYiKQJrWe0'] = slug;
+            fields[F.SLUG] = slug;
         }
 
-        await base(AIRTABLE_COURSES_TABLE_ID).create([
+        await base(TABLE_IDS.COURSES).create([
             { fields }
         ], { typecast: true });
     } catch(error) {

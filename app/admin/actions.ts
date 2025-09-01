@@ -2,15 +2,15 @@
 'use server';
 
 import Airtable from 'airtable';
+import { TABLE_IDS } from '@/lib/airtable-schema';
 
 export async function getSignupCount(): Promise<number> {
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
-        AIRTABLE_MEMBERS_TABLE_ID
     } = process.env;
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.MEMBERS) {
         console.error('Airtable credentials for members are not set in environment variables.');
         return 0;
     }
@@ -18,7 +18,7 @@ export async function getSignupCount(): Promise<number> {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
+        const records = await base(TABLE_IDS.MEMBERS).select({
             view: 'Grid view' 
         }).all();
         

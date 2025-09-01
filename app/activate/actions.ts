@@ -3,6 +3,7 @@
 
 import Airtable from 'airtable';
 import { cookies } from 'next/headers';
+import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
 
 interface VerificationResult {
     success: boolean;
@@ -14,18 +15,19 @@ export async function verifyTokenAndLogin(token: string): Promise<VerificationRe
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
     } = process.env;
-    const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
 
-     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.MEMBERS) {
         console.error('Server configuration error in activation');
         return { success: false, error: 'Server configuration error.' };
     }
 
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+    const membersTable = base(TABLE_IDS.MEMBERS);
+    const F = FIELDS.MEMBERS;
 
     try {
-        const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{loginToken} = "${token}"`,
+        const records = await membersTable.select({
+            filterByFormula: `{${F.LOGIN_TOKEN}} = "${token}"`,
             maxRecords: 1,
         }).firstPage();
 
@@ -34,8 +36,8 @@ export async function verifyTokenAndLogin(token: string): Promise<VerificationRe
         }
 
         const record = records[0];
-        const tokenCreatedAtStr = record.get('loginTokenCreatedAt') as string;
-        const tokenDuration = record.get('loginTokenExpires') as number || 0; 
+        const tokenCreatedAtStr = record.get(F.LOGIN_TOKEN_CREATED_AT) as string;
+        const tokenDuration = record.get(F.LOGIN_TOKEN_EXPIRES) as number || 0; 
 
         if (!tokenCreatedAtStr || tokenDuration === 0) {
              return { success: false, error: 'Invalid activation record. Please sign up again.' };
@@ -45,18 +47,18 @@ export async function verifyTokenAndLogin(token: string): Promise<VerificationRe
         const expiresAt = new Date(tokenCreatedAt.getTime() + tokenDuration * 1000);
 
         if (new Date() > expiresAt) {
-            await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, { 'loginToken': null });
+            await membersTable.update(record.id, { [F.LOGIN_TOKEN]: null });
             return { success: false, error: 'Activation link has expired. Please try signing up again.' };
         }
         
-        const fullName = record.get('fldcoLSWA6ntjtlYV') as string;
-        const aetherId = record.get('fld7hoOSkHYaZrPr7') as string;
-        const role = record.get('fld7rO1pQZ9sY2tB4') as string;
+        const fullName = record.get(F.FULL_NAME) as string;
+        const aetherId = record.get(F.AETHER_ID) as string;
+        const role = record.get(F.ROLE) as string;
         
         // Invalidate token after use
-        await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, {
-            'loginToken': null,
-            'loginTokenExpires': null,
+        await membersTable.update(record.id, {
+            [F.LOGIN_TOKEN]: null,
+            [F.LOGIN_TOKEN_EXPIRES]: null,
         });
 
         // Set secure, HttpOnly cookies for session
