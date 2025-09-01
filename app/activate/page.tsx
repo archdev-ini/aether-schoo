@@ -3,12 +3,11 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Loader2, AlertTriangle, CheckCircle, Archive, Calendar, Users } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { verifyTokenAndLogin } from './actions';
-import { WelcomeCard } from '@/components/common/WelcomeCard';
 
 
 function ActivateContent() {
@@ -18,7 +17,6 @@ function ActivateContent() {
 
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [message, setMessage] = useState('Verifying your account...');
-    const [userData, setUserData] = useState<{ aetherId: string; fullName: string; role: string; } | null>(null);
 
     useEffect(() => {
         if (!token) {
@@ -27,58 +25,52 @@ function ActivateContent() {
             return;
         }
 
-        const processVerification = async () => {
-            const result = await verifyTokenAndLogin(token);
+        verifyTokenAndLogin(token).then(async (result) => {
             if (result.success) {
                 setStatus('success');
+                setMessage('Your account has been activated! Redirecting you now...');
                 
+                // We still need to notify the client-side components like the header to update immediately
+                // This will be done by fetching the user data from a new endpoint after setting the cookie
                 const res = await fetch('/api/user');
-                const newUserData = await res.json();
+                const userData = await res.json();
 
-                if (newUserData.aetherId) {
-                    localStorage.setItem('aether_user_id', newUserData.aetherId);
-                    localStorage.setItem('aether_user_name', newUserData.fullName);
-                    localStorage.setItem('aether_user_role', newUserData.role);
-                    setUserData(newUserData);
-                    setMessage(`Your Aether ID ${newUserData.aetherId} is now active. You’re officially a founding member.`);
+                if (userData.aetherId) {
+                    localStorage.setItem('aether_user_id', userData.aetherId);
+                    localStorage.setItem('aether_user_name', userData.fullName);
+                    localStorage.setItem('aether_user_role', userData.role);
                     window.dispatchEvent(new Event('auth-change'));
-                } else {
-                     setStatus('error');
-                     setMessage('Could not retrieve your user data after activation.');
                 }
+                
+                setTimeout(() => {
+                    router.replace('/profile');
+                }, 2000);
             } else {
                 setStatus('error');
                 setMessage(result.error || 'An unknown error occurred.');
             }
-        };
-        
-        processVerification();
-
+        });
     }, [token, router]);
 
-    if (status === 'loading') {
-        return (
-            <Card className="w-full max-w-md text-center">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Account Activation</CardTitle>
-                </CardHeader>
-                <CardContent>
-                     <div className="flex flex-col items-center gap-4">
+    return (
+        <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Account Activation</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+                {status === 'loading' && (
+                    <div className="flex flex-col items-center gap-4">
                         <Loader2 className="h-10 w-10 animate-spin text-primary" />
                         <p className="text-muted-foreground">{message}</p>
                     </div>
-                </CardContent>
-            </Card>
-        )
-    }
-
-    if (status === 'error') {
-         return (
-            <Card className="w-full max-w-md text-center">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Activation Error</CardTitle>
-                </CardHeader>
-                <CardContent>
+                )}
+                 {status === 'success' && (
+                    <div className="flex flex-col items-center gap-4">
+                        <CheckCircle className="h-10 w-10 text-green-500" />
+                        <p className="font-semibold text-green-500">{message}</p>
+                    </div>
+                )}
+                {status === 'error' && (
                     <div className="flex flex-col items-center gap-4">
                         <AlertTriangle className="h-10 w-10 text-destructive" />
                         <p className="font-semibold text-destructive">{message}</p>
@@ -86,41 +78,9 @@ function ActivateContent() {
                             <Link href="/join">Return to Signup</Link>
                         </Button>
                     </div>
-                </CardContent>
-            </Card>
-        )
-    }
-    
-    // Success State
-    return (
-        <div className="max-w-xl w-full text-center space-y-8 animate-in fade-in duration-500">
-            <div>
-                 <h1 className="text-3xl font-bold font-headline">🎉 Welcome to Aether!</h1>
-                 <p className="text-muted-foreground mt-2">{message}</p>
-            </div>
-            {userData && (
-                <WelcomeCard fullName={userData.fullName} aetherId={userData.aetherId} />
-            )}
-             <div className="space-y-4">
-                 <Button asChild size="lg" className="w-full">
-                    <Link href="/profile">
-                        Go to My Dashboard
-                    </Link>
-                </Button>
-                <div className="grid grid-cols-2 gap-4">
-                     <Button asChild variant="outline">
-                        <Link href="/events">
-                            <Calendar className="mr-2 h-4 w-4" /> Join Events
-                        </Link>
-                    </Button>
-                     <Button asChild variant="outline">
-                        <Link href="/community">
-                            <Users className="mr-2 h-4 w-4" /> Explore Community
-                        </Link>
-                    </Button>
-                </div>
-            </div>
-        </div>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
