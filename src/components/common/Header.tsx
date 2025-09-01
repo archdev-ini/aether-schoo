@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, User, UserPlus, LogIn, LogOut } from 'lucide-react';
+import { Menu, Moon, Sun, User, UserPlus, LogIn, LogOut, Search } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -18,9 +18,9 @@ import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { SearchDialog } from './SearchDialog';
 
 const navLinks = [
-  { href: '/programs', label: 'Programs' },
   { href: '/events', label: 'Events' },
   { href: '/about', label: 'About' },
   { href: '/faq', label: 'FAQ' },
@@ -64,6 +64,7 @@ export function Header({ user: initialUser }: HeaderProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(!!initialUser);
   const [userName, setUserName] = useState(initialUser?.name || '');
   const [userAetherId, setUserAetherId] = useState(initialUser?.id || '');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
 
   useEffect(() => {
@@ -74,38 +75,50 @@ export function Header({ user: initialUser }: HeaderProps) {
   }, [initialUser]);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const name = localStorage.getItem('aether_user_name');
-      const id = localStorage.getItem('aether_user_id');
-      if (name && id) {
-          setIsLoggedIn(true);
-          setUserName(name);
-          setUserAetherId(id);
-      } else {
-          setIsLoggedIn(false);
-          setUserName('');
-          setUserAetherId('');
-      }
-    };
-    checkAuth();
-
-    window.addEventListener('auth-change', checkAuth);
-    return () => {
-      window.removeEventListener('auth-change', checkAuth);
-    };
+    // This effect now primarily reads from localStorage for client-side display consistency.
+    // The actual auth state is managed by the server cookie.
+    const name = localStorage.getItem('aether_user_name');
+    const id = localStorage.getItem('aether_user_id');
+    if (name && id) {
+        setIsLoggedIn(true);
+        setUserName(name);
+        setUserAetherId(id);
+    } else {
+        setIsLoggedIn(false);
+        setUserName('');
+        setUserAetherId('');
+    }
   }, []);
+  
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setIsSearchOpen((open) => !open)
+      }
+    }
+    document.addEventListener("keydown", down)
+    return () => document.removeEventListener("keydown", down)
+  }, [])
+
 
   const handleLogout = async () => {
-    await fetch('/api/logout', { method: 'POST' });
-    
+    // Clear localStorage for immediate client-side UI update
     localStorage.removeItem('aether_user_id');
     localStorage.removeItem('aether_user_name');
-    localStorage.removeItem('aether_user_role');
+    setIsLoggedIn(false);
+    setUserName('');
+    setUserAetherId('');
+    
+    // Server-side cleanup (calling a server action)
+    await fetch('/api/logout', { method: 'POST' });
 
+    // This event will trigger the useEffect to update state
     window.dispatchEvent(new Event('auth-change'));
 
     toast({ description: "You have been logged out." });
     
+    // Refresh the page to ensure all server components reflect the logged-out state
     router.push('/');
     router.refresh();
   }
@@ -179,6 +192,10 @@ export function Header({ user: initialUser }: HeaderProps) {
             </Sheet>
           </div>
           <div className="flex items-center gap-2">
+             <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(true)}>
+                <Search className="h-5 w-5" />
+                <span className="sr-only">Search</span>
+             </Button>
              <ThemeToggle />
             {isLoggedIn ? (
                  <DropdownMenu>
@@ -218,6 +235,7 @@ export function Header({ user: initialUser }: HeaderProps) {
         </div>
       </div>
     </header>
+    <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </>
   );
 }

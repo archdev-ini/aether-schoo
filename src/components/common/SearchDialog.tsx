@@ -12,26 +12,23 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { File, Book, Bot, Search as SearchIcon } from 'lucide-react';
+import Link from 'next/link';
 
-// Mock Data - In a real app, this would come from a unified search API
-const allContent = [
-    { id: "1", title: "Parametric Design with Grasshopper", type: 'Primer', href: '/school/courses/1' },
-    { id: "2", title: "Sustainable Materials in West Africa", type: 'Course', href: '/school/courses/2' },
-    { id: "3", title: "BIM Fundamentals with Revit", type: 'Course', href: '/school/courses/3' },
-    { id: "4", title: "AI for Site Analysis", type: 'Primer', href: '/school/courses/4' },
-    { id: "5", title: "The Great Mosque of Djenné: An Archive", type: 'Archive', href: '/school/courses/5' },
-    { id: "6", title: "Design Thinking for Architects", type: 'Primer', href: '/school/courses/6' },
+// In a real app, this would be fetched dynamically
+const MOCK_COURSES = [
+    { id: "1", title: "Parametric Design with Grasshopper", href: '/school/courses/1' },
+    { id: "2", title: "Sustainable Materials in West Africa", href: '/school/courses/2' },
+    { id: "3", title: "BIM Fundamentals with Revit", href: '/school/courses/3' },
+    { id: "4", title: "AI for Site Analysis", href: '/school/courses/4' },
+    { id: "5", title: "The Great Mosque of Djenné: An Archive", href: '/school/courses/5' },
 ];
 
 const mainPages = [
     { title: 'Home', href: '/' },
-    { title: 'Programs', href: '/programs' },
-    { title: 'Community', href: '/community' },
     { title: 'Events', href: '/events' },
-    { title: 'Impact', href: '/impact' },
     { title: 'About', href: '/about' },
+    { title: 'FAQ', href: '/faq' },
     { title: 'Join', href: '/join' },
-    { title: 'Discover', href: '/discover' },
 ]
 
 interface SearchDialogProps {
@@ -48,7 +45,6 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     command();
   }, [onOpenChange]);
 
-  const filteredContent = query ? allContent.filter(item => item.title.toLowerCase().includes(query.toLowerCase())) : [];
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
@@ -60,20 +56,18 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         
-        {query.length > 0 && (
-            <CommandGroup heading="Content">
-                {filteredContent.map(item => (
-                    <CommandItem
-                        key={item.id}
-                        value={item.title}
-                        onSelect={() => runCommand(() => router.push(item.href))}
-                    >
-                        <Book className="mr-2 h-4 w-4" />
-                        <span>{item.title}</span>
-                    </CommandItem>
-                ))}
-            </CommandGroup>
-        )}
+        <CommandGroup heading="Content">
+            {MOCK_COURSES.map(item => (
+                <CommandItem
+                    key={item.id}
+                    value={item.title}
+                    onSelect={() => runCommand(() => router.push(item.href))}
+                >
+                    <Book className="mr-2 h-4 w-4" />
+                    <span>{item.title}</span>
+                </CommandItem>
+            ))}
+        </CommandGroup>
 
         <CommandGroup heading="Pages">
             {mainPages.map(page => (
@@ -89,7 +83,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         </CommandGroup>
         
         <CommandGroup heading="AI Tools">
-             <CommandItem onSelect={() => runCommand(() => router.push('/discover'))}>
+             <CommandItem onSelect={() => runCommand(() => router.push('/coming-soon'))}>
                 <Bot className="mr-2 h-4 w-4" />
                 <span>Discover Your Path</span>
              </CommandItem>
@@ -97,7 +91,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         
         {query.length > 0 && (
              <CommandGroup heading="Search">
-                 <CommandItem onSelect={() => runCommand(() => router.push(`/search?q=${query}`))}>
+                 <CommandItem onSelect={() => runCommand(() => router.push(`/coming-soon`))}>
                     <SearchIcon className="mr-2 h-4 w-4" />
                     <span>Search for "{query}"</span>
                 </CommandItem>
