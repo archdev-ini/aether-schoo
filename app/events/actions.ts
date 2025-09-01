@@ -36,7 +36,7 @@ export async function getEvents(): Promise<Event[]> {
     
     try {
         const records = await base(TABLE_IDS.EVENTS).select({
-            filterByFormula: `({${F.IS_PUBLISHED}} = 1)`,
+            filterByFormula: `{${F.IS_PUBLISHED}} = "Published"`,
             sort: [{field: F.DATE, direction: "desc"}],
         }).all();
 
@@ -49,7 +49,7 @@ export async function getEvents(): Promise<Event[]> {
                 coverImageUrl = coverImageField[0].url;
             }
 
-            const eventDateStr = record.get(F.DATE);
+            const eventDateStr = record.get(F.DATE) as string;
             const eventDate = eventDateStr ? new Date(eventDateStr as string) : new Date();
             
             return {
@@ -58,11 +58,11 @@ export async function getEvents(): Promise<Event[]> {
                 date: eventDateStr || new Date().toISOString(),
                 type: record.get(F.TYPE) || 'General',
                 speaker: record.get(F.SPEAKER) || 'TBA',
-                registrationUrl: record.get(F.REGISTRATION_URL),
+                registrationUrl: record.get(F.REGISTRATION_URL) as string | undefined,
                 description: record.get(F.DESCRIPTION) || 'No description provided.',
                 status: eventDate >= now ? 'Upcoming' : 'Past',
                 coverImage: coverImageUrl,
-                eventCode: record.get(F.EVENT_CODE)
+                eventCode: record.get(F.EVENT_CODE) as string | undefined
             };
         });
         

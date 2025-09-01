@@ -38,10 +38,10 @@ export async function getCourses(): Promise<Course[]> {
 
         const courses = records.map(record => ({
             id: record.id,
-            title: record.get(F.TITLE) || 'Untitled Course',
-            format: record.get(F.FORMAT) || 'Unknown',
-            isPublished: record.get(F.IS_PUBLISHED) || false,
-            createdTime: record.get(F.CREATED_TIME),
+            title: record.get(F.TITLE) as string || 'Untitled Course',
+            format: record.get(F.FORMAT) as string || 'Unknown',
+            isPublished: record.get(F.IS_PUBLISHED) === 'Published',
+            createdTime: record.get(F.CREATED_TIME) as string,
         }));
         
         return CourseSchema.array().parse(courses);
@@ -129,7 +129,7 @@ export async function createCourse(prevState: CreateCourseState, formData: FormD
         const fields: Airtable.FieldSet = {
             [F.TITLE]: title,
             [F.FORMAT]: format,
-            [F.IS_PUBLISHED]: false, // Default to Draft
+            [F.IS_PUBLISHED]: 'Draft', // Default to Draft
         };
 
         if (format === 'External Link') {

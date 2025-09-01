@@ -39,11 +39,11 @@ export async function getAdminEvents(): Promise<AdminEvent[]> {
 
         const events = records.map(record => ({
             id: record.id,
-            title: record.get(F.TITLE) || 'Untitled Event',
-            date: record.get(F.DATE),
-            type: record.get(F.TYPE) || 'General',
-            isPublished: record.get(F.IS_PUBLISHED) || false,
-            rsvpCount: record.get(F.RSVP_COUNT) || 0,
+            title: record.get(F.TITLE) as string || 'Untitled Event',
+            date: record.get(F.DATE) as string,
+            type: record.get(F.TYPE) as string || 'General',
+            isPublished: record.get(F.IS_PUBLISHED) === 'Published',
+            rsvpCount: record.get(F.RSVP_COUNT) as number || 0,
         }));
         
         return AdminEventSchema.array().parse(events);
@@ -109,7 +109,7 @@ export async function createEvent(prevState: CreateEventState, formData: FormDat
             [F.DATE]: date.toISOString(),
             [F.TYPE]: type,
             [F.EVENT_CODE]: eventCode,
-            [F.IS_PUBLISHED]: false, // Default to Draft
+            [F.IS_PUBLISHED]: 'Draft', // Default to Draft
         };
 
         await base(TABLE_IDS.EVENTS).create([

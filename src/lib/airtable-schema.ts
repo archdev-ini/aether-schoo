@@ -5,69 +5,73 @@
  *
  * Centralizing the schema here offers several benefits:
  * 1.  Maintainability: If a field name or ID changes in Airtable, it only needs to be updated in this one file.
- * 2.  Readability: Code becomes more readable, e.g., `FIELDS.MEMBERS.AETHER_ID` instead of a cryptic `fld7hoOSkHYaZrPr7`.
+ * 2.  Readability: Code becomes more readable, e.g., `FIELDS.MEMBERS.AETHER_ID` instead of a cryptic field ID.
  * 3.  Consistency: Ensures all parts of the application refer to the same fields, reducing errors.
  * 4.  Discoverability: Provides a clear overview of the entire data model for developers.
  */
 
 // --- TABLE IDs ---
+// From your provided Airtable API documentation.
 export const TABLE_IDS = {
-    MEMBERS: 'tblwPBMFhctPX82g4',
-    COURSES: 'tblG6WAvnevMUOHln',
-    EVENTS: 'tbl5Dwc9n31gKW4eu',
-    RSVPS: 'tblKzLpQrStUvWxYz',
-    // Add other table IDs here as they are created
+    MEMBERS: 'tblEpMfyqgZC5yXBy',
+    COURSES: 'tblnWNDELJW099acM',
+    EVENTS: 'tbl3bdubKE54y8WGL',
+    RSVPS: 'tblS1kPjT5pZ2UfRI',
+    // The 'Team' table (tblbHLqhAtsknhxxq) is not yet used in the app.
 };
 
 // --- FIELD IDs ---
+// From your provided Airtable API documentation.
 export const FIELDS = {
-    // --- Members Table (tblwPBMFhctPX82g4) ---
+    // --- Members Table (tblEpMfyqgZC5yXBy) ---
     MEMBERS: {
-        AETHER_ID: 'fld7hoOSkHYaZrPr7',           // Unique Aether ID
-        FULL_NAME: 'fldcoLSWA6ntjtlYV',           // Full Name
-        EMAIL: 'fld2EoTnv3wjIHhNX',               // Email Address
-        USERNAME: 'fldR7jeaYn5qD4bCe',            // Public Username
-        LOCATION: 'fldP5VgkLoOGwFkb3',            // Location (City, Country)
-        WORKPLACE: 'fldc8pLqkN7wZ3VfA',           // Workplace / University
-        ROLE: 'fld7rO1pQZ9sY2tB4',                // Role (e.g., Student, Professional)
-        INTERESTS: 'fldkpeV7NwNz0GJ7O',           // Interests (Multi-select)
-        PORTFOLIO_URL: 'fldzxVhA5njMpVaH3',       // Portfolio/LinkedIn URL
-        ENTRY_NUMBER: 'fldmMy5vyIaoPMN3g',       // Sequential entry number
-        STATUS: 'fldLzkrbVXuycummp',             // Member status (e.g., Prelaunch-Active)
-        LOGIN_TOKEN: 'loginToken',               // Magic link token (Custom field name)
-        LOGIN_TOKEN_EXPIRES: 'loginTokenExpires', // Token expiry in seconds (Custom field name)
-        LOGIN_TOKEN_CREATED_AT: 'loginTokenCreatedAt', // Auto-timestamp field (Custom field name)
-        CREATED_TIME: 'Created time',           // Airtable's default created time field
+        AETHER_ID: 'fldxveAXRQlJ5XVdm',
+        FULL_NAME: 'fldtKtxc0gqX0kglc',
+        EMAIL: 'fldQbKhprX3RtYpZd',
+        USERNAME: 'fldTp1SmBwV8oAant',
+        LOCATION: 'fldTXGQAnQJcXRM3E',
+        WORKPLACE: 'fldK3rQnHM6iU0XGa',
+        ROLE: 'fld9RfSXC5RcrekTg',
+        INTERESTS: 'fldFMNV7xNrgoVzeX',
+        PORTFOLIO_URL: 'fldQNps4G7x2WEpZK',
+        ENTRY_NUMBER: 'flduvEUVkORBayKfE',
+        STATUS: 'fldulIgSnU1PJe3zR',
+        LOGIN_TOKEN: 'fldEZo9OJfdNZ1fMu',
+        LOGIN_TOKEN_EXPIRES: 'fldMtMVFFwEhWZSHC',
+        LOGIN_TOKEN_CREATED_AT: 'fldh43fF5mXPJv0Hj',
+        CREATED_TIME: 'Created', // Airtable default field
     },
 
-    // --- Courses Table (tblG6WAvnevMUOHln) ---
+    // --- Courses Table (tblnWNDELJW099acM) ---
     COURSES: {
-        TITLE: 'fld4yNKUC0jgnjNnl',               // Course Title
-        DESCRIPTION: 'fldOi4fl2p2eyBpk4',         // Course Description
-        FORMAT: 'fldGK04OgOAtmCdce',              // Format (e.g., Primer, Video Course)
-        SLUG: 'fldBihBUYiKQJrWe0',                // URL Slug
-        EXTERNAL_URL: 'fldUa8bCdeFghIjKl',       // Link for external content
-        IS_PUBLISHED: 'fldgbnGxLp5G4XyCi',         // Published Status (Checkbox/Boolean)
-        CREATED_TIME: 'fldb7G8yJqx3V8vA1',       // Created time field
+        TITLE: 'fldGLScFN9o36F1gi',
+        DESCRIPTION: 'fldswXBsxtD62JgXi',
+        FORMAT: 'fldK8GIv3kg5dibSj',
+        SLUG: 'fld7WYdW0hYR7jUl2',
+        EXTERNAL_URL: 'fldt3xNm4cf42dBNO',
+        IS_PUBLISHED: 'fldzi5EAjK7iSFQsh', // Note: This is a Single Select in the new schema, not a boolean. The actions will handle it.
+        CREATED_TIME: 'fldoOzsAhQ9pgiWgC',
     },
 
-    // --- Events Table (tbl5Dwc9n31gKW4eu) ---
+    // --- Events Table (tbl3bdubKE54y8WGL) ---
     EVENTS: {
-        TITLE: 'fldsWDjmyzCEDVLq1',               // Event Title
-        DATE: 'fldZqEcg7wovGdynX',                // Event Date
-        TYPE: 'fldDkeL5skl6n3F9A',                // Event Type (e.g., Workshop)
-        EVENT_CODE: 'fldXJZa542DQ1eSV9',         // Unique Event Code (e.g., WAD-2025)
-        IS_PUBLISHED: 'fldQwNwXW5g9YWsVm',         // Published Status
-        RSVP_COUNT: 'fldzY2jK7lW1tZ0Xq',          // RSVP Count (Rollup)
-        SPEAKER: 'fldA6qlmJI4DVdCCV',             // Speaker(s)
-        DESCRIPTION: 'fld2rolAMxiIEjh7x',         // Event Description
-        COVER_IMAGE: 'fldoXDEfNslvE50WF',         // Cover Image attachment
-        REGISTRATION_URL: 'fldq6qcxhD04ny6Zj',   // For external registration links
+        TITLE: 'fldJQovh56G3PeGcE',
+        DATE: 'fldxa5phNB56hpNbK',
+        TYPE: 'fld1OApGPAnPrDFi9',
+        EVENT_CODE: 'fldT2JyzpCpruC7Hj',
+        IS_PUBLISHED: 'fld6fZMRqUR8xNzGc',
+        SPEAKER: 'fldfWFthJgucLL9Cw',
+        DESCRIPTION: 'fldxPmbhLuOW1XYxV',
+        COVER_IMAGE: 'fldaSuNFFC9xHWrAT',
+        RSVPS: 'fldtnzKLHzwI68kJ9',
+        RSVP_COUNT: 'RSVP Count', // Assuming this is a rollup field based on RSVPs link, name might not have a field ID.
+        REGISTRATION_URL: 'Registration URL', // Field not present in new doc, keeping name for compatibility
     },
 
-    // --- RSVPs Table (tblKzLpQrStUvWxYz) ---
+    // --- RSVPs Table (tblS1kPjT5pZ2UfRI) ---
     RSVPS: {
-        EVENT: 'fldUvWxYzAbCdEfGh',               // Linked record to Events
-        MEMBER: 'fldIjKlMnOpQrStUv',              // Linked record to Members
+        EVENT: 'fldoy3is7eXrL35Bc',
+        MEMBER: 'flduPFrNabdrEZt5u',
+        // Other RSVP fields from the doc are not yet used in the app.
     },
 };
