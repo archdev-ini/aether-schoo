@@ -11,15 +11,29 @@ const FormSchema = z.object({
   fullName: z.string(),
   email: z.string().email(),
   location: z.string(),
-  reasonToJoin: z.string().optional(),
+  role: z.string(),
+  interests: z.array(z.string()),
   portfolioUrl: z.string().url().optional().or(z.literal('')),
 });
 
-async function generateAetherId(base: Airtable.Base, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
-    const founderKey = parseInt(process.env.AETHER_FOUNDER_KEY || '731', 10);
+export async function generateAetherIdForUser(): Promise<{ aetherId: string; entryNumber: number }> {
+    const {
+        AIRTABLE_API_KEY,
+        AIRTABLE_BASE_ID,
+        AIRTABLE_MEMBERS_TABLE_ID
+    } = process.env;
+
+     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID || !process.env.AETHER_FOUNDER_KEY) {
+        console.error('Airtable or Founder Key credentials are not set for ID generation.');
+        throw new Error('Server configuration error for ID generation.');
+    }
+    
+    const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+
+    const founderKey = parseInt(process.env.AETHER_FOUNDER_KEY, 10);
     const modulus = 999983; // Large prime modulus
 
-    const records = await base(tableId).select({ fields: ['fldmMy5vyIaoPMN3g'] }).all();
+    const records = await base(AIRTABLE_MEMBERS_TABLE_ID).select({ fields: ['fldmMy5vyIaoPMN3g'] }).all();
     const N = records.length + 1;
 
     const codeValue = (N * Math.pow(founderKey, 3) + founderKey * 97) % modulus;
@@ -35,7 +49,8 @@ async function generateAetherId(base: Airtable.Base, tableId: string): Promise<{
     };
 }
 
-export async function submitJoinForm(data: FormValues) {
+
+export async function submitJoinForm(data: FormValues, aetherId: string, entryNumber: number) {
     const parsedData = FormSchema.safeParse(data);
 
     if (!parsedData.success) {
@@ -49,8 +64,8 @@ export async function submitJoinForm(data: FormValues) {
     } = process.env;
     const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID || !process.env.AETHER_FOUNDER_KEY) {
-        console.error('Airtable or Founder Key credentials are not set in environment variables.');
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID) {
+        console.error('Airtable credentials are not set in environment variables.');
         return { success: false, error: 'Server configuration error. Please contact support.' };
     }
 
@@ -64,7 +79,6 @@ export async function submitJoinForm(data: FormValues) {
             maxRecords: 1,
         }).firstPage();
 
-        // Generate a secure token for the magic link
         const token = randomBytes(32).toString('hex');
         const tokenFields = {
             'loginToken': token,
@@ -72,7 +86,6 @@ export async function submitJoinForm(data: FormValues) {
         };
 
         if (existingRecords.length > 0) {
-            // User exists, re-send welcome email with a new token
             const record = existingRecords[0];
             await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, tokenFields);
             
@@ -83,46 +96,35 @@ export async function submitJoinForm(data: FormValues) {
                 token: token,
                 type: 'welcome'
             });
-            // Return success to show the same message to the user, preventing email enumeration
-            return { success: true };
+            return { success: true, aetherId: record.get('fld7hoOSkHYaZrPr7') as string, fullName: record.get('fldcoLSWA6ntjtlYV') as string };
         }
 
-
-        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
-        
         const fields = {
-            'fld7hoOSkHYaZrPr7': newAetherId,
+            'fld7hoOSkHYaZrPr7': aetherId,
             'fld2EoTnv3wjIHhNX': email,
             'fldcoLSWA6ntjtlYV': fullName,
             'fldP5VgkLoOGwFkb3': restOfData.location,
-            'reasonToJoin': restOfData.reasonToJoin,
+            'fld7rO1pQZ9sY2tB4': restOfData.role, // Role
+            'fldkpeV7NwNz0GJ7O': restOfData.interests, // Interests
             'fldzxVhA5njMpVaH3': restOfData.portfolioUrl,
             'fldmMy5vyIaoPMN3g': entryNumber,
-            'fld7rO1pQZ9sY2tB4': 'Member',
             'fldLzkrbVXuycummp': 'Prelaunch-Active',
             ...tokenFields
         };
 
-        const createdRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).create([
+        await base(AIRTABLE_MEMBERS_TABLE_ID).create([
             { fields },
         ], { typecast: true });
 
-        if (createdRecords.length === 0) {
-            throw new Error("Failed to create record in Airtable.");
-        }
-        
-        // The `loginTokenCreatedAt` field will be auto-populated by Airtable.
-
-        // Send welcome email with magic link
         await sendWelcomeEmail({
             to: email,
             name: fullName,
-            aetherId: newAetherId,
+            aetherId: aetherId,
             token: token,
             type: 'welcome'
         });
 
-        return { success: true };
+        return { success: true, aetherId, fullName };
 
     } catch (error: any) {
         console.error('Airtable API submission error:', error);
