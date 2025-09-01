@@ -3,8 +3,7 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { trackCommunityLinkClick } from '@/app/profile/community-actions';
 import { useToast } from '@/hooks/use-toast';
 
@@ -74,31 +73,25 @@ export function CommunityAccessHub({ aetherId }: CommunityAccessHubProps) {
     ];
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Community Hub</CardTitle>
-                <CardDescription>Join the conversation on your favorite platform.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-                {communityPlatforms.map(platform => {
-                    const isLoading = loadingPlatform === platform.name;
-                    return (
-                        <Button 
-                            key={platform.name}
-                            className={`w-full justify-start ${platform.style}`}
-                            onClick={() => handleCommunityClick(platform.name)}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? (
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            ) : (
-                                <platform.icon />
-                            )}
-                             Join {platform.name}
-                        </Button>
-                    )
-                })}
-            </CardContent>
-        </Card>
+        <>
+            {communityPlatforms.map(platform => {
+                const isLoading = loadingPlatform === platform.name;
+                return (
+                    <Button 
+                        key={platform.name}
+                        className={`w-full justify-start ${platform.style}`}
+                        onClick={() => handleCommunityClick(platform.name)}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        ) : (
+                            <platform.icon />
+                        )}
+                        Join {platform.name}
+                    </Button>
+                )
+            })}
+        </>
     )
 }

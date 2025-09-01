@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 
 interface CountdownTimerProps {
   targetDate: string;
+  simple?: boolean;
 }
 
 interface TimeLeft {
@@ -29,11 +30,10 @@ const calculateTimeLeft = (targetDate: string): TimeLeft | null => {
   return null;
 };
 
-export function CountdownTimer({ targetDate }: CountdownTimerProps) {
+export function CountdownTimer({ targetDate, simple = false }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
 
   useEffect(() => {
-    // Set initial time left on client-side to avoid hydration mismatch
     setTimeLeft(calculateTimeLeft(targetDate));
 
     const timer = setInterval(() => {
@@ -45,10 +45,24 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
 
   if (!timeLeft) {
     return (
-      <div className="text-center text-2xl font-bold text-primary">
-        The Aether Ecosystem is live!
+      <div className="text-center font-bold text-primary">
+        Event has started!
       </div>
     );
+  }
+
+  if (simple) {
+    const parts = [];
+    if (timeLeft.days > 0) parts.push(`${timeLeft.days}d`);
+    if (timeLeft.hours > 0) parts.push(`${timeLeft.hours}h`);
+    if (timeLeft.minutes > 0) parts.push(`${timeLeft.minutes}m`);
+    if (timeLeft.days === 0 && timeLeft.hours === 0) parts.push(`${timeLeft.seconds}s`);
+
+    return (
+      <div className="font-mono text-primary">
+        Starts in: {parts.slice(0, 2).join(' ')}
+      </div>
+    )
   }
 
   const timeParts = [
