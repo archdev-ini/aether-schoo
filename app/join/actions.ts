@@ -12,6 +12,7 @@ const FormSchema = z.object({
   username: z.string(),
   email: z.string().email(),
   location: z.string(),
+  workplace: z.string().optional(),
   role: z.string(),
   interests: z.array(z.string()),
   portfolioUrl: z.string().url().optional().or(z.literal('')),
@@ -106,6 +107,7 @@ export async function submitJoinForm(data: FormValues, aetherId: string, entryNu
             'fldcoLSWA6ntjtlYV': fullName,
             'fldR7jeaYn5qD4bCe': username,
             'fldP5VgkLoOGwFkb3': restOfData.location,
+            'fldc8pLqkN7wZ3VfA': restOfData.workplace,
             'fld7rO1pQZ9sY2tB4': restOfData.role, // Role
             'fldkpeV7NwNz0GJ7O': restOfData.interests, // Interests
             'fldzxVhA5njMpVaH3': restOfData.portfolioUrl,

@@ -19,9 +19,10 @@ import { WelcomeCard } from '@/components/common/WelcomeCard';
 
 const steps = [
   { id: 'Step 1', name: 'Account Basics', fields: ['fullName', 'username', 'email'] },
-  { id: 'Step 2', name: 'Your Aether ID' },
-  { id: 'Step 3', name: 'Your Interests', fields: ['interests', 'portfolioUrl', 'location', 'role'] },
-  { id: 'Step 4', name: 'Confirmation' },
+  { id: 'Step 2', name: 'Background', fields: ['location', 'workplace', 'role'] },
+  { id: 'Step 3', name: 'Your Aether ID' },
+  { id: 'Step 4', name: 'Your Interests', fields: ['interests', 'portfolioUrl'] },
+  { id: 'Step 5', name: 'Confirmation' },
 ]
 
 const FormSchema = z.object({
@@ -29,7 +30,8 @@ const FormSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   location: z.string().min(3, { message: 'Please enter your city and country.' }),
-  role: z.string({ required_error: 'Please select your current status.' }),
+  workplace: z.string().optional(),
+  role: z.string({ required_error: 'Please select an area of focus.' }),
   interests: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: 'You have to select at least one interest.',
   }),
@@ -45,6 +47,14 @@ const interestsList = [
     { id: 'Community', label: 'Community & Networking' },
 ];
 
+const rolesList = [
+    'Architecture Student',
+    'Young Architect',
+    'Designer',
+    'Educator / Researcher',
+    'Enthusiast / Other',
+];
+
 export default function JoinPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,11 +66,11 @@ export default function JoinPage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-        fullName: '', username: '', email: '', location: '', role: '', interests: [], portfolioUrl: '',
+        fullName: '', username: '', email: '', location: '', workplace: '', role: '', interests: [], portfolioUrl: '',
     },
   });
 
-  const { trigger, getValues } = form;
+  const { trigger } = form;
 
   const handleNext = async () => {
     const fields = steps[currentStep].fields;
@@ -68,7 +78,7 @@ export default function JoinPage() {
 
     if (!output) return;
 
-    if (currentStep === 0) { // After Identity step, before showing ID
+    if (currentStep === 1) { // After Background step, before showing ID
         setIsLoading(true);
         try {
             const { aetherId, entryNumber } = await generateAetherIdForUser();
@@ -124,6 +134,7 @@ export default function JoinPage() {
                 <Progress value={(currentStep + 1) / steps.length * 100} className="mb-4" />
                 <CardTitle>{steps[currentStep].name}</CardTitle>
                  {currentStep === 0 && <CardDescription>✨ Let’s Get Started</CardDescription>}
+                 {currentStep === 1 && <CardDescription>🌍 Tell Us About You</CardDescription>}
             </CardHeader>
             <CardContent>
                  <Form {...form}>
@@ -157,8 +168,44 @@ export default function JoinPage() {
                                 )}/>
                             </div>
                         )}
-                        
+
                         {currentStep === 1 && (
+                             <div className="space-y-6 animate-in fade-in duration-300">
+                                <FormField control={form.control} name="location" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Country / Location</FormLabel>
+                                        <FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl>
+                                        <FormDescription>Where you’re based (city or country). Helps us connect you to regional opportunities.</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="workplace" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>University / Workplace <span className="text-muted-foreground">(Optional)</span></FormLabel>
+                                        <FormControl><Input placeholder="e.g. University of Lagos" {...field} /></FormControl>
+                                        <FormDescription>If you’re currently studying or practicing, let us know.</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="role" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Area of Focus</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder="Select your status" /></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                {rolesList.map(role => (
+                                                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormDescription>Pick the one that best describes you.</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                            </div>
+                        )}
+                        
+                        {currentStep === 2 && (
                             <div className="text-center space-y-6 animate-in fade-in duration-300">
                                 <Fingerprint className="w-16 h-16 mx-auto text-primary" />
                                 <div>
@@ -172,22 +219,8 @@ export default function JoinPage() {
                             </div>
                         )}
 
-                        {currentStep === 2 && (
+                        {currentStep === 3 && (
                              <div className="space-y-6 animate-in fade-in duration-300">
-                                <FormField control={form.control} name="location" render={({ field }) => (
-                                    <FormItem><FormLabel>City, Country</FormLabel><FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="role" render={({ field }) => (
-                                    <FormItem><FormLabel>Current Status</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select your status" /></SelectTrigger></FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="Student">Student</SelectItem>
-                                            <SelectItem value="Graduate">Graduate</SelectItem>
-                                            <SelectItem value="Professional">Professional</SelectItem>
-                                            <SelectItem value="Enthusiast">Enthusiast</SelectItem>
-                                        </SelectContent>
-                                    </Select><FormMessage /></FormItem>
-                                )}/>
                                 <FormField control={form.control} name="interests" render={() => (
                                     <FormItem>
                                         <FormLabel>What are you most interested in?</FormLabel>
@@ -210,7 +243,7 @@ export default function JoinPage() {
                             </div>
                         )}
                         
-                        {currentStep === 3 && submittedData && (
+                        {currentStep === 4 && submittedData && (
                             <div className="text-center space-y-6 animate-in fade-in duration-300">
                                 <Sparkles className="w-16 h-16 mx-auto text-primary" />
                                  <div>
@@ -228,16 +261,16 @@ export default function JoinPage() {
                                 </Button>
                             )}
                             
-                            {currentStep === 0 && <div/>}
+                            {(currentStep === 0 || currentStep === 1) && <div/>}
 
-                             {currentStep < 2 && (
+                             {currentStep < 3 && (
                                 <Button type="button" onClick={handleNext} disabled={isLoading}>
                                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    {currentStep === 0 ? <>👉 Next</> : <>Next <ArrowRight className="ml-2" /></> }
+                                    👉 Next
                                 </Button>
                             )}
 
-                             {currentStep === 2 && (
+                             {currentStep === 3 && (
                                 <Button type="submit" disabled={isLoading}>
                                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Complete Registration
