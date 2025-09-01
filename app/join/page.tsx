@@ -13,15 +13,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from "@/components/ui/progress"
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowRight, ArrowLeft, Fingerprint, Sparkles } from 'lucide-react';
+import { Loader2, ArrowRight, ArrowLeft, Fingerprint, Sparkles, Target } from 'lucide-react';
 import { generateAetherIdForUser, submitJoinForm } from './actions';
 import { WelcomeCard } from '@/components/common/WelcomeCard';
 
 const steps = [
   { id: 'Step 1', name: 'Account Basics', fields: ['fullName', 'username', 'email'] },
   { id: 'Step 2', name: 'Background', fields: ['location', 'workplace', 'role'] },
-  { id: 'Step 3', name: 'Your Aether ID' },
-  { id: 'Step 4', name: 'Your Interests', fields: ['interests', 'portfolioUrl'] },
+  { id: 'Step 3', name: 'Your Goals', fields: ['interests', 'portfolioUrl'] },
+  { id: 'Step 4', name: 'Your Aether ID' },
   { id: 'Step 5', name: 'Confirmation' },
 ]
 
@@ -41,10 +41,11 @@ const FormSchema = z.object({
 export type FormValues = z.infer<typeof FormSchema>;
 
 const interestsList = [
-    { id: 'Learning', label: 'Learning (School)' },
-    { id: 'Projects', label: 'Projects (Build)' },
-    { id: 'Competitions', label: 'Competitions' },
-    { id: 'Community', label: 'Community & Networking' },
+    { id: 'Learn new skills', label: 'Learn new skills' },
+    { id: 'Build portfolio projects', label: 'Build portfolio projects' },
+    { id: 'Join competitions', label: 'Join competitions' },
+    { id: 'Find mentors & peers', label: 'Find mentors & peers' },
+    { id: 'Access resources & archives', label: 'Access resources & archives' },
 ];
 
 const rolesList = [
@@ -78,7 +79,7 @@ export default function JoinPage() {
 
     if (!output) return;
 
-    if (currentStep === 1) { // After Background step, before showing ID
+    if (currentStep === 2) { // After Goals step, before showing ID
         setIsLoading(true);
         try {
             const { aetherId, entryNumber } = await generateAetherIdForUser();
@@ -135,6 +136,7 @@ export default function JoinPage() {
                 <CardTitle>{steps[currentStep].name}</CardTitle>
                  {currentStep === 0 && <CardDescription>✨ Let’s Get Started</CardDescription>}
                  {currentStep === 1 && <CardDescription>🌍 Tell Us About You</CardDescription>}
+                 {currentStep === 2 && <CardDescription>🎯 Why Join Aether?</CardDescription>}
             </CardHeader>
             <CardContent>
                  <Form {...form}>
@@ -204,8 +206,34 @@ export default function JoinPage() {
                                 )}/>
                             </div>
                         )}
-                        
+
                         {currentStep === 2 && (
+                             <div className="space-y-6 animate-in fade-in duration-300">
+                                <FormField control={form.control} name="interests" render={() => (
+                                    <FormItem>
+                                        <div className="space-y-2">
+                                            {interestsList.map((item) => (
+                                                <FormField key={item.id} control={form.control} name="interests" render={({ field }) => (
+                                                    <FormItem key={item.id} className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 has-[:checked]:bg-muted/50">
+                                                        <FormControl><Checkbox checked={field.value?.includes(item.id)} onCheckedChange={(checked) => {
+                                                            return checked ? field.onChange([...(field.value || []), item.id]) : field.onChange(field.value?.filter((value) => value !== item.id))
+                                                        }} /></FormControl>
+                                                        <FormLabel className="font-normal w-full cursor-pointer">{item.label}</FormLabel>
+                                                    </FormItem>
+                                                ))}
+                                            />))}
+                                        </div>
+                                         <FormDescription>Your choices help us tailor early access invites and recommendations.</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="portfolioUrl" render={({ field }) => (
+                                    <FormItem><FormLabel>LinkedIn / Portfolio URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://linkedin.com/in/yourprofile" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                            </div>
+                        )}
+                        
+                        {currentStep === 3 && (
                             <div className="text-center space-y-6 animate-in fade-in duration-300">
                                 <Fingerprint className="w-16 h-16 mx-auto text-primary" />
                                 <div>
@@ -216,30 +244,6 @@ export default function JoinPage() {
                                     <p className="font-mono text-2xl font-bold text-primary tracking-widest">{aetherId}</p>
                                 </div>
                                 <p className="text-sm text-muted-foreground">Click next to lock in this ID and continue.</p>
-                            </div>
-                        )}
-
-                        {currentStep === 3 && (
-                             <div className="space-y-6 animate-in fade-in duration-300">
-                                <FormField control={form.control} name="interests" render={() => (
-                                    <FormItem>
-                                        <FormLabel>What are you most interested in?</FormLabel>
-                                        <div className="space-y-2">{interestsList.map((item) => (
-                                            <FormField key={item.id} control={form.control} name="interests" render={({ field }) => (
-                                                <FormItem key={item.id} className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 has-[:checked]:bg-muted/50">
-                                                    <FormControl><Checkbox checked={field.value?.includes(item.id)} onCheckedChange={(checked) => {
-                                                        return checked ? field.onChange([...(field.value || []), item.id]) : field.onChange(field.value?.filter((value) => value !== item.id))
-                                                    }} /></FormControl>
-                                                    <FormLabel className="font-normal w-full cursor-pointer">{item.label}</FormLabel>
-                                                </FormItem>
-                                            ))}
-                                        />))}
-                                        <FormMessage />
-                                    </FormItem>
-                                )}/>
-                                <FormField control={form.control} name="portfolioUrl" render={({ field }) => (
-                                    <FormItem><FormLabel>LinkedIn / Portfolio URL <span className="text-muted-foreground">(Optional)</span></FormLabel><FormControl><Input placeholder="https://linkedin.com/in/yourprofile" {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
                             </div>
                         )}
                         
@@ -261,7 +265,7 @@ export default function JoinPage() {
                                 </Button>
                             )}
                             
-                            {(currentStep === 0 || currentStep === 1) && <div/>}
+                            {(currentStep === 0) && <div/>}
 
                              {currentStep < 3 && (
                                 <Button type="button" onClick={handleNext} disabled={isLoading}>
@@ -285,3 +289,5 @@ export default function JoinPage() {
     </main>
   );
 }
+
+    
