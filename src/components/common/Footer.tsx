@@ -1,5 +1,5 @@
 
-import { Twitter, Book, MessageCircle, Camera } from 'lucide-react';
+import { Twitter, MessageCircle, Camera } from 'lucide-react';
 import Link from 'next/link';
 
 const socialLinks = [
@@ -39,7 +39,7 @@ export function Footer() {
                 </div>
                 <div className="flex gap-4">
                     <Link href="/privacy-policy" className="hover:text-foreground">Privacy Policy</Link>
-                    <Link href="/terms-of-use" className="hover:text-foreground">Terms of Use</Link>
+                    <Link href="/terms-of-use" className="hover:text-foreground">Terms</Link>
                 </div>
             </div>
         </div>

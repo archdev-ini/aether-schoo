@@ -1,7 +1,7 @@
 
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BookOpen, Layers, Users, Calendar, Star } from "lucide-react";
+import { ArrowRight, BookOpen, Layers, Users, Calendar, Star, Mic } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -16,12 +16,12 @@ const pillars = [
     {
         icon: Layers,
         title: "Build",
-        description: "Collaborate on real-world challenges, build portfolio-worthy projects, and earn verifiable credentials in Horizon Studio.",
+        description: "Collaborate on real-world challenges, create portfolio-ready projects, and earn verifiable credentials in Horizon Studio.",
     },
     {
         icon: Users,
         title: "Connect",
-        description: "Join a global network of peers, mentors, and industry leaders. Share knowledge and find your next opportunity.",
+        description: "Join a global network of peers, mentors, and industry leaders. Share knowledge, exchange ideas, and discover opportunities.",
     },
 ];
 
@@ -55,25 +55,21 @@ export default async function Home() {
           <div className="container relative z-10 px-4 md:px-6">
             <div className="max-w-4xl mx-auto text-center">
                  <Badge variant="outline" className="text-base py-2 px-4 border-primary/50 text-primary mb-6">
-                    <Star className="w-5 h-5 mr-2" />
-                    World Architecture Day Prelaunch is Live!
+                    <span className="mr-2">🌍</span> World Architecture Day Prelaunch is Live!
                   </Badge>
                 <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none font-headline">
-                    Aether — The Creative Ecosystem for Architects & Designers
+                    The Creative Ecosystem for Architects & Designers
                 </h1>
-                <p className="max-w-2xl mx-auto mt-6 text-muted-foreground md:text-xl">
-                    A global-facing, Africa-rooted learning community. Get your permanent Aether ID, access exclusive events, and join the network shaping the future of design.
+                <p className="max-w-3xl mx-auto mt-6 text-muted-foreground md:text-xl">
+                    A global-facing, Africa-rooted community for learning, building, and connecting.
+                </p>
+                 <p className="max-w-3xl mx-auto mt-4 text-muted-foreground">
+                    ✨ Create your permanent Aether ID, access prelaunch events, and join the network shaping the future of design.
                 </p>
                 <div className="flex flex-col gap-4 mt-8 min-[400px]:flex-row justify-center">
                   <Button asChild size="lg" id="join-waitlist-hero">
                     <Link href="/join">
-                      Create Your Aether ID
-                    </Link>
-                  </Button>
-                   <Button asChild size="lg" variant="outline">
-                    <Link href="/events">
-                      View Events
-                      <ArrowRight className="ml-2"/>
+                      Get Your Aether ID
                     </Link>
                   </Button>
                 </div>
@@ -104,20 +100,14 @@ export default async function Home() {
         <section id="prelaunch-events" className="w-full py-16 md:py-24">
            <div className="container grid items-center justify-center gap-8 px-4 text-center md:px-6">
              <div className="space-y-4">
-               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">Prelaunch Events Are Here</h2>
-               <p className="mx-auto max-w-3xl text-muted-foreground md:text-xl/relaxed">
-                 Join exclusive workshops and Q&As with industry leaders throughout October and November. Your Aether ID is your access pass.
-               </p>
-             </div>
-             <div className="mx-auto w-full max-w-4xl">
-                 <div className="grid sm:grid-cols-3 gap-6">
-                    {upcomingEvents.map((event) => (
-                        <div key={event.id} className="p-6 rounded-lg bg-muted/50">
-                            <h3 className="font-bold text-lg">{event.title}</h3>
-                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{event.description}</p>
-                        </div>
-                    ))}
-                 </div>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">
+                    <span className="mr-2">🎤</span> Prelaunch Events Are Here
+                </h2>
+                <p className="mx-auto max-w-3xl text-muted-foreground md:text-xl/relaxed">
+                    Exclusive workshops, Q&As, and community sessions throughout October + November.
+                    <br/>
+                    💡 Your Aether ID is your access pass.
+                </p>
              </div>
              <div className="mt-6">
                 <Button asChild>
@@ -129,12 +119,13 @@ export default async function Home() {
            </div>
         </section>
 
-        {/* Final CTA */}
+        {/* Countdown Section */}
         <section className="w-full py-16 md:py-24 bg-muted">
            <div className="container text-center bg-background rounded-lg p-10 md:p-16 border">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Design the Future. Starting Now.</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">⏳ Design the Future. Starting Now.</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                   The full Aether platform launches December 8. Create your permanent Aether ID today to become a founding member.
+                   The full Aether platform launches December 8, 2025.
+                   Secure your permanent Aether ID today and become a Founding Member.
                 </p>
                 <div className="mt-8">
                     <Button asChild size="lg">
