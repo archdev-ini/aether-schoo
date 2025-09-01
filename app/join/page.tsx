@@ -13,9 +13,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from "@/components/ui/progress"
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft, Fingerprint, Check, MailCheck } from 'lucide-react';
+import { Loader2, ArrowLeft, MailCheck } from 'lucide-react';
 import { generateAetherIdForUser, submitJoinForm } from './actions';
-import { WelcomeCard } from '@/components/common/WelcomeCard';
 
 const steps = [
   { id: 'Step 1', name: 'Account Basics', fields: ['fullName', 'username', 'email'] },
@@ -56,9 +55,17 @@ const rolesList = [
     'Enthusiast / Other',
 ];
 
+const loadingMessages = [
+    "🌍 Syncing you with the Aether network…",
+    "📐 Aligning your path in design…",
+    "✨ Activating your permanent Aether ID…",
+    "📩 Sending your magic link… check your inbox."
+];
+
 export default function JoinPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [aetherId, setAetherId] = useState('');
   const [entryNumber, setEntryNumber] = useState(0);
   const [submittedEmail, setSubmittedEmail] = useState('');
@@ -78,10 +85,17 @@ export default function JoinPage() {
     const output = await trigger(fields as (keyof FormValues)[], { shouldFocus: true });
 
     if (!output) return;
+    
+    setIsLoading(true);
+    setLoadingMessage(loadingMessages[currentStep]);
+
+
+    // Simulate network delay for a better UX
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     if (currentStep === 2) { // After Goals step, before showing confirmation
-        setIsLoading(true);
         try {
+            setLoadingMessage(loadingMessages[2]); // ID generation message
             const { aetherId, entryNumber } = await generateAetherIdForUser();
             setAetherId(aetherId);
             setEntryNumber(entryNumber);
@@ -90,9 +104,9 @@ export default function JoinPage() {
              setIsLoading(false);
              return;
         }
-        setIsLoading(false);
     }
     
+    setIsLoading(false);
     if (currentStep < steps.length - 1) {
        setCurrentStep(step => step + 1);
     }
@@ -106,6 +120,7 @@ export default function JoinPage() {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
+    setLoadingMessage(loadingMessages[3]); // Final submission message
     setSubmittedEmail(data.email);
     try {
         const result = await submitJoinForm(data, aetherId, entryNumber);
@@ -152,6 +167,12 @@ export default function JoinPage() {
                     {currentStep === 3 && <CardDescription>✅ Final Step</CardDescription>}
                 </CardHeader>
                 <CardContent>
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center space-y-4 py-12">
+                            <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                            <p className="text-muted-foreground font-semibold">{loadingMessage}</p>
+                        </div>
+                    ) : (
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                             
@@ -224,6 +245,10 @@ export default function JoinPage() {
                                 <div className="space-y-6 animate-in fade-in duration-300">
                                     <FormField control={form.control} name="interests" render={() => (
                                         <FormItem>
+                                            <div className="mb-4">
+                                                <FormLabel className="text-base">What are your goals?</FormLabel>
+                                                <FormDescription>Select all that apply. This helps us tailor your experience.</FormDescription>
+                                            </div>
                                             <div className="space-y-2">
                                                 {interestsList.map((item) => (
                                                     <FormField key={item.id} control={form.control} name="interests" render={({ field }) => (
@@ -236,7 +261,6 @@ export default function JoinPage() {
                                                     ))}
                                                 />))}
                                             </div>
-                                            <FormDescription>Your choices help us tailor early access invites and recommendations.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -285,19 +309,19 @@ export default function JoinPage() {
 
                                 {currentStep < 3 && (
                                     <Button type="button" onClick={handleNext} disabled={isLoading}>
-                                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                         👉 Next
                                     </Button>
                                 )}
 
                                 {currentStep === 3 && (
                                     <Button type="submit" disabled={isLoading} className="w-full">
-                                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "👉 Send My Magic Link"}
+                                        👉 Send My Magic Link
                                     </Button>
                                 )}
                             </div>
                         </form>
                     </Form>
+                    )}
                 </CardContent>
             </Card>
         )}
