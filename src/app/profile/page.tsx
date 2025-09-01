@@ -185,7 +185,7 @@ async function ProfilePageContent({ profile, learningData }: { profile: MemberPr
 
 
 export default async function ProfilePage() {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const aetherId = cookieStore.get('aether_user_id')?.value;
 
     if (!aetherId) {
@@ -197,9 +197,12 @@ export default async function ProfilePage() {
   if (!profileResult.success || !profileResult.data) {
     // This case handles if the cookie is stale or the user was deleted from Airtable
     // We clear the cookie and redirect to login
-    cookies().delete('aether_user_id');
-    cookies().delete('aether_user_name');
-    cookies().delete('aether_user_role');
+    (await
+          // This case handles if the cookie is stale or the user was deleted from Airtable
+          // We clear the cookie and redirect to login
+          cookies()).delete('aether_user_id');
+    (await cookies()).delete('aether_user_name');
+    (await cookies()).delete('aether_user_role');
     redirect('/login?error=not_found');
   }
 
