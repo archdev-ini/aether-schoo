@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from "@/components/ui/progress"
@@ -90,12 +90,11 @@ export default function JoinPage() {
     setIsLoading(true);
     setLoadingMessage(loadingMessages[currentStep]);
 
-    // Simulate network delay for a better UX
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (currentStep === 2) { // After Goals step, before showing confirmation
+    if (currentStep === 2) { 
+        setLoadingMessage(loadingMessages[2]);
         try {
-            setLoadingMessage(loadingMessages[2]); // ID generation message
             const { aetherId, entryNumber } = await generateAetherIdForUser();
             setAetherId(aetherId);
             setEntryNumber(entryNumber);
@@ -120,12 +119,12 @@ export default function JoinPage() {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
-    setLoadingMessage(loadingMessages[3]); // Final submission message
+    setLoadingMessage(loadingMessages[3]);
     setSubmittedEmail(data.email);
     try {
         const result = await submitJoinForm(data, aetherId, entryNumber);
         if (result.success) {
-            setCurrentStep(steps.length - 1); // Go to final success step
+            setCurrentStep(steps.length - 1);
         } else {
             throw new Error(result.error || 'An unexpected error occurred.');
         }
@@ -185,7 +184,6 @@ export default function JoinPage() {
                                         <FormItem>
                                             <FormLabel>Full Name</FormLabel>
                                             <FormControl><Input placeholder="Your full name" {...field} /></FormControl>
-                                            <FormDescription>Use your real name. This helps us personalize your Aether ID.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -193,7 +191,6 @@ export default function JoinPage() {
                                         <FormItem>
                                             <FormLabel>Username</FormLabel>
                                             <FormControl><Input placeholder="yourusername" {...field} /></FormControl>
-                                            <FormDescription>This is your public name inside Aether. Choose something short & recognizable.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -201,7 +198,6 @@ export default function JoinPage() {
                                         <FormItem>
                                             <FormLabel>Email</FormLabel>
                                             <FormControl><Input type="email" placeholder="your@email.com" {...field} /></FormControl>
-                                            <FormDescription>We’ll send your magic link here to activate your account.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -214,7 +210,6 @@ export default function JoinPage() {
                                         <FormItem>
                                             <FormLabel>Country / Location</FormLabel>
                                             <FormControl><Input placeholder="e.g. Lagos, Nigeria" {...field} /></FormControl>
-                                            <FormDescription>Where you’re based (city or country). Helps us connect you to regional opportunities.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -222,7 +217,6 @@ export default function JoinPage() {
                                         <FormItem>
                                             <FormLabel>University / Workplace <span className="text-muted-foreground">(Optional)</span></FormLabel>
                                             <FormControl><Input placeholder="e.g. University of Lagos" {...field} /></FormControl>
-                                            <FormDescription>If you’re currently studying or practicing, let us know.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -237,7 +231,6 @@ export default function JoinPage() {
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            <FormDescription>Pick the one that best describes you.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -250,7 +243,7 @@ export default function JoinPage() {
                                         <FormItem>
                                             <div className="mb-4">
                                                 <FormLabel className="text-base">What are your goals?</FormLabel>
-                                                <FormDescription>Select all that apply. This helps us tailor your experience.</FormDescription>
+                                                <FormMessage />
                                             </div>
                                             <div className="space-y-2">
                                                 {interestsList.map((item) => (
@@ -280,14 +273,13 @@ export default function JoinPage() {
                                         <FormControl>
                                             <Input readOnly value={aetherId} className="font-mono text-lg text-primary tracking-widest bg-muted"/>
                                         </FormControl>
-                                        <FormDescription>This is your permanent Aether ID. It can’t be changed.</FormDescription>
+                                        <FormMessage>This is your permanent Aether ID. It can’t be changed.</FormMessage>
                                     </FormItem>
                                      <FormField control={form.control} name="username" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Username</FormLabel>
                                             <FormControl><Input placeholder="yourusername" {...field} /></FormControl>
-                                            <FormDescription>This is your public identity in the Aether community.</FormDescription>
-                                            <FormMessage />
+                                            <FormMessage>This is your public identity in the Aether community.</FormMessage>
                                         </FormItem>
                                     )}/>
                                      <FormItem>
@@ -295,7 +287,7 @@ export default function JoinPage() {
                                         <FormControl>
                                             <Input readOnly value={getValues('email')} className="bg-muted"/>
                                         </FormControl>
-                                        <FormDescription>We’ll send your magic link to this address.</FormDescription>
+                                        <FormMessage>We’ll send your magic link to this address.</FormMessage>
                                     </FormItem>
                                     <p className="text-sm text-muted-foreground pt-4">🪪 Your Aether ID is permanent. Your username can be updated later.</p>
                                 </div>
