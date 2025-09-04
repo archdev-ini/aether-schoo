@@ -98,7 +98,7 @@ export default function JoinPage() {
   }
 
   return (
-    <main className="container py-12 md:py-24 animate-in fade-in duration-500">
+   
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-12">
             <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Join the Aether Ecosystem</h1>
