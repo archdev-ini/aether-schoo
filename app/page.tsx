@@ -64,12 +64,12 @@ export default async function Home() {
                     A global-facing, Africa-rooted community for learning, building, and connecting.
                 </p>
                  <p className="max-w-3xl mx-auto mt-4 text-muted-foreground">
-                    ✨ Create your permanent Aether ID, access prelaunch events, and join the network shaping the future of design.
+                    ✨ Access prelaunch events and join the network shaping the future of design.
                 </p>
                 <div className="flex flex-col gap-4 mt-8 min-[400px]:flex-row justify-center">
                   <Button asChild size="lg" id="join-waitlist-hero">
-                    <Link href="/join">
-                      Get Your Aether ID
+                    <Link href="/events">
+                      Explore Events
                     </Link>
                   </Button>
                 </div>
@@ -105,8 +105,6 @@ export default async function Home() {
                 </h2>
                 <p className="mx-auto max-w-3xl text-muted-foreground md:text-xl/relaxed">
                     Exclusive workshops, Q&As, and community sessions throughout October + November.
-                    <br/>
-                    💡 Your Aether ID is your access pass.
                 </p>
              </div>
              <div className="mt-6">
@@ -125,12 +123,11 @@ export default async function Home() {
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">⏳ Design the Future. Starting Now.</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
                    The full Aether platform launches December 8, 2025.
-                   Secure your permanent Aether ID today and become a Founding Member.
                 </p>
                 <div className="mt-8">
                     <Button asChild size="lg">
-                        <Link href="/join">
-                           Get Your Aether ID
+                        <Link href="/events">
+                           Explore Prelaunch Events
                         </Link>
                     </Button>
                 </div>

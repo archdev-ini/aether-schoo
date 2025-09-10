@@ -165,12 +165,7 @@ export function Header({ user: initialUser }: HeaderProps) {
                        </>
                     ) : (
                       <>
-                        <Link href="/login" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
-                            <LogIn className="w-5 h-5"/> Login
-                        </Link>
-                        <Link href="/join" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
-                            <UserPlus className="w-5 h-5"/> Get Aether ID
-                        </Link>
+                        <p className="text-sm text-muted-foreground">Login has been disabled.</p>
                       </>
                     )}
                 </div>
@@ -205,12 +200,7 @@ export function Header({ user: initialUser }: HeaderProps) {
                 </DropdownMenu>
             ) : (
                 <>
-                    <Button asChild variant="outline" className="hidden sm:inline-flex">
-                        <Link href="/login">Login</Link>
-                    </Button>
-                    <Button asChild id="get-aether-id-header">
-                        <Link href="/join">Get Your Aether ID</Link>
-                    </Button>
+                   <p className="text-sm text-muted-foreground">Login has been disabled.</p>
                 </>
             )}
           </div>

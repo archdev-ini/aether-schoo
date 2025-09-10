@@ -132,8 +132,8 @@ export default function AboutPage() {
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Architecture is the blueprint of a better future. Let’s design it together.</h2>
                 <div className="mt-8">
                     <Button asChild size="lg">
-                        <Link href="/join">
-                           Join the Founding 500
+                        <Link href="/events">
+                           Explore Events
                         </Link>
                     </Button>
                 </div>

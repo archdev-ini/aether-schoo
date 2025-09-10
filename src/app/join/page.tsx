@@ -180,6 +180,6 @@ export default function JoinPage() {
             </CardContent>
         </Card>
       </div>
-    </main>
+    
   );
 }

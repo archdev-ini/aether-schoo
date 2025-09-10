@@ -19,7 +19,7 @@ async function ProfileDashboard() {
     const aetherId = cookieStore.get('aether_user_id')?.value;
 
     if (!aetherId) {
-        redirect('/login');
+        redirect('/');
     }
 
     const profileResult = await getMemberProfile(aetherId);
@@ -28,7 +28,7 @@ async function ProfileDashboard() {
         (await cookies()).delete('aether_user_id');
         (await cookies()).delete('aether_user_name');
         (await cookies()).delete('aether_user_role');
-        redirect('/login?error=not_found');
+        redirect('/');
     }
     
     const { fullName, entryNumber } = profileResult.data;
@@ -41,7 +41,7 @@ async function ProfileDashboard() {
         (await cookies()).delete('aether_user_id');
         (await cookies()).delete('aether_user_name');
         (await cookies()).delete('aether_user_role');
-        redirect('/login');
+        redirect('/');
     }
 
     return (
@@ -92,7 +92,7 @@ async function ProfileDashboard() {
                     </CardContent>
                     <div className="p-6 pt-0 grid grid-cols-2 gap-2">
                         <Button asChild className="w-full"><Link href="/events">View Calendar</Link></Button>
-                        <Button asChild variant="secondary" className="w-full"><Link href="/join">Join Waitlist</Link></Button>
+                        <Button asChild variant="secondary" className="w-full"><Link href="/#">Join Waitlist</Link></Button>
                     </div>
                 </Card>
 

@@ -13,7 +13,7 @@ function BridgePageContent() {
     useEffect(() => {
         // This component is no longer needed for login, so we redirect.
         // It's kept in case it's needed for other bridging purposes later.
-        router.replace('/login');
+        router.replace('/');
     }, [router]);
 
     return (
