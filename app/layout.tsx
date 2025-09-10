@@ -8,7 +8,6 @@ import { Header } from '@/components/common/Header';
 import { Footer } from '@/components/common/Footer';
 import { ThemeProvider } from '@/components/common/ThemeProvider';
 import { CookieConsentBanner } from '@/components/common/CookieConsentBanner';
-import { BottomNav } from '@/components/common/BottomNav';
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
@@ -69,7 +68,6 @@ export default function RootLayout({
             </div>
             <Toaster />
             <CookieConsentBanner />
-            <BottomNav user={user} />
         </ThemeProvider>
       </body>
     </html>

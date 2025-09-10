@@ -8,7 +8,6 @@ import { Header } from '@/components/common/Header';
 import { Footer } from '@/components/common/Footer';
 import { ThemeProvider } from '@/components/common/ThemeProvider';
 import { CookieConsentBanner } from '@/components/common/CookieConsentBanner';
-import { BottomNav } from '@/components/common/BottomNav';
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
@@ -64,12 +63,11 @@ export default function RootLayout({
         >
             <div className="relative flex min-h-screen flex-col">
               <Header user={user} />
-              <main className="flex-1 pb-20 md:pb-0">{children}</main>
+              <main className="flex-1">{children}</main>
               <Footer />
             </div>
             <Toaster />
             <CookieConsentBanner />
-            <BottomNav user={user} />
         </ThemeProvider>
       </body>
     </html>
