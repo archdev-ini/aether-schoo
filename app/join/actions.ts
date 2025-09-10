@@ -24,7 +24,7 @@ export const FormSchema = z.object({
 export type FormValues = z.infer<typeof FormSchema>;
 
 
-export async function submitJoinForm(data: FormValues) {
+export async function submitJoinForm(data: FormValues): Promise<{ success: boolean; error?: string }> {
     const parsedData = FormSchema.safeParse(data);
 
     if (!parsedData.success) {
