@@ -20,7 +20,13 @@ export async function sendLoginLink(input: LoginInput): Promise<{ success: boole
     if (!parsedInput.success) {
         return { success: false, error: 'Invalid email provided.' };
     }
+    
+    // --- SERVER LOGIC DISABLED ---
+    // The original logic is commented out to allow frontend development.
+    // The form will now always return a success message.
+    return { success: true };
 
+    /*
     const { email } = parsedInput.data;
 
     const {
@@ -67,4 +73,6 @@ export async function sendLoginLink(input: LoginInput): Promise<{ success: boole
         console.error('Airtable API error:', error);
         return { success: false, error: 'Failed to process login request.' };
     }
+    */
 }
+
