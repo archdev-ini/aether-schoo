@@ -31,15 +31,15 @@ export const FIELDS = {
         USERNAME: 'fldTp1SmBwV8oAant',
         LOCATION: 'fldTXGQAnQJcXRM3E',
         WORKPLACE: 'fldK3rQnHM6iU0XGa',
-        ROLE: 'fld9RfSXC5RcrekTg',
-        INTERESTS: 'fldFMNV7xNrgoVzeX',
+        ROLE: 'fld9RfSXC5RcrekTg', // Maps to "Area of Focus"
+        INTERESTS: 'fldFMNV7xNrgoVzeX', // Maps to "Goals / Interests"
         PORTFOLIO_URL: 'fldQNps4G7x2WEpZK',
         ENTRY_NUMBER: 'flduvEUVkORBayKfE',
-        STATUS: 'fldulIgSnU1PJe3zR',
-        LOGIN_TOKEN: 'fldEZo9OJfdNZ1fMu',
-        LOGIN_TOKEN_EXPIRES: 'fldMtMVFFwEhWZSHC',
-        LOGIN_TOKEN_CREATED_AT: 'fldh43fF5mXPJv0Hj',
-        CREATED_TIME: 'Created', // Airtable default field
+        STATUS: 'fldulIgSnU1PJe3zR', // Used to set 'Prelaunch-Active'
+        LOGIN_TOKEN: 'fldEZo9OJfdNZ1fMu', // Not used in prelaunch, but kept for future
+        LOGIN_TOKEN_EXPIRES: 'fldMtMVFFwEhWZSHC', // Not used in prelaunch
+        LOGIN_TOKEN_CREATED_AT: 'fldh43fF5mXPJv0Hj', // Not used in prelaunch
+        CREATED_TIME: 'Created', // Airtable default field for submission timestamp
     },
 
     // --- Courses Table (tblnWNDELJW099acM) ---
