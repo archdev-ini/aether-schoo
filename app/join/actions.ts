@@ -35,8 +35,8 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
     } = process.env;
 
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.MEMBERS || !process.env.AETHER_FOUNDER_KEY) {
-        console.error('Airtable or Founder Key credentials are not set in environment variables.');
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.MEMBERS ) {
+        console.error('Airtable credentials are not set in environment variables.');
         return { success: false, error: 'Server configuration error. Please contact support.' };
     }
 
@@ -51,14 +51,13 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
         }).firstPage();
 
         if (existingRecords.length > 0) {
-            // To prevent user enumeration, we'll treat this as a success.
-            // The user will see the success message but no new record is created.
-            // You could optionally resend a "you've already registered" email here.
             console.log(`Duplicate email prevented registration: ${email}`);
             return { success: true };
         }
 
-        const { aetherId, entryNumber } = await generateAetherId(base, TABLE_IDS.MEMBERS, 'Member');
+        // The ID generation logic no longer creates the Aether ID. Airtable does.
+        // We still need to count records to get an entry number if that logic is desired.
+        // For now, we will let Airtable handle the ID entirely.
         
         const fields: Airtable.FieldSet = {
             [FIELDS.MEMBERS.FULL_NAME]: fullName,
@@ -66,24 +65,17 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
             [FIELDS.MEMBERS.USERNAME]: username,
             [FIELDS.MEMBERS.LOCATION]: location,
             [FIELDS.MEMBERS.WORKPLACE]: workplace || '',
-            [FIELDS.MEMBERS.ROLE]: focusArea, // Assuming "focusArea" maps to the member "Role"
-            [FIELDS.MEMBERS.INTERESTS]: goals, // Assuming "goals" maps to the member "Interests"
-            [FIELDS.MEMBERS.AETHER_ID]: aetherId,
-            [FIELDS.MEMBERS.ENTRY_NUMBER]: entryNumber,
-            [FIELDS.MEMBERS.STATUS]: 'Prelaunch-Active',
+            [FIELDS.MEMBERS.ROLE]: focusArea,
+            [FIELDS.MEMBERS.INTERESTS]: goals,
+            [FIELDS.MEMBERS.SIGNUP_STEP_COMPLETED]: 'Completed',
+            [FIELDS.MEMBERS.OPT_IN_STATUS]: 'Pending',
         };
 
-        const createdRecords = await base(TABLE_IDS.MEMBERS).create([
+        await base(TABLE_IDS.MEMBERS).create([
             { fields },
         ], { typecast: true });
 
-        if (createdRecords.length === 0) {
-            throw new Error("Failed to create record in Airtable.");
-        }
-        
-        // Note: Email sending is currently disabled as there's no login flow.
-        // If you re-introduce login, you can uncomment this part.
-        // await sendWelcomeEmail({ to: email, name: fullName, aetherId, ... });
+        // Email sending is disabled for prelaunch lead capture.
 
         return { success: true };
 
