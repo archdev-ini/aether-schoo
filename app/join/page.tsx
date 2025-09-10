@@ -10,8 +10,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowDown, User, AtSign, Check } from 'lucide-react';
+import { Loader2, ArrowDown, User, AtSign, Check, ArrowLeft, Building, MapPin, Briefcase } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
+
+const focusAreas = [
+    { id: 'student', label: 'Architecture Student' },
+    { id: 'young-architect', label: 'Young Architect' },
+    { id: 'designer', label: 'Designer' },
+    { id: 'educator', label: 'Educator' },
+    { id: 'enthusiast', label: 'Enthusiast' },
+];
 
 export default function JoinPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -20,9 +30,28 @@ export default function JoinPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { fullName: '', username: '', email: '' },
+    defaultValues: { fullName: '', username: '', email: '', location: '', workplace: '', focusArea: undefined },
     mode: 'onChange',
   });
+
+  const { trigger } = form;
+
+  const handleNextStep = async () => {
+    let isValid = false;
+    if (currentStep === 1) {
+        isValid = await trigger(['fullName', 'username', 'email']);
+    } else if (currentStep === 2) {
+        isValid = await trigger(['location', 'workplace', 'focusArea']);
+    }
+    
+    if (isValid) {
+        setCurrentStep(prev => prev + 1);
+    }
+  }
+
+  const handlePrevStep = () => {
+    setCurrentStep(prev => prev - 1);
+  }
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
@@ -39,6 +68,8 @@ export default function JoinPage() {
   }
 
   const progressValue = (currentStep / 3) * 100;
+  const stepTitles = ["Account Basics", "Your Background", "Final Touches"];
+
 
   return (
     <div className="animate-in fade-in duration-500">
@@ -67,7 +98,7 @@ export default function JoinPage() {
                     <CardHeader>
                         <Progress value={progressValue} className="mb-4 h-2" />
                         <CardTitle className="text-2xl font-headline">
-                            Step {currentStep}: Account Basics
+                             Step {currentStep}: {stepTitles[currentStep - 1]}
                         </CardTitle>
                          <CardDescription>
                             Let's get started with the essentials. This information will help us set up your Aether identity.
@@ -76,56 +107,135 @@ export default function JoinPage() {
                     <CardContent>
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <FormField
-                                    control={form.control}
-                                    name="fullName"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Full Name</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="e.g., Ada Lovelace" {...field} />
-                                            </FormControl>
-                                            <FormDescription>This helps us personalize your Aether ID.</FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                 <FormField
-                                    control={form.control}
-                                    name="username"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Username</FormLabel>
-                                            <FormControl>
-                                                <div className="relative">
-                                                     <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                                     <Input placeholder="your_unique_username" className="pl-9" {...field} />
-                                                </div>
-                                            </FormControl>
-                                            <FormDescription>Short, memorable, and unique. What others will see in the community.</FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                 <FormField
-                                    control={form.control}
-                                    name="email"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Email Address</FormLabel>
-                                            <FormControl>
-                                                <Input type="email" placeholder="your@email.com" {...field} />
-                                            </FormControl>
-                                            <FormDescription>We’ll send your magic link here to activate your Aether ID.</FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                               <div className={cn(currentStep === 1 ? 'block' : 'hidden')}>
+                                    <FormField
+                                        control={form.control}
+                                        name="fullName"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Full Name</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Ada Lovelace" {...field} />
+                                                </FormControl>
+                                                <FormDescription>This helps us personalize your Aether ID.</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="username"
+                                        render={({ field }) => (
+                                            <FormItem className="mt-6">
+                                                <FormLabel>Username</FormLabel>
+                                                <FormControl>
+                                                    <div className="relative">
+                                                        <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                        <Input placeholder="your_unique_username" className="pl-9" {...field} />
+                                                    </div>
+                                                </FormControl>
+                                                <FormDescription>Short, memorable, and unique. What others will see in the community.</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="email"
+                                        render={({ field }) => (
+                                            <FormItem className="mt-6">
+                                                <FormLabel>Email Address</FormLabel>
+                                                <FormControl>
+                                                    <Input type="email" placeholder="your@email.com" {...field} />
+                                                </FormControl>
+                                                <FormDescription>We’ll send your magic link here to activate your Aether ID.</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className={cn(currentStep === 2 ? 'block' : 'hidden')}>
+                                    <FormField
+                                        control={form.control}
+                                        name="location"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Country / City</FormLabel>
+                                                <FormControl>
+                                                     <div className="relative">
+                                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                        <Input placeholder="e.g., Lagos, Nigeria" className="pl-9" {...field} />
+                                                    </div>
+                                                </FormControl>
+                                                <FormDescription>Where you’re based — helps us connect you locally.</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="workplace"
+                                        render={({ field }) => (
+                                            <FormItem className="mt-6">
+                                                <FormLabel>University / Workplace</FormLabel>
+                                                <FormControl>
+                                                     <div className="relative">
+                                                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                        <Input placeholder="e.g., University of Lagos (Optional)" className="pl-9" {...field} />
+                                                    </div>
+                                                </FormControl>
+                                                <FormDescription>Optional — tell us where you study or work.</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="focusArea"
+                                        render={({ field }) => (
+                                            <FormItem className="mt-6">
+                                                <FormLabel>Area of Focus</FormLabel>
+                                                 <FormControl>
+                                                    <RadioGroup
+                                                        onValueChange={field.onChange}
+                                                        defaultValue={field.value}
+                                                        className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2"
+                                                    >
+                                                        {focusAreas.map(area => (
+                                                            <FormItem key={area.id} className="flex items-center space-x-3 space-y-0">
+                                                                <FormControl>
+                                                                     <RadioGroupItem value={area.label} id={area.id} />
+                                                                </FormControl>
+                                                                <FormLabel htmlFor={area.id} className="font-normal">{area.label}</FormLabel>
+                                                            </FormItem>
+                                                        ))}
+                                                    </RadioGroup>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                                 
-                                <Button type="submit" disabled={isLoading || !form.formState.isValid} size="lg" className="w-full">
-                                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Next'}
-                                    <ArrowDown className="ml-2" />
-                                </Button>
+
+                                <div className="flex gap-4 pt-4">
+                                    {currentStep > 1 && (
+                                        <Button onClick={handlePrevStep} type="button" variant="outline" className="w-full">
+                                            <ArrowLeft className="mr-2" />
+                                            Back
+                                        </Button>
+                                    )}
+                                    {currentStep < 3 ? (
+                                        <Button onClick={handleNextStep} type="button" size="lg" className="w-full">
+                                            Next
+                                            <ArrowDown className="ml-2" />
+                                        </Button>
+                                    ) : (
+                                         <Button type="submit" disabled={isLoading || !form.formState.isValid} size="lg" className="w-full">
+                                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Account'}
+                                        </Button>
+                                    )}
+                                </div>
                             </form>
                         </Form>
                     </CardContent>
@@ -135,3 +245,4 @@ export default function JoinPage() {
     </div>
   );
 }
+

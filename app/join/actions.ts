@@ -12,7 +12,9 @@ export const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
   username: z.string().min(3, 'Username must be at least 3 characters.').regex(/^[a-z0-9_.]+$/, 'Use lowercase letters, numbers, periods, or underscores.'),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
-  // portfolioUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  location: z.string().min(3, { message: 'Please enter your location.' }),
+  workplace: z.string().optional(),
+  focusArea: z.string({ required_error: 'Please select your area of focus.' }),
 });
 
 export type FormValues = z.infer<typeof FormSchema>;
