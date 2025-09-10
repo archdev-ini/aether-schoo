@@ -32,6 +32,12 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
         return { success: false, error: 'Invalid form data.' };
     }
 
+    // --- SERVER LOGIC DISABLED ---
+    // The original logic is commented out to allow frontend development.
+    // The form will now always return a success message.
+    return { success: true };
+
+    /*
     const {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
@@ -110,4 +116,5 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
         console.error('Airtable API submission error:', error);
         return { success: false, error: 'Failed to submit form to Airtable. Please try again later.' };
     }
+    */
 }
