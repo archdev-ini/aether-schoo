@@ -15,7 +15,7 @@ export const TABLE_IDS = {
     MEMBERS: 'tblaIODuHwuucBsD4',
     // Keeping other tables here in case they are re-introduced later.
     COURSES: 'tblnWNDELJW099acM',
-    EVENTS: 'tbl3bdubKE54y8WGL',
+    EVENTS: 'tblFaUWHaYD3uTfY5',
     RSVPS: 'tblS1kPjT5pZ2UfRI',
 };
 
@@ -23,7 +23,6 @@ export const TABLE_IDS = {
 export const FIELDS = {
     // --- Members Table (Aether Members Prelaunch - tblaIODuHwuucBsD4) ---
     MEMBERS: {
-        // Aether ID is an Auto Number field in Airtable and is not writable from the API.
         FULL_NAME: 'fldTPWgcBYWv1jU52',
         USERNAME: 'fldXDPtkhEnM9VqBT',
         EMAIL: 'fldlji3ahQi1NFo3i',
@@ -52,15 +51,16 @@ export const FIELDS = {
         CREATED_TIME: 'fldoOzsAhQ9pgiWgC',
     },
     EVENTS: {
-        TITLE: 'fldJQovh56G3PeGcE',
-        DATE: 'fldxa5phNB56hpNbK',
-        TYPE: 'fld1OApGPAnPrDFi9',
-        EVENT_CODE: 'fldT2JyzpCpruC7Hj',
-        IS_PUBLISHED: 'fld6fZMRqUR8xNzGc',
-        SPEAKER: 'fldfWFthJgucLL9Cw',
-        DESCRIPTION: 'fldxPmbhLuOW1XYxV',
-        COVER_IMAGE: 'fldaSuNFFC9xHWrAT',
-        RSVP_COUNT: 'RSVP Count',
+        TITLE: 'fldn73hPWTmNeXzKX',
+        DATE: 'fldx19R3EfhLc9plk',
+        TYPE: 'fld99GWdUHErDelt7',
+        EVENT_CODE: 'fldFiUHNw7CzfTcbm',
+        IS_PUBLISHED: 'fld1SdYrSGvgaFzv0',
+        SPEAKER: 'fld3ZhfPNnlrw7pRM',
+        DESCRIPTION: 'fldPpRBGtdacg0HTZ',
+        COVER_IMAGE: 'fldBF4jQVRHtEvUp7',
+        RSVP_COUNT: 'fldR5i0P9mCqbKqUF',
+        RSVPS: 'fldQDJlZyIFIl1Gei',
     },
     RSVPS: {
         EVENT: 'fldoy3is7eXrL35Bc',

@@ -26,6 +26,8 @@ function SubmitButton() {
   );
 }
 
+const eventTypes = ["Workshop", "Horizon Studio", "Webinar", "Lecture", "Meetup", "Conference", "Other"];
+
 export default function NewEventPage() {
   const initialState: CreateEventState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createEvent, initialState);
@@ -111,9 +113,9 @@ export default function NewEventPage() {
                             <SelectValue placeholder="Select event type" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="Workshop">Workshop</SelectItem>
-                            <SelectItem value="Horizon Studio">Horizon Studio</SelectItem>
-                            <SelectItem value="Webinar">Webinar</SelectItem>
+                            {eventTypes.map(type => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                     <div id="type-error" aria-live="polite" aria-atomic="true">

@@ -11,7 +11,6 @@ const EventSchema = z.object({
   date: z.string(),
   type: z.string(),
   speaker: z.string(),
-  registrationUrl: z.string().url().optional(),
   description: z.string(),
   status: z.enum(['Upcoming', 'Past']),
   coverImage: z.string().url().optional(),
@@ -36,7 +35,7 @@ export async function getEvents(): Promise<Event[]> {
     
     try {
         const records = await base(TABLE_IDS.EVENTS).select({
-            filterByFormula: `{${F.IS_PUBLISHED}} = "Published"`,
+            filterByFormula: `{${F.IS_PUBLISHED}} = 1`,
             sort: [{field: F.DATE, direction: "desc"}],
         }).all();
 
@@ -54,12 +53,11 @@ export async function getEvents(): Promise<Event[]> {
             
             return {
                 id: record.id,
-                title: record.get(F.TITLE) || 'Untitled Event',
+                title: record.get(F.TITLE) as string || 'Untitled Event',
                 date: eventDateStr || new Date().toISOString(),
-                type: record.get(F.TYPE) || 'General',
-                speaker: record.get(F.SPEAKER) || 'TBA',
-                registrationUrl: record.get(F.REGISTRATION_URL) as string | undefined,
-                description: record.get(F.DESCRIPTION) || 'No description provided.',
+                type: record.get(F.TYPE) as string || 'General',
+                speaker: record.get(F.SPEAKER) as string || 'TBA',
+                description: record.get(F.DESCRIPTION) as string || 'No description provided.',
                 status: eventDate >= now ? 'Upcoming' : 'Past',
                 coverImage: coverImageUrl,
                 eventCode: record.get(F.EVENT_CODE) as string | undefined

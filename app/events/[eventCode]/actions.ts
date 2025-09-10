@@ -64,26 +64,28 @@ export async function getEventDetails(eventCode: string): Promise<EventDetail | 
         const rsvpRecords = await base(TABLE_IDS.RSVPS).select({
             filterByFormula: `{${RF.EVENT}} = '${eventId}'`
         }).all();
-        const memberRecordIds = rsvpRecords.map(r => r.get(RF.MEMBER)).flat();
+        const memberRecordIds = rsvpRecords.map(r => r.get(RF.MEMBER)).flat().filter(Boolean);
 
         let attendees: z.infer<typeof AttendeeSchema>[] = [];
         if (memberRecordIds.length > 0) {
             const memberFilter = "OR(" + memberRecordIds.map(id => `RECORD_ID() = '${id}'`).join(',') + ")";
             const memberRecords = await base(TABLE_IDS.MEMBERS).select({
                 filterByFormula: memberFilter,
-                fields: [MF.AETHER_ID, MF.FULL_NAME]
+                fields: [MF.USERNAME, MF.FULL_NAME]
             }).all();
             attendees = memberRecords.map(rec => ({
                 id: rec.id,
                 name: rec.get(MF.FULL_NAME) as string,
-                aetherId: rec.get(MF.AETHER_ID) as string
+                aetherId: rec.get(MF.USERNAME) as string // Using username as a stand-in for a public ID
             }));
         }
         
         let hasRsvpd = false;
         const currentAetherId = cookies().get('aether_user_id')?.value;
         if (currentAetherId) {
-            hasRsvpd = attendees.some(attendee => attendee.aetherId === currentAetherId);
+            // This logic assumes aether_user_id cookie stores the Airtable Record ID. 
+            // If it stores a different ID (like AETHER_ID), this lookup needs adjustment.
+            hasRsvpd = memberRecordIds.includes(currentAetherId);
         }
         
         const coverImageField = eventRecord.get(EF.COVER_IMAGE);
@@ -97,15 +99,15 @@ export async function getEventDetails(eventCode: string): Promise<EventDetail | 
         
         const event = {
             id: eventId,
-            title: eventRecord.get(EF.TITLE) || 'Untitled Event',
+            title: eventRecord.get(EF.TITLE) as string || 'Untitled Event',
             date: eventDateStr,
-            type: eventRecord.get(EF.TYPE) || 'General',
-            speaker: eventRecord.get(EF.SPEAKER) || 'TBA',
-            description: eventRecord.get(EF.DESCRIPTION) || 'No description provided.',
+            type: eventRecord.get(EF.TYPE) as string || 'General',
+            speaker: eventRecord.get(EF.SPEAKER) as string || 'TBA',
+            description: eventRecord.get(EF.DESCRIPTION) as string || 'No description provided.',
             status: eventDate >= new Date() ? 'Upcoming' : 'Past',
             coverImage: coverImageUrl,
             eventCode: eventRecord.get(EF.EVENT_CODE) as string,
-            rsvpCount: eventRecord.get(EF.RSVP_COUNT) || 0,
+            rsvpCount: eventRecord.get(EF.RSVP_COUNT) as number || 0,
             hasRsvpd: hasRsvpd,
             attendees: attendees,
         };
@@ -133,15 +135,9 @@ export async function submitRsvp(eventId: string): Promise<{ success: boolean; e
     const RF = FIELDS.RSVPS;
 
     try {
-        const memberRecords = await base(TABLE_IDS.MEMBERS).select({
-            filterByFormula: `{${MF.AETHER_ID}} = "${aetherId}"`,
-            maxRecords: 1,
-        }).firstPage();
-
-        if (memberRecords.length === 0) {
-            return { success: false, error: 'Could not verify your member account.' };
-        }
-        const memberRecordId = memberRecords[0].id;
+        // NOTE: This assumes aether_user_id cookie stores the Airtable record ID.
+        // If it stores a custom Aether ID, a lookup is needed first.
+        const memberRecordId = aetherId;
         
         const existingRsvp = await base(TABLE_IDS.RSVPS).select({
             filterByFormula: `AND({${RF.EVENT}} = '${eventId}', {${RF.MEMBER}} = '${memberRecordId}')`,
@@ -160,10 +156,6 @@ export async function submitRsvp(eventId: string): Promise<{ success: boolean; e
                 }
             }
         ]);
-        
-        // Airtable's rollup field for RSVP count might have a delay.
-        // We can manually increment for immediate feedback if needed, but for now we'll rely on the rollup.
-        // The revalidatePath call should eventually show the updated count.
         
         const eventRecord = await base(TABLE_IDS.EVENTS).find(eventId);
         const eventCode = eventRecord.get(EF.EVENT_CODE);

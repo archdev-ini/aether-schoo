@@ -42,7 +42,7 @@ export async function getAdminEvents(): Promise<AdminEvent[]> {
             title: record.get(F.TITLE) as string || 'Untitled Event',
             date: record.get(F.DATE) as string,
             type: record.get(F.TYPE) as string || 'General',
-            isPublished: record.get(F.IS_PUBLISHED) === 'Published',
+            isPublished: record.get(F.IS_PUBLISHED) === true,
             rsvpCount: record.get(F.RSVP_COUNT) as number || 0,
         }));
         
@@ -58,7 +58,7 @@ export async function getAdminEvents(): Promise<AdminEvent[]> {
 const CreateEventSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters.' }),
   date: z.date({ required_error: "An event date is required." }),
-  type: z.enum(['Workshop', 'Horizon Studio', 'Webinar']),
+  type: z.enum(['Workshop', 'Horizon Studio', 'Webinar', 'Lecture', 'Meetup', 'Conference', 'Other']),
   eventCode: z.string().min(3, { message: 'Event code must be at least 3 characters.' }).regex(/^[A-Z0-9-]+$/, { message: 'Use uppercase letters, numbers, and hyphens only.' }),
 });
 
@@ -106,10 +106,10 @@ export async function createEvent(prevState: CreateEventState, formData: FormDat
      try {
         const fields: Airtable.FieldSet = {
             [F.TITLE]: title,
-            [F.DATE]: date.toISOString(),
+            [F.DATE]: date.toISOString().split('T')[0], // Format as YYYY-MM-DD
             [F.TYPE]: type,
             [F.EVENT_CODE]: eventCode,
-            [F.IS_PUBLISHED]: 'Draft', // Default to Draft
+            [F.IS_PUBLISHED]: false, // Default to Draft (unchecked)
         };
 
         await base(TABLE_IDS.EVENTS).create([
