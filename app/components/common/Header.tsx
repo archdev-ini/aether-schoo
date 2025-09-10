@@ -165,9 +165,14 @@ export function Header({ user: initialUser }: HeaderProps) {
                         </button>
                        </>
                     ) : (
-                      <Button asChild>
-                          <Link href="/join">Join</Link>
-                      </Button>
+                      <>
+                        <Button asChild>
+                            <Link href="/join">Join</Link>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <Link href="/login">Login</Link>
+                        </Button>
+                      </>
                     )}
                 </div>
               </SheetContent>
@@ -200,11 +205,18 @@ export function Header({ user: initialUser }: HeaderProps) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
+              <div className="hidden md:flex items-center gap-2">
+                <Button asChild variant="ghost">
+                  <Link href="/login">
+                    Login
+                  </Link>
+                </Button>
                 <Button asChild>
                   <Link href="/join">
                     <UserPlus className="mr-2" /> Join
                   </Link>
                 </Button>
+              </div>
             )}
           </div>
         </div>
