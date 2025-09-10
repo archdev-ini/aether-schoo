@@ -10,9 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowDown, User, AtSign, Check, ArrowLeft, Building, MapPin, Briefcase } from 'lucide-react';
+import { Loader2, ArrowDown, User, AtSign, Check, ArrowLeft, Building, MapPin, Briefcase, Sparkles } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
 const focusAreas = [
@@ -23,6 +24,14 @@ const focusAreas = [
     { id: 'enthusiast', label: 'Enthusiast' },
 ];
 
+const goalsList = [
+    { id: 'learn-skills', label: 'Learn new skills' },
+    { id: 'build-portfolio', label: 'Build portfolio projects' },
+    { id: 'join-competitions', label: 'Join competitions' },
+    { id: 'find-mentors', label: 'Find mentors / peers' },
+    { id: 'access-resources', label: 'Access resources & archives' },
+]
+
 export default function JoinPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +39,7 @@ export default function JoinPage() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { fullName: '', username: '', email: '', location: '', workplace: '', focusArea: undefined },
+    defaultValues: { fullName: '', username: '', email: '', location: '', workplace: '', focusArea: undefined, goals: [] },
     mode: 'onChange',
   });
 
@@ -42,10 +51,14 @@ export default function JoinPage() {
         isValid = await trigger(['fullName', 'username', 'email']);
     } else if (currentStep === 2) {
         isValid = await trigger(['location', 'workplace', 'focusArea']);
+    } else if (currentStep === 3) {
+        isValid = await trigger(['goals']);
     }
     
     if (isValid) {
-        setCurrentStep(prev => prev + 1);
+        if (currentStep < 4) {
+             setCurrentStep(prev => prev + 1);
+        }
     }
   }
 
@@ -67,8 +80,8 @@ export default function JoinPage() {
     document.getElementById('signup-form')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  const progressValue = (currentStep / 3) * 100;
-  const stepTitles = ["Account Basics", "Your Background", "Final Touches"];
+  const progressValue = (currentStep / 4) * 100;
+  const stepTitles = ["Account Basics", "Your Background", "Your Goals", "Success!"];
 
 
   return (
@@ -96,16 +109,18 @@ export default function JoinPage() {
             <div className="container max-w-2xl mx-auto">
                 <Card>
                     <CardHeader>
-                        <Progress value={progressValue} className="mb-4 h-2" />
+                        {currentStep < 4 ? <Progress value={progressValue} className="mb-4 h-2" /> : null}
                         <CardTitle className="text-2xl font-headline">
-                             Step {currentStep}: {stepTitles[currentStep - 1]}
+                            {currentStep < 4 ? `Step ${currentStep}: ${stepTitles[currentStep - 1]}` : stepTitles[3]}
                         </CardTitle>
-                         <CardDescription>
-                            Let's get started with the essentials. This information will help us set up your Aether identity.
-                        </CardDescription>
+                        {currentStep === 1 && <CardDescription>Let's get started with the essentials. This information will help us set up your Aether identity.</CardDescription>}
+                        {currentStep === 2 && <CardDescription>Tell us a bit about your background to help us connect you with the right people.</CardDescription>}
+                        {currentStep === 3 && <CardDescription>What are you hoping to achieve? Your answers help us shape the future of Aether.</CardDescription>}
+                        {currentStep === 4 && <CardDescription>You're all set! We're excited to have you in the community.</CardDescription>}
                     </CardHeader>
                     <CardContent>
-                        <Form {...form}>
+                       {currentStep < 4 ? (
+                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                <div className={cn(currentStep === 1 ? 'block' : 'hidden')}>
                                     <FormField
@@ -216,6 +231,54 @@ export default function JoinPage() {
                                         )}
                                     />
                                 </div>
+                                <div className={cn(currentStep === 3 ? 'block' : 'hidden')}>
+                                     <FormField
+                                        control={form.control}
+                                        name="goals"
+                                        render={() => (
+                                            <FormItem>
+                                                <div className="mb-4">
+                                                    <FormLabel className="text-base">Why are you joining Aether?</FormLabel>
+                                                    <FormDescription>Select all that apply. This helps us tailor prelaunch access and recommendations.</FormDescription>
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-4 pt-2">
+                                                {goalsList.map((item) => (
+                                                    <FormField
+                                                        key={item.id}
+                                                        control={form.control}
+                                                        name="goals"
+                                                        render={({ field }) => {
+                                                            return (
+                                                            <FormItem
+                                                                key={item.id}
+                                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                                            >
+                                                                <FormControl>
+                                                                <Checkbox
+                                                                    checked={field.value?.includes(item.label)}
+                                                                    onCheckedChange={(checked) => {
+                                                                    return checked
+                                                                        ? field.onChange([...(field.value || []), item.label])
+                                                                        : field.onChange(
+                                                                            field.value?.filter(
+                                                                            (value) => value !== item.label
+                                                                            )
+                                                                        )
+                                                                    }}
+                                                                />
+                                                                </FormControl>
+                                                                <FormLabel className="font-normal">{item.label}</FormLabel>
+                                                            </FormItem>
+                                                            )
+                                                        }}
+                                                    />
+                                                ))}
+                                                </div>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                                 
 
                                 <div className="flex gap-4 pt-4">
@@ -232,12 +295,19 @@ export default function JoinPage() {
                                         </Button>
                                     ) : (
                                          <Button type="submit" disabled={isLoading || !form.formState.isValid} size="lg" className="w-full">
-                                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Account'}
+                                            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <><Sparkles className="mr-2 h-4 w-4" />Create Account</>}
                                         </Button>
                                     )}
                                 </div>
                             </form>
                         </Form>
+                       ) : (
+                           <div className="text-center space-y-6 animate-in fade-in duration-500">
+                                <Sparkles className="w-12 h-12 text-primary mx-auto"/>
+                                <p className="text-lg text-muted-foreground">Thank you for joining! We're preparing your Aether ID and sending you a welcome email. This may take a moment.</p>
+                                {/* Here you could show the welcome card component after submission */}
+                           </div>
+                       )}
                     </CardContent>
                 </Card>
             </div>
@@ -245,4 +315,3 @@ export default function JoinPage() {
     </div>
   );
 }
-

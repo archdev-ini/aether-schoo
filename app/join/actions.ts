@@ -15,6 +15,9 @@ export const FormSchema = z.object({
   location: z.string().min(3, { message: 'Please enter your location.' }),
   workplace: z.string().optional(),
   focusArea: z.string({ required_error: 'Please select your area of focus.' }),
+  goals: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: 'You have to select at least one goal.',
+  }),
 });
 
 export type FormValues = z.infer<typeof FormSchema>;
