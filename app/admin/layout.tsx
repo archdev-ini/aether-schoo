@@ -35,7 +35,6 @@ export default function AdminLayout({
     { href: "/admin/dashboard", icon: Home, label: "Dashboard" },
     { href: "/admin/members", icon: Users, label: "Members" },
     { href: "/admin/content", icon: BookCopy, label: "Content" },
-    { href: "/admin/manage-events", icon: Calendar, label: "Events" },
     { href: "/admin/settings", icon: Settings, label: "Settings" },
   ]
 
