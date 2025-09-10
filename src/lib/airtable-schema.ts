@@ -23,7 +23,7 @@ export const TABLE_IDS = {
 export const FIELDS = {
     // --- Members Table (Aether Members Prelaunch - tblaIODuHwuucBsD4) ---
     MEMBERS: {
-        // Aether ID is an Auto Number field in Airtable and is not writable.
+        // Aether ID is an Auto Number field in Airtable and is not writable from the API.
         FULL_NAME: 'fldTPWgcBYWv1jU52',
         USERNAME: 'fldXDPtkhEnM9VqBT',
         EMAIL: 'fldlji3ahQi1NFo3i',
