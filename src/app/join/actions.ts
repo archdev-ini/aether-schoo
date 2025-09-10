@@ -6,36 +6,22 @@ import type { FormValues } from './page';
 import { createHash, randomBytes } from 'crypto';
 import Airtable from 'airtable';
 import { sendWelcomeEmail } from '@/lib/email';
+import { generateAetherId } from '@/lib/id-generator';
+import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
 
-const FormSchema = z.object({
-  fullName: z.string(),
-  email: z.string().email(),
-  location: z.string(),
-  interests: z.array(z.string()),
-  portfolioUrl: z.string().url().optional().or(z.literal('')),
-});
 
-async function generateAetherId(base: Airtable.Base, tableId: string): Promise<{ aetherId: string; entryNumber: number }> {
-    const founderKey = parseInt(process.env.AETHER_FOUNDER_KEY || '731', 10);
-    const modulus = 999983; // Large prime modulus
+export async function submitJoinForm(data: FormValues): Promise<{ success: boolean; error?: string }> {
 
-    const records = await base(tableId).select({ fields: ['fldmMy5vyIaoPMN3g'] }).all();
-    const N = records.length + 1;
+    const FormSchema = z.object({
+        fullName: z.string(),
+        username: z.string(),
+        email: z.string().email(),
+        location: z.string(),
+        workplace: z.string().optional(),
+        focusArea: z.string(),
+        goals: z.array(z.string()),
+    });
 
-    const codeValue = (N * Math.pow(founderKey, 3) + founderKey * 97) % modulus;
-    const code = codeValue.toString(36).toUpperCase();
-
-    const hashInput = `${N}${founderKey}`;
-    const sha1Hash = createHash('sha1').update(hashInput).digest('hex');
-    const checksum = sha1Hash.substring(0, 2).toUpperCase();
-
-    return {
-        aetherId: `AETH-${code}-${checksum}`,
-        entryNumber: N
-    };
-}
-
-export async function submitJoinForm(data: FormValues) {
     const parsedData = FormSchema.safeParse(data);
 
     if (!parsedData.success) {
@@ -47,9 +33,9 @@ export async function submitJoinForm(data: FormValues) {
         AIRTABLE_API_KEY,
         AIRTABLE_BASE_ID,
     } = process.env;
-    const AIRTABLE_MEMBERS_TABLE_ID = 'tblwPBMFhctPX82g4';
 
-    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_MEMBERS_TABLE_ID || !process.env.AETHER_FOUNDER_KEY) {
+
+    if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.MEMBERS || !process.env.AETHER_FOUNDER_KEY) {
         console.error('Airtable or Founder Key credentials are not set in environment variables.');
         return { success: false, error: 'Server configuration error. Please contact support.' };
     }
@@ -57,53 +43,37 @@ export async function submitJoinForm(data: FormValues) {
     const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
     
     try {
-        const { email, fullName, ...restOfData } = parsedData.data;
+        const { email, fullName, username, location, workplace, focusArea, goals } = parsedData.data;
 
-        const existingRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).select({
-            filterByFormula: `{Email} = "${email}"`,
+        const existingRecords = await base(TABLE_IDS.MEMBERS).select({
+            filterByFormula: `{${FIELDS.MEMBERS.EMAIL}} = "${email}"`,
             maxRecords: 1,
         }).firstPage();
 
-        // Generate a secure token for the magic link
-        const token = randomBytes(32).toString('hex');
-        const tokenFields = {
-            'loginToken': token,
-            'loginTokenExpires': 900, // 15 minutes in seconds
-        };
-
         if (existingRecords.length > 0) {
-            // User exists, re-send welcome email with a new token
-            const record = existingRecords[0];
-            await base(AIRTABLE_MEMBERS_TABLE_ID).update(record.id, tokenFields);
-            
-            await sendWelcomeEmail({
-                to: email,
-                name: record.get('fldcoLSWA6ntjtlYV') as string,
-                aetherId: record.get('fld7hoOSkHYaZrPr7') as string,
-                token: token,
-                type: 'welcome'
-            });
-            // Return success to show the same message to the user, preventing email enumeration
+            // To prevent user enumeration, we'll treat this as a success.
+            // The user will see the success message but no new record is created.
+            // You could optionally resend a "you've already registered" email here.
+            console.log(`Duplicate email prevented registration: ${email}`);
             return { success: true };
         }
 
-
-        const { aetherId: newAetherId, entryNumber } = await generateAetherId(base, AIRTABLE_MEMBERS_TABLE_ID);
+        const { aetherId, entryNumber } = await generateAetherId(base, TABLE_IDS.MEMBERS, 'Member');
         
-        const fields = {
-            'fld7hoOSkHYaZrPr7': newAetherId,
-            'fld2EoTnv3wjIHhNX': email,
-            'fldcoLSWA6ntjtlYV': fullName,
-            'fldP5VgkLoOGwFkb3': restOfData.location,
-            'fldkpeV7NwNz0GJ7O': restOfData.interests,
-            'fldzxVhA5njMpVaH3': restOfData.portfolioUrl,
-            'fldmMy5vyIaoPMN3g': entryNumber,
-            'fld7rO1pQZ9sY2tB4': 'Member',
-            'fldLzkrbVXuycummp': 'Prelaunch-Active',
-            ...tokenFields
+        const fields: Airtable.FieldSet = {
+            [FIELDS.MEMBERS.FULL_NAME]: fullName,
+            [FIELDS.MEMBERS.EMAIL]: email,
+            [FIELDS.MEMBERS.USERNAME]: username,
+            [FIELDS.MEMBERS.LOCATION]: location,
+            [FIELDS.MEMBERS.WORKPLACE]: workplace || '',
+            [FIELDS.MEMBERS.ROLE]: focusArea, // Assuming "focusArea" maps to the member "Role"
+            [FIELDS.MEMBERS.INTERESTS]: goals, // Assuming "goals" maps to the member "Interests"
+            [FIELDS.MEMBERS.AETHER_ID]: aetherId,
+            [FIELDS.MEMBERS.ENTRY_NUMBER]: entryNumber,
+            [FIELDS.MEMBERS.STATUS]: 'Prelaunch-Active',
         };
 
-        const createdRecords = await base(AIRTABLE_MEMBERS_TABLE_ID).create([
+        const createdRecords = await base(TABLE_IDS.MEMBERS).create([
             { fields },
         ], { typecast: true });
 
@@ -111,16 +81,9 @@ export async function submitJoinForm(data: FormValues) {
             throw new Error("Failed to create record in Airtable.");
         }
         
-        // The `loginTokenCreatedAt` field will be auto-populated by Airtable.
-
-        // Send welcome email with magic link
-        await sendWelcomeEmail({
-            to: email,
-            name: fullName,
-            aetherId: newAetherId,
-            token: token,
-            type: 'welcome'
-        });
+        // Note: Email sending is currently disabled as there's no login flow.
+        // If you re-introduce login, you can uncomment this part.
+        // await sendWelcomeEmail({ to: email, name: fullName, aetherId, ... });
 
         return { success: true };
 
