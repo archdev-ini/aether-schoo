@@ -85,12 +85,32 @@ export function Header({ user: initialUser }: HeaderProps) {
         setUserName('');
         setUserAetherId('');
     }
+
+    const handleAuthChange = () => {
+        const name = localStorage.getItem('aether_user_name');
+        const id = localStorage.getItem('aether_user_id');
+        if (name && id) {
+            setIsLoggedIn(true);
+            setUserName(name);
+            setUserAetherId(id);
+        } else {
+            setIsLoggedIn(false);
+            setUserName('');
+            setUserAetherId('');
+        }
+    }
+
+    window.addEventListener('auth-change', handleAuthChange);
+    return () => {
+        window.removeEventListener('auth-change', handleAuthChange);
+    }
   }, []);
 
   const handleLogout = async () => {
     // Clear localStorage for immediate client-side UI update
     localStorage.removeItem('aether_user_id');
     localStorage.removeItem('aether_user_name');
+    localStorage.removeItem('aether_user_role');
     setIsLoggedIn(false);
     setUserName('');
     setUserAetherId('');
@@ -164,14 +184,14 @@ export function Header({ user: initialUser }: HeaderProps) {
                         </button>
                        </>
                     ) : (
-                      <>
+                      <div className="flex flex-col gap-4">
                         <Button asChild>
                             <Link href="/join">Join</Link>
                         </Button>
                         <Button asChild variant="outline">
                             <Link href="/login">Login</Link>
                         </Button>
-                      </>
+                      </div>
                     )}
                 </div>
               </SheetContent>
