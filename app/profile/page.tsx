@@ -25,142 +25,110 @@ async function ProfileDashboard() {
     const profileResult = await getMemberProfile(aetherId);
 
     if (!profileResult.success || !profileResult.data) {
-        (await cookies()).delete('aether_user_id');
-        (await cookies()).delete('aether_user_name');
-        (await cookies()).delete('aether_user_role');
+        // Clear cookies and redirect if profile not found
+        const allCookies = cookieStore.getAll();
+        allCookies.forEach(cookie => {
+            cookies().delete(cookie.name);
+        });
         redirect('/');
     }
     
-    const { fullName, entryNumber } = profileResult.data;
-
-    const allEvents = await getEvents();
-    const nextEvent = allEvents.find(e => e.status === 'Upcoming');
+    const { fullName, entryNumber, role, location, mainInterest, email } = profileResult.data;
+    const interests = profileResult.data.interests || [];
 
     const handleLogout = async () => {
         'use server';
-        (await cookies()).delete('aether_user_id');
-        (await cookies()).delete('aether_user_name');
-        (await cookies()).delete('aether_user_role');
+        const allCookies = cookies().getAll();
+        allCookies.forEach(cookie => {
+            cookies().delete(cookie.name);
+        });
         redirect('/');
     }
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8">
             {/* Header */}
-            <div className="text-center md:text-left md:flex md:items-center md:justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl lg:text-4xl font-bold font-headline">Welcome back, {fullName.split(' ')[0]} ✨</h1>
-                    <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-muted-foreground">
-                        <span>Your Aether ID:</span>
+            <div className="flex items-center gap-6">
+                 <Avatar className="w-24 h-24 border-4 border-background shadow-md">
+                    <AvatarImage src={`https://api.dicebear.com/7.x/bottts/svg?seed=${aetherId}`} alt={fullName} />
+                    <AvatarFallback>{fullName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-grow">
+                    <h1 className="text-3xl lg:text-4xl font-bold font-headline">{fullName}</h1>
+                    <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+                        <span>Aether ID:</span>
                         <CopyToClipboardButton textToCopy={aetherId} />
                     </div>
                 </div>
-                 <div className="hidden md:block">
-                    <p className="font-mono font-bold text-lg tracking-wider text-primary">FOUNDING MEMBER #{entryNumber}</p>
-                </div>
+                 <Button asChild variant="outline">
+                    <Link href="/profile/edit"><Pencil className="mr-2" /> Edit Profile</Link>
+                </Button>
             </div>
 
-            {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                {/* Archive Card */}
-                <Card className="flex flex-col">
+            {/* Profile Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <CardTitle className="flex items-center gap-2"><Archive /> Archive</CardTitle>
-                            <Badge variant="default" className="bg-green-500/20 text-green-700 border-green-500/30">LIVE</Badge>
-                        </div>
+                        <CardTitle>Personal Information</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-grow">
-                        <p className="text-muted-foreground">Access the first 30 resources: books, case studies, and lectures. New drops every week.</p>
+                    <CardContent className="space-y-4 text-sm">
+                        <div className="flex items-start gap-3"><User className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" /><span>{fullName}</span></div>
+                        <div className="flex items-start gap-3"><Briefcase className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" /><span>{role || 'Not specified'}</span></div>
+                        <div className="flex items-start gap-3"><MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-1" /><span>{location}</span></div>
+                        <div className="flex items-start gap-3"><span className="font-mono text-xs text-muted-foreground mt-1">EMAIL</span><span>{email} (used for login)</span></div>
                     </CardContent>
-                    <div className="p-6 pt-0">
-                        <Button asChild className="w-full" variant="outline"><Link href="/school/courses?format=Archive">Browse Archive</Link></Button>
-                    </div>
                 </Card>
-
-                {/* School Card */}
-                 <Card className="flex flex-col">
+                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <CardTitle className="flex items-center gap-2"><School /> Aether School</CardTitle>
-                             <Badge variant="secondary">PREVIEW</Badge>
-                        </div>
+                        <CardTitle>Interests & Goals</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-grow">
-                        <p className="text-muted-foreground">Trial sessions are happening in Oct–Nov. Full launch starts Dec 8.</p>
-                    </CardContent>
-                    <div className="p-6 pt-0 grid grid-cols-2 gap-2">
-                        <Button asChild className="w-full"><Link href="/events">View Calendar</Link></Button>
-                        <Button asChild variant="secondary" className="w-full"><Link href="/#">Join Waitlist</Link></Button>
-                    </div>
-                </Card>
-
-                {/* Events Card */}
-                <Card className="flex flex-col">
-                    <CardHeader>
-                         <div className="flex justify-between items-center">
-                            <CardTitle className="flex items-center gap-2"><Calendar /> Upcoming Events</CardTitle>
-                            <Badge variant="default" className="bg-green-500/20 text-green-700 border-green-500/30">LIVE</Badge>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                        {nextEvent ? (
-                            <div>
-                                <p className="text-muted-foreground">Next: <strong>{nextEvent.title}</strong></p>
-                                <div className="mt-2 text-sm">
-                                    <CountdownTimer targetDate={nextEvent.date} simple />
-                                </div>
+                    <CardContent>
+                        {interests.length > 0 ? (
+                             <div className="flex flex-wrap gap-2">
+                                {interests.map(interest => (
+                                    <Badge key={interest} variant="secondary">{interest}</Badge>
+                                ))}
                             </div>
                         ) : (
-                             <p className="text-muted-foreground">No upcoming events. Check back soon!</p>
+                            <p className="text-sm text-muted-foreground">No interests specified yet. Edit your profile to add them.</p>
                         )}
-                    </CardContent>
-                    <div className="p-6 pt-0">
-                        <Button asChild className="w-full" variant="outline"><Link href="/events">See Full Schedule</Link></Button>
-                    </div>
-                </Card>
-
-                {/* Competitions Card */}
-                <Card className="flex flex-col bg-muted/50">
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <CardTitle className="flex items-center gap-2 text-muted-foreground"><Trophy /> Competitions</CardTitle>
-                             <Badge variant="outline">COMING SOON</Badge>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                        <p className="text-muted-foreground">The Aether Creative Challenge launches Dec 8. Theme reveal at the Prelaunch Finale.</p>
-                    </CardContent>
-                     <div className="p-6 pt-0">
-                        <Button disabled className="w-full">Coming Soon</Button>
-                    </div>
-                </Card>
-
-                {/* Community Card */}
-                 <Card className="flex flex-col col-span-1 md:col-span-2">
-                     <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <CardTitle className="flex items-center gap-2"><Users /> Community</CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                        <p className="text-muted-foreground mb-4">Connect with peers, share ideas, and grow with us.</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                             <CommunityAccessHub aetherId={aetherId} />
-                        </div>
                     </CardContent>
                 </Card>
             </div>
             
-            {/* Footer Tools */}
-            <div className="flex justify-center items-center gap-4 mt-8">
-                 <Button asChild variant="outline">
-                    <Link href="/profile/edit"><Pencil className="mr-2" /> Update Profile</Link>
-                </Button>
-                <form action={handleLogout}>
-                    <Button variant="ghost" type="submit"><LogOut className="mr-2"/> Logout</Button>
-                </form>
+            {/* Activity Overview */}
+             <div>
+                <h2 className="text-2xl font-bold font-headline mb-4">Activity Overview</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <Card className="bg-muted/50"><CardHeader><CardTitle>Archive</CardTitle></CardHeader><CardContent><p className="text-muted-foreground">Viewed resources coming soon.</p></CardContent></Card>
+                    <Card className="bg-muted/50"><CardHeader><CardTitle>School Sessions</CardTitle></CardHeader><CardContent><p className="text-muted-foreground">Registered sessions coming soon.</p></CardContent></Card>
+                    <Card className="bg-muted/50"><CardHeader><CardTitle>Events</CardTitle></CardHeader><CardContent><p className="text-muted-foreground">Event history coming soon.</p></CardContent></Card>
+                </div>
+            </div>
+
+            {/* Community & Security */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Community</CardTitle>
+                        <CardDescription>Connect with the ecosystem.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 gap-2">
+                        <CommunityAccessHub aetherId={aetherId} />
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Security</CardTitle>
+                        <CardDescription>Manage your session.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">You log in via Magic Link. No password is required.</p>
+                         <form action={handleLogout}>
+                            <Button variant="outline" type="submit" className="w-full"><LogOut className="mr-2"/> Logout</Button>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     )

@@ -11,19 +11,22 @@ const MemberProfileSchema = z.object({
     fullName: z.string(),
     aetherId: z.string(),
     email: z.string().email(),
-    role: z.string(),
+    role: z.string().optional(),
     location: z.string(),
-    mainInterest: z.string().optional(),
     interests: z.array(z.string()).optional(),
-    reasonToJoin: z.string().optional(),
     entryNumber: z.number(),
+    username: z.string().optional(),
+    workplace: z.string().optional(),
+    focusArea: z.string().optional(),
+    goals: z.array(z.string()).optional(),
 });
 
 export type MemberProfile = z.infer<typeof MemberProfileSchema>;
 
-export async function getMemberProfile(aetherId: string): Promise<{ success: boolean; data?: MemberProfile; error?: string }> {
+export async function getMemberProfile(): Promise<{ success: boolean; data?: MemberProfile; error?: string }> {
+    const aetherId = cookies().get('aether_user_id')?.value;
     if (!aetherId) {
-        return { success: false, error: 'Aether ID is required.' };
+        return { success: false, error: 'User is not logged in.' };
     }
 
     const {
@@ -32,7 +35,6 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
     } = process.env;
 
     if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !TABLE_IDS.MEMBERS) {
-        console.error('Airtable credentials are not set in environment variables.');
         return { success: false, error: 'Server configuration error.' };
     }
 
@@ -55,13 +57,14 @@ export async function getMemberProfile(aetherId: string): Promise<{ success: boo
             fullName: record.get(F.FULL_NAME),
             aetherId: record.get(F.AETHER_ID),
             email: record.get(F.EMAIL),
-            role: record.get(F.ROLE),
+            username: record.get(F.USERNAME),
             location: record.get(F.LOCATION),
+            workplace: record.get(F.WORKPLACE),
+            role: record.get(F.ROLE),
+            focusArea: record.get(F.ROLE), // Using ROLE as focusArea
             interests: record.get(F.INTERESTS),
+            goals: record.get(F.INTERESTS), // Using INTERESTS as goals
             entryNumber: record.get(F.ENTRY_NUMBER),
-            // Legacy fields that might not exist on new signups
-            mainInterest: record.get('mainInterest'), 
-            reasonToJoin: record.get('reasonToJoin'),
         };
 
         const parsedData = MemberProfileSchema.safeParse(profileData);
