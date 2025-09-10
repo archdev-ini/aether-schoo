@@ -1,6 +1,5 @@
 
 import type { Metadata } from 'next';
-import { cookies } from 'next/headers';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
@@ -40,12 +39,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = cookies();
-  const userName = cookieStore.get('aether_user_name')?.value;
-  const aetherId = cookieStore.get('aether_user_id')?.value;
   
-  const user = (userName && aetherId) ? { name: userName, id: aetherId } : null;
-
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable}`}>
       <head>
@@ -62,7 +56,7 @@ export default function RootLayout({
             disableTransitionOnChange
         >
             <div className="relative flex min-h-screen flex-col">
-              <Header user={user} />
+              <Header />
               <main className="flex-1 pb-20 md:pb-0">{children}</main>
               <Footer />
             </div>

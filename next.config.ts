@@ -80,8 +80,13 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
        {
-        source: '/admin731/:path*',
-        destination: '/sys-bridge?key=aether-admin-731',
+        source: '/login',
+        destination: '/join',
+        permanent: false,
+      },
+      {
+        source: '/sys-bridge',
+        destination: '/join',
         permanent: false,
       },
     ];
