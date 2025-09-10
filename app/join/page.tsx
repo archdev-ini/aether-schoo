@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 const FormSchema = z.object({
   fullName: z.string().min(2, { message: 'Please enter your full name.' }),
@@ -52,6 +53,7 @@ export default function JoinPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
@@ -59,7 +61,7 @@ export default function JoinPage() {
     mode: 'onChange',
   });
 
-  const { trigger } = form;
+  const { trigger, getValues } = form;
 
   const handleNextStep = async () => {
     let isValid = false;
@@ -87,7 +89,17 @@ export default function JoinPage() {
     try {
         const result = await submitJoinForm(data);
         if (result.success) {
-            setCurrentStep(4);
+            // For testing: simulate login and redirect to dashboard
+            const fullName = getValues('fullName');
+            localStorage.setItem('aether_user_id', 'AETH-TEST-ID');
+            localStorage.setItem('aether_user_name', fullName);
+            localStorage.setItem('aether_user_role', 'Member');
+            window.dispatchEvent(new Event('auth-change'));
+            router.push('/profile');
+            toast({ description: "Welcome! Redirecting to your new dashboard." });
+
+            // Original logic for production
+            // setCurrentStep(4);
         } else {
              throw new Error(result.error || 'An unexpected error occurred.');
         }
@@ -340,3 +352,5 @@ export default function JoinPage() {
     </div>
   );
 }
+
+    

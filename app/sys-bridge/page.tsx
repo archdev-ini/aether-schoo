@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, KeyRound, MailCheck } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { sendLoginLink } from '../login/actions';
 import NotFoundPage from '../not-found';
 
@@ -27,6 +27,7 @@ function BridgePageContent() {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const { toast } = useToast();
     const searchParams = useSearchParams();
+    const router = useRouter();
 
     const key = searchParams.get('key');
     const isKeyValid = key === 'aether-admin-731' || key === 'aether-member-portal';
@@ -58,7 +59,16 @@ function BridgePageContent() {
         try {
             const result = await sendLoginLink({ email: data.email });
             if (result.success) {
-                setIsSubmitted(true);
+                // For testing: simulate login and redirect to dashboard
+                localStorage.setItem('aether_user_id', 'AETH-TEST-ID');
+                localStorage.setItem('aether_user_name', 'Test User');
+                localStorage.setItem('aether_user_role', 'Member');
+                window.dispatchEvent(new Event('auth-change'));
+                router.push('/profile');
+                toast({ description: "Login successful! Redirecting to dashboard." });
+
+                // Original logic for production
+                // setIsSubmitted(true);
             } else {
                 toast({
                 title: 'Login Failed',
@@ -157,3 +167,5 @@ export default function SysBridgePage() {
     </Suspense>
   )
 }
+
+    
