@@ -21,6 +21,11 @@ export const UpdateFormSchema = z.object({
 export type UpdateFormValues = z.infer<typeof UpdateFormSchema>;
 
 export async function updateMemberProfile(data: UpdateFormValues): Promise<{ success: boolean; error?: string }> {
+    
+    // --- SERVER LOGIC DISABLED FOR FRONTEND TESTING ---
+    return { success: true };
+    
+    /*
     const aetherId = cookies().get('aether_user_id')?.value;
     if (!aetherId) {
         return { success: false, error: 'User is not logged in.' };
@@ -79,4 +84,6 @@ export async function updateMemberProfile(data: UpdateFormValues): Promise<{ suc
         console.error('Airtable API error updating profile:', error);
         return { success: false, error: 'Failed to update profile.' };
     }
+    */
 }
+
