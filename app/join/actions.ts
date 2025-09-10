@@ -3,10 +3,8 @@
 
 import { z } from 'zod';
 import type { FormValues } from './page';
-import { createHash, randomBytes } from 'crypto';
 import Airtable from 'airtable';
 import { sendWelcomeEmail } from '@/lib/email';
-import { generateAetherId } from '@/lib/id-generator';
 import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
 
 
