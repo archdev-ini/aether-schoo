@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormSchema, type FormValues, submitJoinForm } from './actions';
+import { z } from 'zod';
+import { submitJoinForm } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,21 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+
+const FormSchema = z.object({
+  fullName: z.string().min(2, { message: 'Please enter your full name.' }),
+  username: z.string().min(3, 'Username must be at least 3 characters.').regex(/^[a-z0-9_.]+$/, 'Use lowercase letters, numbers, periods, or underscores.'),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  location: z.string().min(3, { message: 'Please enter your location.' }),
+  workplace: z.string().optional(),
+  focusArea: z.string({ required_error: 'Please select your area of focus.' }),
+  goals: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: 'You have to select at least one goal.',
+  }),
+});
+
+export type FormValues = z.infer<typeof FormSchema>;
+
 
 const focusAreas = [
     { id: 'student', label: 'Architecture Student' },

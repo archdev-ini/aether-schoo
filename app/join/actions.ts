@@ -8,29 +8,12 @@ import { sendWelcomeEmail } from '@/lib/email';
 import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
 import { randomBytes } from 'crypto';
 
-
-export const FormSchema = z.object({
-  fullName: z.string().min(2, { message: 'Please enter your full name.' }),
-  username: z.string().min(3, 'Username must be at least 3 characters.').regex(/^[a-z0-9_.]+$/, 'Use lowercase letters, numbers, periods, or underscores.'),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  location: z.string().min(3, { message: 'Please enter your location.' }),
-  workplace: z.string().optional(),
-  focusArea: z.string({ required_error: 'Please select your area of focus.' }),
-  goals: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: 'You have to select at least one goal.',
-  }),
-});
-
-export type FormValues = z.infer<typeof FormSchema>;
+// The schema is now defined in page.tsx for client-side validation.
+// This file should only contain server-side actions.
+import type { FormValues } from './page';
 
 
 export async function submitJoinForm(data: FormValues): Promise<{ success: boolean; error?: string }> {
-    const parsedData = FormSchema.safeParse(data);
-
-    if (!parsedData.success) {
-        console.error('Form validation failed:', parsedData.error.flatten().fieldErrors);
-        return { success: false, error: 'Invalid form data.' };
-    }
 
     // --- SERVER LOGIC DISABLED ---
     // The original logic is commented out to allow frontend development.
@@ -52,7 +35,7 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
     const F = FIELDS.MEMBERS;
     
     try {
-        const { email, fullName, username, location, workplace, focusArea, goals } = parsedData.data;
+        const { email, fullName, username, location, workplace, focusArea, goals } = data;
 
         const existingRecords = await base(TABLE_IDS.MEMBERS).select({
             filterByFormula: `OR({${F.EMAIL}} = "${email}", {${F.USERNAME}} = "${username}")`,
