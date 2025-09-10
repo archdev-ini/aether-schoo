@@ -1,10 +1,9 @@
-
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, User, LogOut, Search } from 'lucide-react';
+import { Menu, Moon, Sun, User, UserPlus, LogIn, LogOut, Search } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -180,7 +179,12 @@ export function Header({ user: initialUser }: HeaderProps) {
                        </>
                     ) : (
                       <>
-                        <p className="text-sm text-muted-foreground">Login has been disabled.</p>
+                        <Button asChild>
+                            <Link href="/join">Join</Link>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <Link href="/login">Login</Link>
+                        </Button>
                       </>
                     )}
                 </div>
@@ -218,9 +222,18 @@ export function Header({ user: initialUser }: HeaderProps) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
-                <>
-                   <p className="text-sm text-muted-foreground">Login has been disabled.</p>
-                </>
+              <div className="hidden md:flex items-center gap-2">
+                <Button asChild variant="ghost">
+                  <Link href="/login">
+                    Login
+                  </Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/join">
+                    <UserPlus className="mr-2" /> Join
+                  </Link>
+                </Button>
+              </div>
             )}
           </div>
         </div>
