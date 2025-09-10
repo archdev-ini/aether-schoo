@@ -55,7 +55,7 @@ export default async function Home() {
           <div className="container relative z-10 px-4 md:px-6">
             <div className="max-w-4xl mx-auto text-center">
                  <Badge variant="outline" className="text-base py-2 px-4 border-primary/50 text-primary mb-6">
-                    <span className="mr-2">🌍</span> World Architecture Day Prelaunch is Live!
+                    <span className="mr-2">🚀</span> Prelaunch phase is live. Platform launching soon!
                   </Badge>
                 <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none font-headline">
                     The Creative Ecosystem for Architects & Designers
