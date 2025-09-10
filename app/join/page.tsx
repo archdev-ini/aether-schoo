@@ -52,6 +52,7 @@ const goalsList = [
 export default function JoinPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -61,7 +62,7 @@ export default function JoinPage() {
     mode: 'onChange',
   });
 
-  const { trigger, getValues } = form;
+  const { trigger } = form;
 
   const handleNextStep = async () => {
     let isValid = false;
@@ -69,12 +70,10 @@ export default function JoinPage() {
         isValid = await trigger(['fullName', 'username', 'email']);
     } else if (currentStep === 2) {
         isValid = await trigger(['location', 'workplace', 'focusArea']);
-    } else if (currentStep === 3) {
-        isValid = await trigger(['goals']);
     }
     
     if (isValid) {
-        if (currentStep < 4) {
+        if (currentStep < 3) {
              setCurrentStep(prev => prev + 1);
         }
     }
@@ -85,21 +84,14 @@ export default function JoinPage() {
   }
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const isStep3Valid = await trigger(['goals']);
+    if (!isStep3Valid) return;
+
     setIsLoading(true);
     try {
         const result = await submitJoinForm(data);
         if (result.success) {
-            // For testing: simulate login and redirect to dashboard
-            const fullName = getValues('fullName');
-            localStorage.setItem('aether_user_id', 'AETH-TEST-ID');
-            localStorage.setItem('aether_user_name', fullName);
-            localStorage.setItem('aether_user_role', 'Member');
-            window.dispatchEvent(new Event('auth-change'));
-            router.push('/profile');
-            toast({ description: "Welcome! Redirecting to your new dashboard." });
-
-            // Original logic for production
-            // setCurrentStep(4);
+            setIsSubmitted(true);
         } else {
              throw new Error(result.error || 'An unexpected error occurred.');
         }
@@ -119,7 +111,7 @@ export default function JoinPage() {
   }
 
   const progressValue = (currentStep / 3) * 100;
-  const stepTitles = ["Account Basics", "Your Background", "Your Goals", "Success!"];
+  const stepTitles = ["Account Basics", "Your Background", "Your Goals"];
 
 
   return (
@@ -147,17 +139,17 @@ export default function JoinPage() {
             <div className="container max-w-2xl mx-auto">
                 <Card>
                     <CardHeader>
-                        {currentStep < 4 ? <Progress value={progressValue} className="mb-4 h-2" /> : null}
+                        {!isSubmitted ? <Progress value={progressValue} className="mb-4 h-2" /> : null}
                         <CardTitle className="text-2xl font-headline">
-                            {currentStep < 4 ? `Step ${currentStep}: ${stepTitles[currentStep - 1]}` : stepTitles[3]}
+                             {isSubmitted ? 'Thank You for Joining!' : `Step ${currentStep}: ${stepTitles[currentStep - 1]}`}
                         </CardTitle>
-                        {currentStep === 1 && <CardDescription>Let's get started with the essentials. This information will help us set up your Aether identity.</CardDescription>}
-                        {currentStep === 2 && <CardDescription>Tell us a bit about your background to help us connect you with the right people.</CardDescription>}
-                        {currentStep === 3 && <CardDescription>What are you hoping to achieve? Your answers help us shape the future of Aether.</CardDescription>}
-                        {currentStep === 4 && <CardDescription>You're all set! We're excited to have you in the community.</CardDescription>}
+                        {!isSubmitted && currentStep === 1 && <CardDescription>Let's get started with the essentials. This information will help us set up your Aether identity.</CardDescription>}
+                        {!isSubmitted && currentStep === 2 && <CardDescription>Tell us a bit about your background to help us connect you with the right people.</CardDescription>}
+                        {!isSubmitted && currentStep === 3 && <CardDescription>What are you hoping to achieve? Your answers help us shape the future of Aether.</CardDescription>}
+                        {isSubmitted && <CardDescription>Your Aether ID has been reserved. You'll get early access and event updates via email.</CardDescription>}
                     </CardHeader>
                     <CardContent>
-                       {currentStep < 4 ? (
+                       {!isSubmitted ? (
                          <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                <div className={cn(currentStep === 1 ? 'block' : 'hidden')}>
@@ -329,7 +321,6 @@ export default function JoinPage() {
                                     {currentStep < 3 ? (
                                         <Button onClick={handleNextStep} type="button" size="lg" className="w-full">
                                             Next
-                                            <ArrowDown className="ml-2" />
                                         </Button>
                                     ) : (
                                          <Button type="submit" disabled={isLoading || !form.formState.isValid} size="lg" className="w-full">
@@ -342,7 +333,7 @@ export default function JoinPage() {
                        ) : (
                            <div className="text-center space-y-6 animate-in fade-in duration-500">
                                 <MailCheck className="w-16 h-16 text-primary mx-auto"/>
-                                <p className="text-lg text-muted-foreground">Thank you for joining! We've sent a magic link to your email address to activate your account. Please check your inbox (and spam folder).</p>
+                                <p className="text-lg text-muted-foreground">Thank you for joining! You'll get early access and event updates via email. You can now close this window.</p>
                            </div>
                        )}
                     </CardContent>
@@ -352,5 +343,3 @@ export default function JoinPage() {
     </div>
   );
 }
-
-    
