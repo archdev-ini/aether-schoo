@@ -6,6 +6,7 @@ import Airtable from 'airtable';
 import { generateAetherId } from '@/lib/id-generator';
 import { sendWelcomeEmail } from '@/lib/email';
 import { TABLE_IDS, FIELDS } from '@/lib/airtable-schema';
+import { randomBytes } from 'crypto';
 
 
 export const FormSchema = z.object({
@@ -45,27 +46,62 @@ export async function submitJoinForm(data: FormValues) {
     const F = FIELDS.MEMBERS;
     
     try {
-        const { email, fullName, username } = parsedData.data;
+        const { email, fullName, username, location, workplace, focusArea, goals } = parsedData.data;
 
         const existingRecords = await base(TABLE_IDS.MEMBERS).select({
             filterByFormula: `OR({${F.EMAIL}} = "${email}", {${F.USERNAME}} = "${username}")`,
             maxRecords: 1,
         }).firstPage();
+        
+        const token = randomBytes(32).toString('hex');
+        const tokenFields = {
+            [F.LOGIN_TOKEN]: token,
+            [F.LOGIN_TOKEN_EXPIRES]: 900, // 15 minutes in seconds
+        };
 
         if (existingRecords.length > 0) {
             const existing = existingRecords[0];
             if ((existing.get(F.EMAIL) as string).toLowerCase() === email.toLowerCase()) {
-                return { success: false, error: 'An account with this email already exists.' };
+                await base(TABLE_IDS.MEMBERS).update(existing.id, tokenFields);
+                await sendWelcomeEmail({
+                    to: email,
+                    name: existing.get(F.FULL_NAME) as string,
+                    aetherId: existing.get(F.AETHER_ID) as string,
+                    token: token,
+                    type: 'welcome'
+                });
+                return { success: true };
             }
             if ((existing.get(F.USERNAME) as string).toLowerCase() === username.toLowerCase()) {
                 return { success: false, error: 'This username is already taken.' };
             }
         }
+        
+        const { aetherId, entryNumber } = await generateAetherId(base, TABLE_IDS.MEMBERS, 'Member');
 
-        const token = "placeholder_token_for_now"; // We will implement token generation later
+        const fields = {
+            [F.FULL_NAME]: fullName,
+            [F.USERNAME]: username,
+            [F.EMAIL]: email,
+            [F.LOCATION]: location,
+            [F.WORKPLACE]: workplace,
+            [F.ROLE]: focusArea,
+            [F.INTERESTS]: goals,
+            [F.AETHER_ID]: aetherId,
+            [F.ENTRY_NUMBER]: entryNumber,
+            [F.STATUS]: 'Prelaunch-Active',
+            ...tokenFields
+        };
 
-        // TODO: This is a placeholder. Full implementation will be done in a subsequent step.
-        console.log("Submitting data to Airtable:", parsedData.data);
+        await base(TABLE_IDS.MEMBERS).create([{ fields }], { typecast: true });
+        
+        await sendWelcomeEmail({
+            to: email,
+            name: fullName,
+            aetherId: aetherId,
+            token: token,
+            type: 'welcome'
+        });
 
 
         return { success: true };

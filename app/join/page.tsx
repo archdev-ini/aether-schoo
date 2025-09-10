@@ -4,13 +4,13 @@
 import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormSchema, type FormValues } from './actions';
+import { FormSchema, type FormValues, submitJoinForm } from './actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowDown, User, AtSign, Check, ArrowLeft, Building, MapPin, Briefcase, Sparkles } from 'lucide-react';
+import { Loader2, ArrowDown, AtSign, ArrowLeft, Briefcase, MapPin, Sparkles, MailCheck } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -68,19 +68,29 @@ export default function JoinPage() {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
-    // Here we'll call the server action to submit the form
-    // For now, we'll just simulate a delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log(data);
-    setIsLoading(false);
-    setCurrentStep(4); // Move to success step
+    try {
+        const result = await submitJoinForm(data);
+        if (result.success) {
+            setCurrentStep(4);
+        } else {
+             throw new Error(result.error || 'An unexpected error occurred.');
+        }
+    } catch (error: any) {
+        toast({
+            title: 'Error',
+            description: error.message || 'There was a problem with your submission. Please try again.',
+            variant: 'destructive',
+        });
+    } finally {
+        setIsLoading(false);
+    }
   };
   
   const handleScrollToForm = () => {
     document.getElementById('signup-form')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  const progressValue = (currentStep / 4) * 100;
+  const progressValue = (currentStep / 3) * 100;
   const stepTitles = ["Account Basics", "Your Background", "Your Goals", "Success!"];
 
 
@@ -303,9 +313,8 @@ export default function JoinPage() {
                         </Form>
                        ) : (
                            <div className="text-center space-y-6 animate-in fade-in duration-500">
-                                <Sparkles className="w-12 h-12 text-primary mx-auto"/>
-                                <p className="text-lg text-muted-foreground">Thank you for joining! We're preparing your Aether ID and sending you a welcome email. This may take a moment.</p>
-                                {/* Here you could show the welcome card component after submission */}
+                                <MailCheck className="w-16 h-16 text-primary mx-auto"/>
+                                <p className="text-lg text-muted-foreground">Thank you for joining! We've sent a magic link to your email address to activate your account. Please check your inbox (and spam folder).</p>
                            </div>
                        )}
                     </CardContent>

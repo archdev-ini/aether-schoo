@@ -42,7 +42,7 @@ export async function sendWelcomeEmail({ to, name, aetherId, token, type }: Welc
         <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
             <h2>Hi ${firstName},</h2>
             <p>You’re one step away from joining Aether.</p>
-            <p>Click below to activate your permanent Aether ID:</p>
+            <p>Click below to activate your permanent Aether ID and access your dashboard:</p>
             <p style="text-align: center; margin: 30px 0;">
                 <a href="${activationLink}" style="background-color: #7c3aed; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">👉 Activate My Aether ID</a>
             </p>
