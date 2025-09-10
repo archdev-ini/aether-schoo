@@ -5,7 +5,7 @@
  *
  * Centralizing the schema here offers several benefits:
  * 1.  Maintainability: If a field name or ID changes in Airtable, it only needs to be updated in this one file.
- * 2.  Readability: Code becomes more readable, e.g., `FIELDS.MEMBERS.AETHER_ID` instead of a cryptic field ID.
+ * 2.  Readability: Code becomes more readable, e.g., `FIELDS.MEMBERS.FULL_NAME` instead of a cryptic field ID.
  * 3.  Consistency: Ensures all parts of the application refer to the same fields, reducing errors.
  * 4.  Discoverability: Provides a clear overview of the entire data model for developers.
  */
@@ -14,16 +14,16 @@
 export const TABLE_IDS = {
     MEMBERS: 'tblaIODuHwuucBsD4',
     // Keeping other tables here in case they are re-introduced later.
-    COURSES: 'tblnWNDELJW099acM', // Placeholder, not from new schema
-    EVENTS: 'tbl3bdubKE54y8WGL',   // Placeholder, not from new schema
-    RSVPS: 'tblS1kPjT5pZ2UfRI',    // Placeholder, not from new schema
+    COURSES: 'tblnWNDELJW099acM',
+    EVENTS: 'tbl3bdubKE54y8WGL',
+    RSVPS: 'tblS1kPjT5pZ2UfRI',
 };
 
 // --- FIELD IDs ---
 export const FIELDS = {
     // --- Members Table (Aether Members Prelaunch - tblaIODuHwuucBsD4) ---
     MEMBERS: {
-        AETHER_ID: 'Aether ID', // No Field ID for Formula/AutoNumber fields, using name
+        // Aether ID is an Auto Number field in Airtable and is not writable.
         FULL_NAME: 'fldTPWgcBYWv1jU52',
         USERNAME: 'fldXDPtkhEnM9VqBT',
         EMAIL: 'fldlji3ahQi1NFo3i',
@@ -38,10 +38,7 @@ export const FIELDS = {
         MAGIC_LINK_SENT_TIMESTAMP: 'fldRCOslGxSY47vRH',
         SOURCE_REFERRAL: 'fldwRLECL1JWeWQF6',
         ID_CLAIMED: 'fldvjYqKxQaTgM1IM',
-        // The following fields are from older schemas and are kept for reference, but are not in the new schema.
-        ENTRY_NUMBER: 'Entry Number', // Placeholder, assuming this logic will be handled differently now
-        STATUS: 'Status', // No longer in the provided schema
-        CREATED_TIME: 'Submission Timestamp', // Mapping to the new field name
+        CREATED_TIME: 'fldrHZklYnQTMPYvz', // Mapping to the submission timestamp field
     },
 
     // --- Placeholder schemas for other tables ---
