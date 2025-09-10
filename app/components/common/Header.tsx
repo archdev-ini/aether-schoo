@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Menu, Moon, Sun, User, UserPlus, LogIn, LogOut } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
@@ -140,6 +140,7 @@ export function Header({ user: initialUser }: HeaderProps) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="pr-6">
+                <SheetTitle className="sr-only">Menu</SheetTitle>
                 <Link href="/" className="mb-8 flex items-center space-x-2">
                   <span className="font-logo text-xl font-medium">Aether</span>
                 </Link>
@@ -164,9 +165,9 @@ export function Header({ user: initialUser }: HeaderProps) {
                         </button>
                        </>
                     ) : (
-                      <>
-                        <p className="text-sm text-muted-foreground">Login has been disabled.</p>
-                      </>
+                      <Button asChild>
+                          <Link href="/join">Join</Link>
+                      </Button>
                     )}
                 </div>
               </SheetContent>
@@ -199,9 +200,11 @@ export function Header({ user: initialUser }: HeaderProps) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
-                <>
-                   <p className="text-sm text-muted-foreground">Login has been disabled.</p>
-                </>
+                <Button asChild>
+                  <Link href="/join">
+                    <UserPlus className="mr-2" /> Join
+                  </Link>
+                </Button>
             )}
           </div>
         </div>
