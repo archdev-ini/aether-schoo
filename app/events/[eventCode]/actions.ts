@@ -64,28 +64,34 @@ export async function getEventDetails(eventCode: string): Promise<EventDetail | 
         const rsvpRecords = await base(TABLE_IDS.RSVPS).select({
             filterByFormula: `{${RF.EVENT}} = '${eventId}'`
         }).all();
-        const memberRecordIds = rsvpRecords.map(r => r.get(RF.MEMBER)).flat().filter(Boolean);
+        const memberRecordIds = rsvpRecords.map(r => r.get(RF.MEMBER)).flat().filter(Boolean) as string[];
 
         let attendees: z.infer<typeof AttendeeSchema>[] = [];
         if (memberRecordIds.length > 0) {
             const memberFilter = "OR(" + memberRecordIds.map(id => `RECORD_ID() = '${id}'`).join(',') + ")";
             const memberRecords = await base(TABLE_IDS.MEMBERS).select({
                 filterByFormula: memberFilter,
-                fields: [MF.USERNAME, MF.FULL_NAME]
+                fields: [MF.AETHER_ID, MF.FULL_NAME]
             }).all();
             attendees = memberRecords.map(rec => ({
                 id: rec.id,
                 name: rec.get(MF.FULL_NAME) as string,
-                aetherId: rec.get(MF.USERNAME) as string // Using username as a stand-in for a public ID
+                aetherId: rec.get(MF.AETHER_ID) as string
             }));
         }
         
         let hasRsvpd = false;
-        const currentAetherId = cookies().get('aether_user_id')?.value;
-        if (currentAetherId) {
-            // This logic assumes aether_user_id cookie stores the Airtable Record ID. 
-            // If it stores a different ID (like AETHER_ID), this lookup needs adjustment.
-            hasRsvpd = memberRecordIds.includes(currentAetherId);
+        const currentAetherIdCookie = cookies().get('aether_user_id')?.value;
+        if (currentAetherIdCookie) {
+             const currentUserMemberRecords = await base(TABLE_IDS.MEMBERS).select({
+                filterByFormula: `{${MF.AETHER_ID}} = '${currentAetherIdCookie}'`,
+                maxRecords: 1
+            }).firstPage();
+
+            if (currentUserMemberRecords.length > 0) {
+                const memberRecordId = currentUserMemberRecords[0].id;
+                hasRsvpd = memberRecordIds.includes(memberRecordId);
+            }
         }
         
         const coverImageField = eventRecord.get(EF.COVER_IMAGE);
@@ -135,9 +141,15 @@ export async function submitRsvp(eventId: string): Promise<{ success: boolean; e
     const RF = FIELDS.RSVPS;
 
     try {
-        // NOTE: This assumes aether_user_id cookie stores the Airtable record ID.
-        // If it stores a custom Aether ID, a lookup is needed first.
-        const memberRecordId = aetherId;
+        const memberRecords = await base(TABLE_IDS.MEMBERS).select({
+            filterByFormula: `{${MF.AETHER_ID}} = '${aetherId}'`,
+            maxRecords: 1,
+        }).firstPage();
+
+        if (memberRecords.length === 0) {
+            return { success: false, error: 'Member record not found.' };
+        }
+        const memberRecordId = memberRecords[0].id;
         
         const existingRsvp = await base(TABLE_IDS.RSVPS).select({
             filterByFormula: `AND({${RF.EVENT}} = '${eventId}', {${RF.MEMBER}} = '${memberRecordId}')`,

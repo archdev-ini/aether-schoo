@@ -13,10 +13,9 @@
 // --- TABLE IDs ---
 export const TABLE_IDS = {
     MEMBERS: 'tblaIODuHwuucBsD4',
-    // Keeping other tables here in case they are re-introduced later.
     COURSES: 'tblnWNDELJW099acM',
     EVENTS: 'tblFaUWHaYD3uTfY5',
-    RSVPS: 'tblS1kPjT5pZ2UfRI',
+    RSVPS: 'tbl2gquIWtkSjIzZw',
 };
 
 // --- FIELD IDs ---
@@ -38,9 +37,10 @@ export const FIELDS = {
         SOURCE_REFERRAL: 'fldwRLECL1JWeWQF6',
         ID_CLAIMED: 'fldvjYqKxQaTgM1IM',
         CREATED_TIME: 'fldrHZklYnQTMPYvz', // Mapping to the submission timestamp field
+        AETHER_ID: 'fld7hoOSkHYaZrPr7', // System-generated Aether ID
     },
 
-    // --- Placeholder schemas for other tables ---
+    // --- Courses Table (tblnWNDELJW099acM) ---
     COURSES: {
         TITLE: 'fldGLScFN9o36F1gi',
         DESCRIPTION: 'fldswXBsxtD62JgXi',
@@ -50,6 +50,8 @@ export const FIELDS = {
         IS_PUBLISHED: 'fldzi5EAjK7iSFQsh',
         CREATED_TIME: 'fldoOzsAhQ9pgiWgC',
     },
+    
+    // --- Events Table (tblFaUWHaYD3uTfY5) ---
     EVENTS: {
         TITLE: 'fldn73hPWTmNeXzKX',
         DATE: 'fldx19R3EfhLc9plk',
@@ -60,10 +62,12 @@ export const FIELDS = {
         DESCRIPTION: 'fldPpRBGtdacg0HTZ',
         COVER_IMAGE: 'fldBF4jQVRHtEvUp7',
         RSVP_COUNT: 'fldR5i0P9mCqbKqUF',
-        RSVPS: 'fldQDJlZyIFIl1Gei',
+        RSVPS: 'fldQDJlZyIFIl1Gei', // Link to RSVPS table
     },
+
+    // --- RSVPs Table (tbl2gquIWtkSjIzZw) ---
     RSVPS: {
-        EVENT: 'fldoy3is7eXrL35Bc',
-        MEMBER: 'flduPFrNabdrEZt5u',
+        EVENT: 'fldyQYGoRCvrtA79N', // Link to EVENTS table
+        MEMBER: 'fldB436HYpepJhiAN', // Link to MEMBERS table
     },
 };
