@@ -61,16 +61,18 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
         const { aetherId, entryNumber } = await generateAetherId(base, TABLE_IDS.MEMBERS, 'Member');
         
         const fields: Airtable.FieldSet = {
+            [FIELDS.MEMBERS.AETHER_ID]: aetherId,
             [FIELDS.MEMBERS.FULL_NAME]: fullName,
             [FIELDS.MEMBERS.EMAIL]: email,
             [FIELDS.MEMBERS.USERNAME]: username,
             [FIELDS.MEMBERS.LOCATION]: location,
             [FIELDS.MEMBERS.WORKPLACE]: workplace || '',
-            [FIELDS.MEMBERS.ROLE]: focusArea, // Assuming "focusArea" maps to the member "Role"
-            [FIELDS.MEMBERS.INTERESTS]: goals, // Assuming "goals" maps to the member "Interests"
-            [FIELDS.MEMBERS.AETHER_ID]: aetherId,
+            [FIELDS.MEMBERS.ROLE]: focusArea,
+            [FIELDS.MEMBERS.INTERESTS]: goals,
             [FIELDS.MEMBERS.ENTRY_NUMBER]: entryNumber,
             [FIELDS.MEMBERS.STATUS]: 'Prelaunch-Active',
+            [FIELDS.MEMBERS.SIGNUP_STEP_COMPLETED]: 'Completed',
+            [FIELDS.MEMBERS.OPT_IN_STATUS]: 'Pending',
         };
 
         const createdRecords = await base(TABLE_IDS.MEMBERS).create([
@@ -81,8 +83,8 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
             throw new Error("Failed to create record in Airtable.");
         }
         
-        // Note: Email sending is currently disabled as there's no login flow.
-        // If you re-introduce login, you can uncomment this part.
+        // Email sending is currently disabled to focus on lead capture.
+        // If you re-introduce login, this part can be uncommented.
         // await sendWelcomeEmail({ to: email, name: fullName, aetherId, ... });
 
         return { success: true };
@@ -96,3 +98,4 @@ export async function submitJoinForm(data: FormValues): Promise<{ success: boole
         return { success: false, error: errorMessage };
     }
 }
+
