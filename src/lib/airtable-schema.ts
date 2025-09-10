@@ -16,6 +16,7 @@ export const TABLE_IDS = {
     COURSES: 'tblnWNDELJW099acM',
     EVENTS: 'tblFaUWHaYD3uTfY5',
     RSVPS: 'tbl2gquIWtkSjIzZw',
+    TABLE_1: 'tblsLqfSRHuy8nknA',
 };
 
 // --- FIELD IDs ---
@@ -36,8 +37,9 @@ export const FIELDS = {
         MAGIC_LINK_SENT_TIMESTAMP: 'fldRCOslGxSY47vRH',
         SOURCE_REFERRAL: 'fldwRLECL1JWeWQF6',
         ID_CLAIMED: 'fldvjYqKxQaTgM1IM',
-        CREATED_TIME: 'fldrHZklYnQTMPYvz', // Mapping to the submission timestamp field
-        AETHER_ID: 'fld7hoOSkHYaZrPr7', // System-generated Aether ID
+        CREATED_TIME: 'fldrHZklYnQTMPYvz',
+        AETHER_ID: 'fld7hoOSkHYaZrPr7', 
+        STATUS: 'fldltKc4BszMs4C7p',
     },
 
     // --- Courses Table (tblnWNDELJW099acM) ---
