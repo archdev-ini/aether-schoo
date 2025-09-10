@@ -3,8 +3,8 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, User, UserPlus, LogIn, LogOut, Search } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { Menu, Moon, Sun, User, LogOut, Search } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -154,6 +154,7 @@ export function Header({ user: initialUser }: HeaderProps) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="pr-6">
+                <SheetTitle className="sr-only">Menu</SheetTitle>
                 <Link href="/" className="mb-8 flex items-center space-x-2">
                   <span className="font-logo text-xl font-medium">Aether</span>
                 </Link>
@@ -179,12 +180,7 @@ export function Header({ user: initialUser }: HeaderProps) {
                        </>
                     ) : (
                       <>
-                        <Link href="/login" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
-                            <LogIn className="w-5 h-5"/> Login
-                        </Link>
-                        <Link href="/join" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
-                            <UserPlus className="w-5 h-5"/> Get Aether ID
-                        </Link>
+                        <p className="text-sm text-muted-foreground">Login has been disabled.</p>
                       </>
                     )}
                 </div>
@@ -223,12 +219,7 @@ export function Header({ user: initialUser }: HeaderProps) {
                 </DropdownMenu>
             ) : (
                 <>
-                    <Button asChild variant="outline" className="hidden sm:inline-flex">
-                        <Link href="/login">Login</Link>
-                    </Button>
-                    <Button asChild id="get-aether-id-header">
-                        <Link href="/join">Get Your Aether ID</Link>
-                    </Button>
+                   <p className="text-sm text-muted-foreground">Login has been disabled.</p>
                 </>
             )}
           </div>
