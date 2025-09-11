@@ -189,6 +189,9 @@ const GuestRsvpSchema = z.object({
 
 async function findOrCreateMember(base: Airtable.Base, fullName: string, email: string): Promise<string> {
     const MF = FIELDS.MEMBERS;
+    if (!TABLE_IDS.MEMBERS) {
+        throw new Error("Members table ID is not configured.");
+    }
     const existingRecords = await base(TABLE_IDS.MEMBERS).select({
         filterByFormula: `LOWER({${MF.EMAIL}}) = "${email.toLowerCase()}"`,
         maxRecords: 1,
@@ -223,6 +226,7 @@ export async function submitGuestRsvp(eventId: string, formData: FormData): Prom
     const { fullName, email } = validatedFields.data;
     const base = await getAirtableBase();
     const RF = FIELDS.RSVPS;
+    const EF = FIELDS.EVENTS;
 
     try {
         const memberRecordId = await findOrCreateMember(base, fullName, email);
@@ -241,7 +245,7 @@ export async function submitGuestRsvp(eventId: string, formData: FormData): Prom
         ]);
 
         const eventRecord = await base(TABLE_IDS.EVENTS).find(eventId);
-        const eventCode = eventRecord.get(FIELDS.EVENTS.EVENT_CODE);
+        const eventCode = eventRecord.get(EF.EVENT_CODE);
         revalidatePath(`/events/${eventCode}`);
         
         return { success: true };
