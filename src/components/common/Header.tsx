@@ -23,6 +23,7 @@ import { SearchDialog } from './SearchDialog';
 const navLinks = [
   { href: '/events', label: 'Events' },
   { href: '/about', label: 'About' },
+  { href: '/faq', label: 'FAQ' },
 ];
 
 function ThemeToggle() {

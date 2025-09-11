@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 async function EventsList() {
     const events = await getEvents();
+    const upcomingEvents = events.filter(e => new Date(e.date) >= new Date());
+    const pastEvents = events.filter(e => new Date(e.date) < new Date());
 
     if (events.length === 0) {
         return (
@@ -22,46 +24,92 @@ async function EventsList() {
     }
 
     return (
-        <>
-            {events.map((event) => (
-                <Card key={event.id} className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    <div className="relative h-56">
-                        <Image
-                            src={event.image || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
-                            alt={event.title}
-                            fill
-                            data-ai-hint={event.aiHint}
-                            className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    </div>
+      <div className="space-y-16">
+        {upcomingEvents.length > 0 && (
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight font-headline mb-8">Upcoming Events</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {upcomingEvents.map((event) => (
+                  <Card key={event.id} className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                      <Link href={`/events/${event.eventCode}`}>
+                          <div className="relative h-56">
+                              <Image
+                                  src={event.image || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
+                                  alt={event.title}
+                                  fill
+                                  data-ai-hint={event.aiHint}
+                                  className="object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                          </div>
+                      </Link>
+                      <CardHeader>
+                          <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
+                            <Link href={`/events/${event.eventCode}`}>{event.title}</Link>
+                          </CardTitle>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground pt-2">
+                              <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                              <div className="flex items-center gap-2"><User className="w-4 h-4" /> {event.speaker}</div>
+                          </div>
+                      </CardHeader>
+                      <CardContent className="flex-grow">
+                          <p className="text-muted-foreground text-sm line-clamp-3">{event.description}</p>
+                      </CardContent>
+                      <div className="p-6 pt-0">
+                          <Button asChild className="w-full">
+                              <Link href={`/events/${event.eventCode}`}>
+                                  View Event & RSVP
+                                  <ArrowRight className="ml-2 w-4 h-4" />
+                              </Link>
+                          </Button>
+                      </div>
+                  </Card>
+              ))}
+            </div>
+          </div>
+        )}
+        {pastEvents.length > 0 && (
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight font-headline mb-8">Past Events</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {pastEvents.map((event) => (
+                <Card key={event.id} className="group flex flex-col overflow-hidden transition-all duration-300 opacity-70 hover:opacity-100">
+                    <Link href={`/events/${event.eventCode}`}>
+                        <div className="relative h-56">
+                            <Image
+                                src={event.image || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
+                                alt={event.title}
+                                fill
+                                data-ai-hint={event.aiHint}
+                                className="object-cover"
+                            />
+                        </div>
+                    </Link>
                     <CardHeader>
-                        <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{event.title}</CardTitle>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground pt-2">
-                            <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-                            <div className="flex items-center gap-2"><User className="w-4 h-4" /> {event.speaker}</div>
+                        <CardTitle className="font-headline text-xl">
+                            <Link href={`/events/${event.eventCode}`}>{event.title}</Link>
+                        </CardTitle>
+                        <div className="text-sm text-muted-foreground pt-2">
+                          {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                         </div>
                     </CardHeader>
-                    <CardContent className="flex-grow">
-                        <p className="text-muted-foreground text-sm line-clamp-3">{event.description}</p>
-                    </CardContent>
                     <div className="p-6 pt-0">
-                        <Button asChild className="w-full">
-                            <Link href={event.eventbriteUrl} target="_blank">
-                                Reserve Spot on Eventbrite
-                                <ArrowRight className="ml-2 w-4 h-4" />
-                            </Link>
+                         <Button asChild className="w-full" variant="secondary" disabled>
+                            <Link href={`/events/${event.eventCode}`}>View Event Details</Link>
                         </Button>
                     </div>
                 </Card>
-            ))}
-        </>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     );
 }
 
 function EventsListSkeleton() {
     return (
-        <>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {[...Array(3)].map((_, i) => (
             <Card key={i} className="group flex flex-col overflow-hidden">
                 <Skeleton className="h-56 w-full" />
@@ -82,7 +130,7 @@ function EventsListSkeleton() {
                 </div>
             </Card>
         ))}
-        </>
+        </div>
     )
 }
 
@@ -101,11 +149,11 @@ export default function EventsPage() {
                        🎙️ Prelaunch Events – Workshops & Q&A
                     </h1>
                     <p className="max-w-3xl mx-auto mt-6 text-muted-foreground md:text-xl">
-                        Join exclusive sessions with industry leaders. Access via your Aether ID only. All events hosted on Eventbrite.
+                        Join exclusive sessions with industry leaders. Access via your Aether ID only.
                     </p>
                     <div className="mt-8">
                         <Button size="lg" onClick={handleScrollToEvents}>
-                           Reserve Your Spot
+                           View Events
                         </Button>
                     </div>
                 </div>
@@ -114,31 +162,9 @@ export default function EventsPage() {
             {/* Events List */}
             <section id="event-list" className="w-full py-16 md:py-24">
                 <div className="container px-4 md:px-6">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <Suspense fallback={<EventsListSkeleton />}>
-                            <EventsList />
-                        </Suspense>
-                    </div>
-                </div>
-            </section>
-
-            {/* Access Message Section */}
-            <section className="w-full pb-16 md:pb-24">
-                <div className="container px-4 md:px-6">
-                    <Card className="p-8 bg-muted/50 border-dashed text-center">
-                        <Badge variant="secondary" className="mb-4">Prelaunch Access Only</Badge>
-                        <h3 className="text-xl font-bold font-headline mb-2">Claim Your Aether ID to Join</h3>
-                        <p className="max-w-2xl mx-auto text-muted-foreground">
-                            Access to our prelaunch events is exclusively for users who have reserved their Aether ID. Please sign up to claim your ID, join events, and become a founding member of the ecosystem.
-                        </p>
-                        <div className="mt-6">
-                            <Button asChild>
-                                <Link href="/join">
-                                    Join the Waitlist
-                                </Link>
-                            </Button>
-                        </div>
-                    </Card>
+                    <Suspense fallback={<EventsListSkeleton />}>
+                        <EventsList />
+                    </Suspense>
                 </div>
             </section>
         </main>

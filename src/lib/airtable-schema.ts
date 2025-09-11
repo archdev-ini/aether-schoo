@@ -16,6 +16,7 @@ export const TABLE_IDS = {
     COURSES: 'tblnWNDELJW099acM',
     TABLE_1: 'tblsLqfSRHuy8nknA',
     EVENTS: 'tblFaUWHaYD3uTfY5',
+    RSVPS: 'tblQDJlZyIFIl1Gei',
 };
 
 // --- FIELD IDs ---
@@ -62,5 +63,12 @@ export const FIELDS = {
         SPEAKER: 'fld3ZhfPNnlrw7pRM',
         DESCRIPTION: 'fldPpRBGtdacg0HTZ',
         COVER_IMAGE: 'fldBF4jQVRHtEvUp7',
+        RSVP_COUNT: 'fldR5i0P9mCqbKqUF',
+    },
+
+     // --- RSVPS Table (tblQDJlZyIFIl1Gei) ---
+    RSVPS: {
+        EVENT: 'fld3YlJ4X2vKzW1sO',
+        MEMBER: 'flduK7vX1yZ0N9wJ8',
     },
 };

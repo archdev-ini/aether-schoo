@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
         hostname: 'v5.airtableusercontent.com',
         port: '',
         pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

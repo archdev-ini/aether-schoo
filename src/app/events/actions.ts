@@ -13,7 +13,7 @@ const EventSchema = z.object({
   speaker: z.string(),
   image: z.string().url().optional(),
   aiHint: z.string().optional(),
-  eventbriteUrl: z.string().url(),
+  eventCode: z.string(),
 });
 
 export type Event = z.infer<typeof EventSchema>;
@@ -53,12 +53,12 @@ export async function getEvents(): Promise<Event[]> {
                 speaker: record.get(F.SPEAKER) as string || 'TBA',
                 image: coverImageUrl,
                 aiHint: 'event cover photo',
-                eventbriteUrl: record.get('Eventbrite URL') as string,
+                eventCode: record.get(F.EVENT_CODE) as string || '',
             };
         });
 
-        // Filter out events without an eventbrite link
-        const validEvents = events.filter(e => e.eventbriteUrl);
+        // Filter out events without an event code
+        const validEvents = events.filter(e => e.eventCode);
         return EventSchema.array().parse(validEvents);
 
     } catch (error) {
