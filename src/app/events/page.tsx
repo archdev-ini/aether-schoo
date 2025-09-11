@@ -1,153 +1,128 @@
 
-import { Suspense } from 'react';
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { getEvents, type Event } from './actions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, Calendar, Mic, User, AlertCircle } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, Clock, User, ArrowRight } from "lucide-react";
 
-function formatEventDate(dateStr: string) {
-    const date = new Date(dateStr);
-    return {
-        month: date.toLocaleDateString('en-US', { month: 'short', timeZone: 'Africa/Lagos' }).toUpperCase(),
-        day: date.toLocaleDateString('en-US', { day: '2-digit', timeZone: 'Africa/Lagos' }),
+const upcomingEvents = [
+    {
+        title: "Workshop: AI for Architectural Visualization",
+        date: "November 12, 2024",
+        time: "4:00 PM WAT",
+        description: "Learn how to use Midjourney and other AI tools to create stunning architectural renders in a fraction of the time.",
+        speaker: "David Tetteh",
+        eventbriteUrl: "https://www.eventbrite.com/e/tickets-901339178207",
+        image: "https://images.unsplash.com/photo-1698661033580-779d7d117a59?q=80&w=600&h=400&auto=format&fit=crop",
+        aiHint: "computer vision city",
+    },
+    {
+        title: "Q&A: The Business of Architecture",
+        date: "November 19, 2024",
+        time: "5:00 PM WAT",
+        description: "Join a live Q&A with seasoned professionals on how to start, manage, and grow a design practice.",
+        speaker: "Dr. Adanna Okoye",
+        eventbriteUrl: "https://www.eventbrite.com/e/tickets-901339178207",
+        image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=600&h=400&auto=format&fit=crop",
+        aiHint: "teamwork collaboration",
+    },
+    {
+        title: "Horizon Studio: Design Challenge Kickoff",
+        date: "November 26, 2024",
+        time: "3:00 PM WAT",
+        description: "An introduction to our first community-wide design competition. Details of the brief will be revealed live.",
+        speaker: "Aether Team",
+        eventbriteUrl: "https://www.eventbrite.com/e/tickets-901339178207",
+        image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=600&h=400&auto=format&fit=crop",
+        aiHint: "architects planning",
     }
-}
+]
 
-async function EventsList() {
-    const events = await getEvents();
-    const upcomingEvents = events.filter(e => e.status === 'Upcoming');
-    const pastEvents = events.filter(e => e.status === 'Past');
-  
-    if (events.length === 0) {
-      return (
-        <div className="text-center py-12 col-span-full">
-            <h3 className="text-2xl font-semibold font-headline">No Upcoming Events</h3>
-            <p className="text-muted-foreground mt-2">Please check back later for new events.</p>
-        </div>
-      );
+export default function EventsPage() {
+    
+    const handleScrollToEvents = () => {
+        document.getElementById('event-list')?.scrollIntoView({ behavior: 'smooth' });
     }
-  
+
     return (
-      <div className="space-y-16">
-        {upcomingEvents.length > 0 && (
-            <div>
-                <h2 className="text-2xl font-bold tracking-tight font-headline mb-8">Upcoming Events</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {upcomingEvents.map((event) => {
-                    const { month, day } = formatEventDate(event.date);
-                    const canRsvp = event.status === 'Upcoming' && event.eventCode;
-                    const speakers = event.speaker.split(';').map(s => s.trim());
+        <main className="animate-in fade-in duration-500">
+            {/* Hero Section */}
+            <section className="w-full py-20 md:py-32 bg-muted">
+                <div className="container px-4 md:px-6 text-center">
+                    <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl font-headline">
+                       🎙️ Prelaunch Events – Workshops & Q&A
+                    </h1>
+                    <p className="max-w-3xl mx-auto mt-6 text-muted-foreground md:text-xl">
+                        Join exclusive sessions with industry leaders. Access via your Aether ID only. All events hosted on Eventbrite.
+                    </p>
+                    <div className="mt-8">
+                        <Button size="lg" onClick={handleScrollToEvents}>
+                           Reserve Your Spot
+                        </Button>
+                    </div>
+                </div>
+            </section>
 
-                    return (
-                        <Link key={event.id} href={canRsvp ? `/events/${event.eventCode}` : '#'} className="group block">
-                            <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                                <div className="relative aspect-[16/10] w-full">
+            {/* Events List */}
+            <section id="event-list" className="w-full py-16 md:py-24">
+                <div className="container px-4 md:px-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {upcomingEvents.map((event) => (
+                            <Card key={event.title} className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                                <div className="relative h-56">
                                     <Image
-                                        src={event.coverImage || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
+                                        src={event.image}
                                         alt={event.title}
                                         fill
-                                        data-ai-hint="event cover"
+                                        data-ai-hint={event.aiHint}
                                         className="object-cover"
                                     />
-                                    <Badge variant={'default'} className="absolute top-3 right-3">
-                                        {event.status}
-                                    </Badge>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                                 </div>
-                                <div className="p-4 flex gap-4">
-                                    <div className="flex flex-col items-center justify-center text-center">
-                                        <p className="font-bold text-sm text-primary">{month}</p>
-                                        <p className="text-2xl font-bold font-headline">{day}</p>
+                                <CardHeader>
+                                    <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{event.title}</CardTitle>
+                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground pt-2">
+                                        <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {event.date} - {event.time}</div>
+                                        <div className="flex items-center gap-2"><User className="w-4 h-4" /> {event.speaker}</div>
                                     </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">{event.title}</h3>
-                                        <p className="text-sm text-muted-foreground mt-1">by {speakers.length > 0 && speakers[0] !== 'TBA' ? speakers.join(', ') : 'Aether'}</p>
-                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex-grow">
+                                    <p className="text-muted-foreground text-sm line-clamp-3">{event.description}</p>
+                                </CardContent>
+                                <div className="p-6 pt-0">
+                                    <Button asChild className="w-full">
+                                        <Link href={event.eventbriteUrl} target="_blank">
+                                            Reserve Spot on Eventbrite
+                                            <ArrowRight className="ml-2 w-4 h-4" />
+                                        </Link>
+                                    </Button>
                                 </div>
-                            </div>
-                        </Link>
-                    )
-                    })}
+                            </Card>
+                        ))}
+                    </div>
                 </div>
-            </div>
-        )}
+            </section>
 
-        {pastEvents.length > 0 && (
-            <div>
-                <h2 className="text-2xl font-bold tracking-tight font-headline mb-8">Past Events</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {pastEvents.map((event) => (
-                         <Link key={event.id} href={`/events/${event.eventCode}`} className="group block opacity-70 hover:opacity-100 transition-opacity">
-                            <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
-                                <div className="relative aspect-[16/10] w-full">
-                                     <Image
-                                        src={event.coverImage || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
-                                        alt={event.title}
-                                        fill
-                                        data-ai-hint="event cover"
-                                        className="object-cover"
-                                    />
-                                     <Badge variant={'secondary'} className="absolute top-3 right-3">
-                                        {event.status}
-                                    </Badge>
-                                </div>
-                                <div className="p-4">
-                                    <p className="text-sm text-muted-foreground">{formatEventDate(event.date).month} {formatEventDate(event.date).day}</p>
-                                    <h3 className="font-semibold text-lg leading-tight">{event.title}</h3>
-                                </div>
-                            </div>
-                         </Link>
-                    ))}
-                </div>
-            </div>
-        )}
-      </div>
-    );
-  }
-
-function EventsSkeleton() {
-    return (
-        <div className="space-y-16">
-            <div>
-                 <h2 className="text-2xl font-bold tracking-tight font-headline mb-8">Upcoming Events</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {[...Array(3)].map((_, i) => (
-                        <div key={i} className="border bg-card rounded-lg overflow-hidden">
-                            <Skeleton className="h-48 w-full" />
-                            <div className="p-4 flex gap-4 items-center">
-                            <div className="flex flex-col gap-1 items-center">
-                                <Skeleton className="h-4 w-8" />
-                                <Skeleton className="h-8 w-10" />
-                            </div>
-                            <div className="flex-1 space-y-2">
-                                <Skeleton className="h-5 w-3/4" />
-                                <Skeleton className="h-4 w-1/2" />
-                            </div>
-                            </div>
+            {/* Access Message Section */}
+            <section className="w-full pb-16 md:pb-24">
+                <div className="container px-4 md:px-6">
+                    <Card className="p-8 bg-muted/50 border-dashed text-center">
+                        <Badge variant="secondary" className="mb-4">Prelaunch Access Only</Badge>
+                        <h3 className="text-xl font-bold font-headline mb-2">Claim Your Aether ID to Join</h3>
+                        <p className="max-w-2xl mx-auto text-muted-foreground">
+                            Access to our prelaunch events is exclusively for users who have reserved their Aether ID. Please sign up to claim your ID, join events, and become a founding member of the ecosystem.
+                        </p>
+                        <div className="mt-6">
+                            <Button asChild>
+                                <Link href="/join">
+                                    Join the Waitlist
+                                </Link>
+                            </Button>
                         </div>
-                    ))}
+                    </Card>
                 </div>
-            </div>
-        </div>
-    )
+            </section>
+        </main>
+    );
 }
-
-export default async function EventsPage() {
-  return (
-    <main className="container py-12 md:py-24 animate-in fade-in duration-500">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl font-headline">Events & Sessions</h1>
-        <p className="mt-4 max-w-2xl mx-auto text-muted-foreground md:text-xl">
-          Join live workshops, Q&As with industry leaders, and community meetups.
-        </p>
-      </div>
-
-      <Suspense fallback={<EventsSkeleton />}>
-        <EventsList />
-      </Suspense>
-    </main>
-  );
-}
-
