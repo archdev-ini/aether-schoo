@@ -15,6 +15,7 @@ export const TABLE_IDS = {
     MEMBERS: 'tblaIODuHwuucBsD4',
     COURSES: 'tblnWNDELJW099acM',
     TABLE_1: 'tblsLqfSRHuy8nknA',
+    EVENTS: 'tblFaUWHaYD3uTfY5',
 };
 
 // --- FIELD IDs ---
@@ -49,5 +50,18 @@ export const FIELDS = {
         EXTERNAL_URL: 'fldt3xNm4cf42dBNO',
         IS_PUBLISHED: 'fldzi5EAjK7iSFQsh',
         CREATED_TIME: 'fldoOzsAhQ9pgiWgC',
+    },
+
+    // --- Events Table (tblFaUWHaYD3uTfY5) ---
+    EVENTS: {
+        TITLE: 'fldn73hPWTmNeXzKX',
+        DATE: 'fldx19R3EfhLc9plk',
+        TYPE: 'fld99GWdUHErDelt7',
+        EVENT_CODE: 'fldFiUHNw7CzfTcbm',
+        IS_PUBLISHED: 'fld1SdYrSGvgaFzv0',
+        SPEAKER: 'fld3ZhfPNnlrw7pRM',
+        DESCRIPTION: 'fldPpRBGtdacg0HTZ',
+        COVER_IMAGE: 'fldBF4jQVRHtEvUp7',
+        EVENTBRITE_URL: 'fldR5i0P9mCqbKqUF', // Note: This ID was RSVP_COUNT before, re-using for the URL.
     },
 };
