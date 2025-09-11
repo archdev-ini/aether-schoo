@@ -1,5 +1,4 @@
 
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookOpen, Layers, Users, Calendar, Star, Mic } from "lucide-react";
 import Image from "next/image";

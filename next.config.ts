@@ -40,23 +40,13 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-       {
-        source: '/school/:path*',
-        destination: '/coming-soon',
-        permanent: false,
-      },
       {
         source: '/map',
         destination: '/coming-soon',
         permanent: false,
       },
       {
-        source: '/community/suggest',
-        destination: '/coming-soon',
-        permanent: false,
-      },
-       {
-        source: '/community',
+        source: '/community/:path*',
         destination: '/coming-soon',
         permanent: false,
       },
