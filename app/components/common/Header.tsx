@@ -4,18 +4,23 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, UserPlus } from 'lucide-react';
+import { Menu, Moon, Sun, User, UserPlus, LogOut, Search } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Separator } from '@/components/ui/separator';
+import { useState, useEffect } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { SearchDialog } from './SearchDialog';
 
 const navLinks = [
-  { href: '/events', label: 'Events' },
   { href: '/about', label: 'About' },
   { href: '/faq', label: 'FAQ' },
 ];
@@ -47,7 +52,75 @@ function ThemeToggle() {
   )
 }
 
-export function Header() {
+interface HeaderProps {
+  user: { name: string; id: string } | null;
+}
+
+export function Header({ user: initialUser }: HeaderProps) {
+  const { toast } = useToast();
+  const router = useRouter();
+  const [user, setUser] = useState(initialUser);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!initialUser);
+  const [userName, setUserName] = useState(initialUser?.name || '');
+  const [userAetherId, setUserAetherId] = useState(initialUser?.id || '');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+
+  useEffect(() => {
+    setUser(initialUser);
+    setIsLoggedIn(!!initialUser);
+    setUserName(initialUser?.name || '');
+    setUserAetherId(initialUser?.id || '');
+  }, [initialUser]);
+
+  useEffect(() => {
+    // This effect now primarily reads from localStorage for client-side display consistency.
+    // The actual auth state is managed by the server cookie.
+    const name = localStorage.getItem('aether_user_name');
+    const id = localStorage.getItem('aether_user_id');
+    if (name && id) {
+        setIsLoggedIn(true);
+        setUserName(name);
+        setUserAetherId(id);
+    } else {
+        setIsLoggedIn(false);
+        setUserName('');
+        setUserAetherId('');
+    }
+  }, []);
+  
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setIsSearchOpen((open) => !open)
+      }
+    }
+    document.addEventListener("keydown", down)
+    return () => document.removeEventListener("keydown", down)
+  }, [])
+
+
+  const handleLogout = async () => {
+    // Clear localStorage for immediate client-side UI update
+    localStorage.removeItem('aether_user_id');
+    localStorage.removeItem('aether_user_name');
+    setIsLoggedIn(false);
+    setUserName('');
+    setUserAetherId('');
+    
+    // Server-side cleanup (calling a server action)
+    await fetch('/api/logout', { method: 'POST' });
+
+    // This event will trigger the useEffect to update state
+    window.dispatchEvent(new Event('auth-change'));
+
+    toast({ description: "You have been logged out." });
+    
+    // Refresh the page to ensure all server components reflect the logged-out state
+    router.push('/');
+    router.refresh();
+  }
 
   return (
     <>
@@ -95,26 +168,78 @@ export function Header() {
                       </Link>
                     ))}
                     <Separator className="my-2"/>
-                    <Button asChild>
-                        <Link href="/join">Join</Link>
-                    </Button>
+                    {isLoggedIn ? (
+                       <>
+                        <Link href="/profile" className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground">
+                            <User className="w-5 h-5"/> Profile
+                        </Link>
+                        <button onClick={handleLogout} className="flex items-center gap-2 text-lg font-medium text-muted-foreground transition-colors hover:text-foreground text-left">
+                            <LogOut className="w-5 h-5"/> Logout
+                        </button>
+                       </>
+                    ) : (
+                      <>
+                        <Button asChild>
+                            <Link href="/join">Join</Link>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <Link href="/login">Login</Link>
+                        </Button>
+                      </>
+                    )}
                 </div>
               </SheetContent>
             </Sheet>
           </div>
           <div className="flex items-center gap-2">
+             <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(true)}>
+                <Search className="h-5 w-5" />
+                <span className="sr-only">Search</span>
+             </Button>
              <ThemeToggle />
+            {isLoggedIn ? (
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                           <Avatar className="h-8 w-8">
+                                <AvatarImage src={`https://api.dicebear.com/7.x/bottts/svg?seed=${userAetherId}`} alt={userName} />
+                                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                           </Avatar>
+                         </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                            <Link href="/profile">
+                                <User className="mr-2" />
+                                Profile
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout}>
+                            <LogOut className="mr-2"/>
+                            Logout
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : (
               <div className="hidden md:flex items-center gap-2">
+                <Button asChild variant="ghost">
+                  <Link href="/login">
+                    Login
+                  </Link>
+                </Button>
                 <Button asChild>
                   <Link href="/join">
                     <UserPlus className="mr-2" /> Join
                   </Link>
                 </Button>
               </div>
+            )}
           </div>
         </div>
       </div>
     </header>
+    <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </>
   );
 }

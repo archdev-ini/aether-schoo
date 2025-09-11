@@ -14,8 +14,6 @@
 export const TABLE_IDS = {
     MEMBERS: 'tblaIODuHwuucBsD4',
     COURSES: 'tblnWNDELJW099acM',
-    EVENTS: 'tblFaUWHaYD3uTfY5',
-    RSVPS: 'tbl2gquIWtkSjIzZw',
     TABLE_1: 'tblsLqfSRHuy8nknA',
 };
 
@@ -51,25 +49,5 @@ export const FIELDS = {
         EXTERNAL_URL: 'fldt3xNm4cf42dBNO',
         IS_PUBLISHED: 'fldzi5EAjK7iSFQsh',
         CREATED_TIME: 'fldoOzsAhQ9pgiWgC',
-    },
-    
-    // --- Events Table (tblFaUWHaYD3uTfY5) ---
-    EVENTS: {
-        TITLE: 'fldn73hPWTmNeXzKX',
-        DATE: 'fldx19R3EfhLc9plk',
-        TYPE: 'fld99GWdUHErDelt7',
-        EVENT_CODE: 'fldFiUHNw7CzfTcbm',
-        IS_PUBLISHED: 'fld1SdYrSGvgaFzv0',
-        SPEAKER: 'fld3ZhfPNnlrw7pRM',
-        DESCRIPTION: 'fldPpRBGtdacg0HTZ',
-        COVER_IMAGE: 'fldBF4jQVRHtEvUp7',
-        RSVP_COUNT: 'fldR5i0P9mCqbKqUF',
-        RSVPS: 'fldQDJlZyIFIl1Gei', // Link to RSVPS table
-    },
-
-    // --- RSVPs Table (tbl2gquIWtkSjIzZw) ---
-    RSVPS: {
-        EVENT: 'fldyQYGoRCvrtA79N', // Link to EVENTS table
-        MEMBER: 'fldB436HYpepJhiAN', // Link to MEMBERS table
     },
 };

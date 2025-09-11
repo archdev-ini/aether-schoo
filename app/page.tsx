@@ -5,7 +5,6 @@ import { ArrowRight, BookOpen, Layers, Users, Calendar, Star, Mic } from "lucide
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { getEvents } from "@/app/events/actions";
 
 const pillars = [
     {
@@ -43,9 +42,6 @@ function BlueprintBackground() {
 }
 
 export default async function Home() {
-  const allEvents = await getEvents();
-  const upcomingEvents = allEvents.filter(e => e.status === 'Upcoming').slice(0, 3);
-
   return (
     <div className="flex flex-col animate-in fade-in duration-500">
       <main className="flex-1">
@@ -64,12 +60,12 @@ export default async function Home() {
                     A global-facing, Africa-rooted community for learning, building, and connecting.
                 </p>
                  <p className="max-w-3xl mx-auto mt-4 text-muted-foreground">
-                    ✨ Access prelaunch events and join the network shaping the future of design.
+                    ✨ Access prelaunch resources and join the network shaping the future of design.
                 </p>
                 <div className="flex flex-col gap-4 mt-8 min-[400px]:flex-row justify-center">
                   <Button asChild size="lg" id="join-waitlist-hero">
-                    <Link href="/events">
-                      Explore Events
+                    <Link href="/join">
+                      Become a Founding Member
                     </Link>
                   </Button>
                 </div>
@@ -94,27 +90,6 @@ export default async function Home() {
                     ))}
                  </div>
              </div>
-        </section>
-        
-        {/* Prelaunch Events Teaser */}
-        <section id="prelaunch-events" className="w-full py-16 md:py-24">
-           <div className="container grid items-center justify-center gap-8 px-4 text-center md:px-6">
-             <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">
-                    <span className="mr-2">🎤</span> Prelaunch Events Are Here
-                </h2>
-                <p className="mx-auto max-w-3xl text-muted-foreground md:text-xl/relaxed">
-                    Exclusive workshops, Q&As, and community sessions throughout October + November.
-                </p>
-             </div>
-             <div className="mt-6">
-                <Button asChild>
-                    <Link href="/events">
-                        See the Full Schedule
-                    </Link>
-                </Button>
-             </div>
-           </div>
         </section>
 
         {/* Countdown Section */}

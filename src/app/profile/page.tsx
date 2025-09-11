@@ -19,7 +19,6 @@ const starterKitItems = [
 
 const updatesFeedItems = [
     { icon: GraduationCap, title: "New Primer Dropped", description: "'Sustainable Materials in West Africa' is now available.", timestamp: "2h ago", href: "/school/courses/2" },
-    { icon: Calendar, title: "Event Reminder", description: "Workshop: 'Intro to Parametric Design' starts tomorrow.", timestamp: "1d ago", href: "/events" },
     { icon: Star, title: "Community Highlight", description: "Amina E.'s project was featured in the weekly roundup.", timestamp: "3d ago", href: "/community" },
 ]
 
