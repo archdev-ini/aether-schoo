@@ -53,7 +53,7 @@ export async function getEvents(): Promise<Event[]> {
                 speaker: record.get(F.SPEAKER) as string || 'TBA',
                 image: coverImageUrl,
                 aiHint: 'event cover photo',
-                eventbriteUrl: record.get(F.EVENTBRITE_URL) as string,
+                eventbriteUrl: record.get('Eventbrite URL') as string,
             };
         });
 

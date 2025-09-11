@@ -62,6 +62,5 @@ export const FIELDS = {
         SPEAKER: 'fld3ZhfPNnlrw7pRM',
         DESCRIPTION: 'fldPpRBGtdacg0HTZ',
         COVER_IMAGE: 'fldBF4jQVRHtEvUp7',
-        EVENTBRITE_URL: 'fldR5i0P9mCqbKqUF', // Note: This ID was RSVP_COUNT before, re-using for the URL.
     },
 };
