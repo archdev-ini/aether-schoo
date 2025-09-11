@@ -35,7 +35,7 @@ export async function getEvents(): Promise<Event[]> {
     
     try {
         const records = await base(TABLE_IDS.EVENTS).select({
-            filterByFormula: `{${F.IS_PUBLISHED}}`,
+            filterByFormula: `{${F.IS_PUBLISHED}} = 1`,
             sort: [{field: F.DATE, direction: "desc"}],
         }).all();
 
