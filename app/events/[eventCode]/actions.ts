@@ -180,3 +180,76 @@ export async function submitRsvp(eventId: string): Promise<{ success: boolean; e
         return { success: false, error: 'Failed to submit RSVP due to a database error.' };
     }
 }
+
+
+const GuestRsvpSchema = z.object({
+  fullName: z.string().min(2, 'Full name is required.'),
+  email: z.string().email('A valid email is required.'),
+});
+
+async function findOrCreateMember(base: Airtable.Base, fullName: string, email: string): Promise<string> {
+    const MF = FIELDS.MEMBERS;
+    if (!TABLE_IDS.MEMBERS) {
+        throw new Error("Members table ID is not configured.");
+    }
+    const existingRecords = await base(TABLE_IDS.MEMBERS).select({
+        filterByFormula: `LOWER({${MF.EMAIL}}) = "${email.toLowerCase()}"`,
+        maxRecords: 1,
+    }).firstPage();
+
+    if (existingRecords.length > 0) {
+        return existingRecords[0].id;
+    }
+
+    const newRecord = await base(TABLE_IDS.MEMBERS).create([
+        {
+            fields: {
+                [MF.FULL_NAME]: fullName,
+                [MF.EMAIL]: email,
+                [MF.OPT_IN_STATUS]: 'Interested',
+            }
+        }
+    ]);
+    return newRecord[0].id;
+}
+
+export async function submitGuestRsvp(eventId: string, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const validatedFields = GuestRsvpSchema.safeParse({
+        fullName: formData.get('fullName'),
+        email: formData.get('email'),
+    });
+
+    if (!validatedFields.success) {
+        return { success: false, error: 'Invalid data provided. Please check your name and email.' };
+    }
+
+    const { fullName, email } = validatedFields.data;
+    const base = await getAirtableBase();
+    const RF = FIELDS.RSVPS;
+
+    try {
+        const memberRecordId = await findOrCreateMember(base, fullName, email);
+
+        const existingRsvp = await base(TABLE_IDS.RSVPS).select({
+            filterByFormula: `AND({${RF.EVENT}} = '${eventId}', {${RF.MEMBER}} = '${memberRecordId}')`,
+            maxRecords: 1,
+        }).firstPage();
+
+        if (existingRsvp.length > 0) {
+            return { success: false, error: "It looks like you've already RSVP'd with this email." };
+        }
+
+        await base(TABLE_IDS.RSVPS).create([
+            { fields: { [RF.EVENT]: [eventId], [RF.MEMBER]: [memberRecordId] } }
+        ]);
+
+        const eventRecord = await base(TABLE_IDS.EVENTS).find(eventId);
+        const eventCode = eventRecord.get(FIELDS.EVENTS.EVENT_CODE);
+        revalidatePath(`/events/${eventCode}`);
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Guest RSVP submission error:', error);
+        return { success: false, error: 'Failed to submit RSVP due to a database error.' };
+    }
+}
