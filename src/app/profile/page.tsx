@@ -87,11 +87,6 @@ async function ProfilePageContent({ profile, learningData }: { profile: MemberPr
   const { fullName, aetherId, email, role, location, mainInterest, reasonToJoin, entryNumber } = profile;
   const firstName = fullName.split(' ')[0];
   
-  function formatEventDate(dateStr: string) {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'Africa/Lagos' });
-  }
-
   return (
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Profile Header Card */}
