@@ -40,11 +40,6 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      {
-        source: '/school/:path((?!courses).*)',
-        destination: '/coming-soon',
-        permanent: false,
-      },
        {
         source: '/faq',
         destination: '/coming-soon',
@@ -90,4 +85,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
