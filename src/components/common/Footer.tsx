@@ -19,7 +19,7 @@ export function Footer() {
                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
                     <Link href="/about" className="hover:text-foreground">About</Link>
                     <Link href="/events" className="hover:text-foreground">Events</Link>
-                    <Link href="/contact" className="hover:text-foreground">Contact</Link>
+                    <a href="mailto:aether.ecosystem@gmail.com" className="hover:text-foreground">Contact</a>
                  </div>
                  <div className="flex items-center gap-4">
                     {socialLinks.map(link => (
