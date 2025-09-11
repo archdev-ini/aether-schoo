@@ -95,14 +95,14 @@ export default async function Home() {
         {/* Countdown Section */}
         <section className="w-full py-16 md:py-24 bg-muted">
            <div className="container text-center bg-background rounded-lg p-10 md:p-16 border">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">⏳ Design the Future. Starting Now.</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">⏳ Join Our Pre-launch Events</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                   The full Aether platform launches December 8, 2025.
+                   The full Aether platform launches December 8, 2025. Until then, join our exclusive workshops and Q&A sessions.
                 </p>
                 <div className="mt-8">
                     <Button asChild size="lg">
-                        <Link href="/join">
-                           Become a Founding Member
+                        <Link href="/events">
+                           View Upcoming Events
                         </Link>
                     </Button>
                 </div>
