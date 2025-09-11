@@ -1,11 +1,11 @@
 
-import { Twitter, MessageCircle, Camera } from 'lucide-react';
+import { Twitter, MessageCircle, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 
 const socialLinks = [
     { href: "https://discord.gg/D8g8dSf7GE", icon: MessageCircle, name: "Discord" },
-    { href: "#", icon: Camera, name: "Instagram" },
-    { href: "https://x.com/aetherxafrica", icon: Twitter, name: "X" },
+    { href: "https://www.linkedin.com/company/aether-ecosystem/", icon: Linkedin, name: "LinkedIn" },
+    { href: "https://x.com/aethernwk?s=09", icon: Twitter, name: "X" },
 ]
 
 export function Footer() {
@@ -33,7 +33,7 @@ export function Footer() {
              <div className="mt-8 pt-6 border-t border-border/40 text-center md:text-left text-sm text-muted-foreground flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="space-y-2 text-center md:text-left">
                     <p>&copy; 2025 Aether by Buildr Africa. All rights reserved.</p>
-                    <p>Full platform launch on December 8, 2025 — join now to secure your ID.</p>
+                    <p>Platform launching soon!</p>
                 </div>
                 <div className="flex gap-4">
                     <Link href="/privacy-policy" className="hover:text-foreground">Privacy Policy</Link>

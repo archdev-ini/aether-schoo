@@ -8,7 +8,7 @@ type CommunityPlatform = 'Discord' | 'Telegram' | 'WhatsApp';
 const communityLinks = {
     'Discord': 'https://discord.gg/D8g8dSf7GE',
     'Telegram': '#', // Replace with your Telegram link
-    'WhatsApp': '#', // Replace with your WhatsApp group link
+    'WhatsApp': 'https://chat.whatsapp.com/Bvwdx1p9h5G9goxokoDDhl?mode=ems_copy_c',
 };
 
 const platformFieldMapping: Record<CommunityPlatform, string> = {

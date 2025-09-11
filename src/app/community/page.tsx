@@ -26,7 +26,7 @@ const communityPlatforms = [
     icon: Users, 
     description: "Connect with your local chapter. Join regional groups for meetups and localized discussions.",
     cta: "Find Your Local Group",
-    href: "#" 
+    href: "https://chat.whatsapp.com/Bvwdx1p9h5G9goxokoDDhl?mode=ems_copy_c" 
   },
 ];
 
