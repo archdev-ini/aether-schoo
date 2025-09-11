@@ -1,9 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { Menu, Moon, Sun, User, UserPlus, LogIn, LogOut, Search } from 'lucide-react';
+import { Menu, Moon, Sun, User, UserPlus, LogOut, Search } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import {
   DropdownMenu,

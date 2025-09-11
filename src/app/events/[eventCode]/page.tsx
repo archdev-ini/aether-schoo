@@ -27,7 +27,7 @@ function formatEventTime(dateStr: string) {
     }
 }
 
-function GuestRsvpForm({ eventId }: { eventId: string }) {
+function GuestRsvpForm({ eventId, eventCode }: { eventId: string, eventCode: string }) {
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
@@ -64,16 +64,22 @@ function GuestRsvpForm({ eventId }: { eventId: string }) {
             <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Confirm RSVP'}
             </Button>
+            <p className="text-xs text-center text-muted-foreground">
+                If you have an account, please <Link href={`/join?redirect=/events/${eventCode}`} className="underline text-primary">log in</Link> first.
+            </p>
         </form>
     );
 }
-
 
 function RsvpButton({ hasRsvpd, event }: { hasRsvpd: boolean; event: EventDetail }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
-    const isLoggedIn = !!document.cookie.includes('aether_user_id');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    
+    useEffect(() => {
+        setIsLoggedIn(!!document.cookie.includes('aether_user_id'));
+    }, []);
 
     const handleLoggedInRsvp = async () => {
         setIsSubmitting(true);
@@ -123,10 +129,10 @@ function RsvpButton({ hasRsvpd, event }: { hasRsvpd: boolean; event: EventDetail
                 <DialogHeader>
                     <DialogTitle>RSVP for {event.title}</DialogTitle>
                     <DialogDescription>
-                        Enter your details to confirm your attendance. If you have an account, please <Link href={`/join?redirect=/events/${event.eventCode}`} className="underline text-primary">log in</Link> first.
+                        Enter your details to confirm your attendance.
                     </DialogDescription>
                 </DialogHeader>
-                <GuestRsvpForm eventId={event.id} />
+                <GuestRsvpForm eventId={event.id} eventCode={event.eventCode} />
             </DialogContent>
         </Dialog>
     );
@@ -156,7 +162,6 @@ function AttendeeAvatars({ attendees }: { attendees: EventDetail['attendees'] })
         </div>
     )
 }
-
 
 function EventPageContent({ event }: { event: EventDetail }) {
     const { date, time } = formatEventTime(event.date);

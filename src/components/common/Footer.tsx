@@ -17,6 +17,7 @@ export function Footer() {
                      <Link href="/" className="font-logo text-lg font-medium">Aether – Powered by Buildr Africa</Link>
                  </div>
                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                    <Link href="/events" className="hover:text-foreground">Events</Link>
                     <Link href="/about" className="hover:text-foreground">About</Link>
                     <a href="mailto:aether.ecosystem@gmail.com" className="hover:text-foreground">Contact</a>
                  </div>

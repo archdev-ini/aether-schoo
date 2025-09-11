@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User, Pencil, MapPin, Briefcase, Heart, LogOut, Download, Bot, Star, HardHat, Bell, Calendar, GraduationCap } from "lucide-react";
-import { getMemberProfile, type MemberProfile, logout, getMemberLearningProgress } from './actions';
+import { getMemberProfile, type MemberProfile, getMemberLearningProgress } from './actions';
 import Link from 'next/link';
 import { CommunityAccessHub } from '@/components/common/CommunityAccessHub';
 import { LearningProgress } from '@/components/common/LearningProgress';
@@ -74,16 +74,18 @@ function UpdatesFeed() {
     )
 }
 
+async function handleLogout() {
+    'use server';
+    cookies().delete('aether_user_id');
+    cookies().delete('aether_user_name');
+    cookies().delete('aether_user_role');
+    redirect('/login');
+}
+
 
 async function ProfilePageContent({ profile, learningData }: { profile: MemberProfile, learningData: any }) {
   const { fullName, aetherId, email, role, location, mainInterest, reasonToJoin, entryNumber } = profile;
   const firstName = fullName.split(' ')[0];
-
-  const handleLogout = async () => {
-    'use server';
-    await logout();
-    redirect('/login');
-  }
   
   function formatEventDate(dateStr: string) {
     const date = new Date(dateStr);
@@ -109,7 +111,7 @@ async function ProfilePageContent({ profile, learningData }: { profile: MemberPr
                             <Pencil className="mr-2" /> Edit Profile
                         </Link>
                     </Button>
-                    <form action={logout}>
+                    <form action={handleLogout}>
                         <Button variant="ghost" size="sm" type="submit"><LogOut className="mr-2"/> Logout</Button>
                     </form>
                 </div>
@@ -131,7 +133,7 @@ async function ProfilePageContent({ profile, learningData }: { profile: MemberPr
                             <Pencil className="mr-2" /> Edit Profile
                         </Link>
                     </Button>
-                    <form action={logout} className="flex-1">
+                    <form action={handleLogout} className="flex-1">
                         <Button variant="ghost" type="submit" className="w-full"><LogOut className="mr-2"/> Logout</Button>
                     </form>
                 </div>

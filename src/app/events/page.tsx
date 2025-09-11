@@ -18,6 +18,8 @@ function formatEventDate(dateStr: string) {
 
 async function EventsList() {
     const events = await getEvents();
+    const upcomingEvents = events.filter(e => e.status === 'Upcoming');
+    const pastEvents = events.filter(e => e.status === 'Past');
   
     if (events.length === 0) {
       return (
@@ -29,64 +31,106 @@ async function EventsList() {
     }
   
     return (
-      <>
-        {events.map((event) => {
-          const { month, day } = formatEventDate(event.date);
-          const canRsvp = event.status === 'Upcoming' && event.eventCode;
-          const speakers = event.speaker.split(';').map(s => s.trim());
+      <div className="space-y-16">
+        {upcomingEvents.length > 0 && (
+            <div>
+                <h2 className="text-2xl font-bold tracking-tight font-headline mb-8">Upcoming Events</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {upcomingEvents.map((event) => {
+                    const { month, day } = formatEventDate(event.date);
+                    const canRsvp = event.status === 'Upcoming' && event.eventCode;
+                    const speakers = event.speaker.split(';').map(s => s.trim());
 
-          return (
-             <Link key={event.id} href={canRsvp ? `/events/${event.eventCode}` : '#'} className="group block">
-                <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    <div className="relative aspect-[16/10] w-full">
-                         <Image
-                            src={event.coverImage || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
-                            alt={event.title}
-                            fill
-                            data-ai-hint="event cover"
-                            className="object-cover"
-                        />
-                         <Badge variant={event.status === 'Upcoming' ? 'default' : 'secondary'} className="absolute top-3 right-3">
-                            {event.status}
-                        </Badge>
-                    </div>
-                    <div className="p-4 flex gap-4">
-                        <div className="flex flex-col items-center justify-center text-center">
-                            <p className="font-bold text-sm text-primary">{month}</p>
-                            <p className="text-2xl font-bold font-headline">{day}</p>
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">{event.title}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">by {speakers.length > 0 && speakers[0] !== 'TBA' ? speakers.join(', ') : 'Aether'}</p>
-                        </div>
-                    </div>
+                    return (
+                        <Link key={event.id} href={canRsvp ? `/events/${event.eventCode}` : '#'} className="group block">
+                            <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                                <div className="relative aspect-[16/10] w-full">
+                                    <Image
+                                        src={event.coverImage || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
+                                        alt={event.title}
+                                        fill
+                                        data-ai-hint="event cover"
+                                        className="object-cover"
+                                    />
+                                    <Badge variant={'default'} className="absolute top-3 right-3">
+                                        {event.status}
+                                    </Badge>
+                                </div>
+                                <div className="p-4 flex gap-4">
+                                    <div className="flex flex-col items-center justify-center text-center">
+                                        <p className="font-bold text-sm text-primary">{month}</p>
+                                        <p className="text-2xl font-bold font-headline">{day}</p>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">{event.title}</h3>
+                                        <p className="text-sm text-muted-foreground mt-1">by {speakers.length > 0 && speakers[0] !== 'TBA' ? speakers.join(', ') : 'Aether'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
+                    )
+                    })}
                 </div>
-             </Link>
-          )
-        })}
-      </>
+            </div>
+        )}
+
+        {pastEvents.length > 0 && (
+            <div>
+                <h2 className="text-2xl font-bold tracking-tight font-headline mb-8">Past Events</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {pastEvents.map((event) => (
+                         <Link key={event.id} href={`/events/${event.eventCode}`} className="group block opacity-70 hover:opacity-100 transition-opacity">
+                            <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
+                                <div className="relative aspect-[16/10] w-full">
+                                     <Image
+                                        src={event.coverImage || 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=400&fit=crop'}
+                                        alt={event.title}
+                                        fill
+                                        data-ai-hint="event cover"
+                                        className="object-cover"
+                                    />
+                                     <Badge variant={'secondary'} className="absolute top-3 right-3">
+                                        {event.status}
+                                    </Badge>
+                                </div>
+                                <div className="p-4">
+                                    <p className="text-sm text-muted-foreground">{formatEventDate(event.date).month} {formatEventDate(event.date).day}</p>
+                                    <h3 className="font-semibold text-lg leading-tight">{event.title}</h3>
+                                </div>
+                            </div>
+                         </Link>
+                    ))}
+                </div>
+            </div>
+        )}
+      </div>
     );
   }
 
 function EventsSkeleton() {
     return (
-        <>
-            {[...Array(6)].map((_, i) => (
-                <div key={i} className="border bg-card rounded-lg overflow-hidden">
-                    <Skeleton className="h-48 w-full" />
-                    <div className="p-4 flex gap-4 items-center">
-                       <div className="flex flex-col gap-1 items-center">
-                         <Skeleton className="h-4 w-8" />
-                         <Skeleton className="h-8 w-10" />
-                       </div>
-                       <div className="flex-1 space-y-2">
-                         <Skeleton className="h-5 w-3/4" />
-                         <Skeleton className="h-4 w-1/2" />
-                       </div>
-                    </div>
+        <div className="space-y-16">
+            <div>
+                 <h2 className="text-2xl font-bold tracking-tight font-headline mb-8">Upcoming Events</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="border bg-card rounded-lg overflow-hidden">
+                            <Skeleton className="h-48 w-full" />
+                            <div className="p-4 flex gap-4 items-center">
+                            <div className="flex flex-col gap-1 items-center">
+                                <Skeleton className="h-4 w-8" />
+                                <Skeleton className="h-8 w-10" />
+                            </div>
+                            <div className="flex-1 space-y-2">
+                                <Skeleton className="h-5 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                            </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            ))}
-        </>
+            </div>
+        </div>
     )
 }
 
@@ -100,11 +144,10 @@ export default async function EventsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        <Suspense fallback={<EventsSkeleton />}>
-          <EventsList />
-        </Suspense>
-      </div>
+      <Suspense fallback={<EventsSkeleton />}>
+        <EventsList />
+      </Suspense>
     </main>
   );
 }
+

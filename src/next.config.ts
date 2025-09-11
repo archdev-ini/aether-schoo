@@ -85,11 +85,6 @@ const nextConfig: NextConfig = {
         destination: '/coming-soon',
         permanent: false,
       },
-      {
-        source: '/events/:path*',
-        destination: '/coming-soon',
-        permanent: false,
-      }
     ];
   },
 };
