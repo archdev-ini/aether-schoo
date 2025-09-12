@@ -40,22 +40,30 @@ export async function sendWelcomeEmail({ to, name, aetherId, token, type }: Welc
         : '🔑 Your secure login link to Aether';
 
     const welcomeBody = `
-        <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-            <h2>Hi ${firstName},</h2>
-            <p>You’re one step away from joining Aether.</p>
-            <p>Click below to activate your permanent Aether ID and access your dashboard:</p>
+        <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2 style="color: #1a1a1a;">Hi ${firstName},</h2>
+            <p>You’re one step away from joining Aether. Click below to activate your permanent Aether ID and access your dashboard:</p>
             <p style="text-align: center; margin: 30px 0;">
                 <a href="${activationLink}" style="background-color: #7c3aed; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">👉 Activate My Aether ID</a>
             </p>
-            <p>Your Aether ID: <strong>${aetherId}</strong></p>
+            <p>Your Aether ID is: <strong style="font-family: monospace; background-color: #f0f0f0; padding: 2px 6px; border-radius: 4px;">${aetherId}</strong></p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <h3 style="color: #1a1a1a;">Next Steps: Join the Community</h3>
+            <p>Your ID is your key to our community spaces. Jump in and say hello:</p>
+            <ul>
+                <li><a href="${process.env.DISCORD_INVITE_URL || '#'}" style="color: #7c3aed;">Join our Discord Server</a></li>
+                <li><a href="${process.env.TELEGRAM_INVITE_URL || '#'}" style="color: #7c3aed;">Join the Telegram Group</a></li>
+                <li><a href="${process.env.WHATSAPP_INVITE_URL || '#'}" style="color: #7c3aed;">Join the WhatsApp Community</a></li>
+            </ul>
+            <p>Be ready for our launch this November!</p>
             <br>
             <p>Welcome to the future of design.<br>— Team Aether</p>
         </div>
     `;
 
     const loginBody = `
-        <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-            <h2>Hello ${firstName},</h2>
+        <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2 style="color: #1a1a1a;">Hello ${firstName},</h2>
             <p>Here’s your secure link to log back into your Aether dashboard:</p>
             <p style="text-align: center; margin: 30px 0;">
                 <a href="${activationLink}" style="background-color: #7c3aed; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Log Me In</a>
