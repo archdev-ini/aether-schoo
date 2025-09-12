@@ -3,10 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
-import { Header } from '@/components/common/Header';
-import { Footer } from '@/components/common/Footer';
 import { ThemeProvider } from '@/components/common/ThemeProvider';
-import { CookieConsentBanner } from '@/components/common/CookieConsentBanner';
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
@@ -56,12 +53,9 @@ export default function RootLayout({
             disableTransitionOnChange
         >
             <div className="relative flex min-h-screen flex-col">
-              <Header />
               <main className="flex-1 pb-20 md:pb-0">{children}</main>
-              <Footer />
             </div>
             <Toaster />
-            <CookieConsentBanner />
         </ThemeProvider>
       </body>
     </html>

@@ -6,7 +6,7 @@ export default {
   darkMode: ['class'],
   content: [
     './app/**/*.{ts,tsx}',
-    './src/components/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
   ],
   theme: {
     container: {
@@ -19,9 +19,6 @@ export default {
     extend: {
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
-        body: ['Satoshi', 'sans-serif'],
-        headline: ['sans-serif'],
-        logo: ['Satoshi', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

@@ -1,26 +1,25 @@
 
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BookOpen, Layers, Users, Calendar, Star, Mic } from "lucide-react";
+import { ArrowRight, Archive, Users, Calendar } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 
-const pillars = [
+const whyAether = [
     {
-        icon: BookOpen,
-        title: "Learn",
-        description: "Access an Africa-first curriculum of courses, primers, and archives designed for the future of architecture.",
-    },
-    {
-        icon: Layers,
-        title: "Build",
-        description: "Collaborate on real-world challenges, create portfolio-ready projects, and earn verifiable credentials in Horizon Studio.",
+        icon: Calendar,
+        title: "Events First",
+        description: "From intimate workshops to flagship gatherings, Aether is built around experiences that matter.",
     },
     {
         icon: Users,
-        title: "Connect",
-        description: "Join a global network of peers, mentors, and industry leaders. Share knowledge, exchange ideas, and discover opportunities.",
+        title: "Community Powered",
+        description: "Architects, designers, and creators — connected through shared conversations.",
+    },
+    {
+        icon: Archive,
+        title: "The Archive",
+        description: "Every event leaves a trace. Revisit talks, insights, and debates through the Aether Archive.",
     },
 ];
 
@@ -50,22 +49,16 @@ export default async function Home() {
           <BlueprintBackground />
           <div className="container relative z-10 px-4 md:px-6">
             <div className="max-w-4xl mx-auto text-center">
-                 <Badge variant="outline" className="text-base py-2 px-4 border-primary/50 text-primary mb-6">
-                    <span className="mr-2">🚀</span> Prelaunch phase is live. Platform launching soon!
-                  </Badge>
                 <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none font-headline">
-                    The Creative Ecosystem for Architects & Designers
+                    The Home of Architecture & Design Events
                 </h1>
                 <p className="max-w-3xl mx-auto mt-6 text-muted-foreground md:text-xl">
-                    A global-facing, Africa-rooted community for learning, building, and connecting.
-                </p>
-                 <p className="max-w-3xl mx-auto mt-4 text-muted-foreground">
-                    ✨ Access prelaunch resources and join the network shaping the future of design.
+                    Conversations, workshops, and gatherings shaping the future of design in Africa and beyond.
                 </p>
                 <div className="flex flex-col gap-4 mt-8 min-[400px]:flex-row justify-center">
                   <Button asChild size="lg" id="join-waitlist-hero">
                     <Link href="/join">
-                      Become a Founding Member
+                      Join the Community
                     </Link>
                   </Button>
                 </div>
@@ -73,11 +66,28 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* 3 Pillars Section */}
-        <section id="pillars" className="w-full py-16 md:py-24 bg-muted">
+        {/* Prelaunch Phase Section */}
+        <section className="w-full py-16 md:py-24">
+           <div className="container text-center rounded-lg p-10 md:p-16">
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">We’re Building Something New</h2>
+                <p className="max-w-3xl mx-auto mt-4 text-muted-foreground md:text-xl">
+                   This November, Aether goes live as the dedicated home of architectural events — a place where designers, students, and professionals come together to connect, exchange ideas, and shape the future.
+                </p>
+                <div className="mt-8">
+                    <Button asChild size="lg" variant="outline">
+                        <Link href="/join">
+                           Stay Updated
+                        </Link>
+                    </Button>
+                </div>
+            </div>
+        </section>
+        
+        {/* Why Aether Section */}
+        <section id="why-aether" className="w-full py-16 md:py-24 bg-muted">
              <div className="container px-4 md:px-6">
                  <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:gap-12 lg:grid-cols-3">
-                    {pillars.map((pillar) => (
+                    {whyAether.map((pillar) => (
                          <div key={pillar.title} className="grid gap-4 text-center">
                             <div className="flex justify-center">
                                 <div className="bg-background border-2 border-primary/10 text-primary p-4 rounded-full">
@@ -92,17 +102,17 @@ export default async function Home() {
              </div>
         </section>
 
-        {/* Countdown Section */}
-        <section className="w-full py-16 md:py-24 bg-muted">
-           <div className="container text-center bg-background rounded-lg p-10 md:p-16 border">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">⏳ Join Our Pre-launch Events</h2>
+        {/* Join Us Section */}
+        <section className="w-full py-16 md:py-24">
+           <div className="container text-center bg-background rounded-lg p-10 md:p-16">
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Join Us</h2>
                 <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                   The full Aether platform launches December 8, 2025. Until then, join our exclusive workshops and Q&A sessions.
+                   Be the first to know when we launch. Join the community today and get exclusive access to our inaugural events this November.
                 </p>
                 <div className="mt-8">
                     <Button asChild size="lg">
-                        <Link href="/events">
-                           View Upcoming Events
+                        <Link href="/join">
+                           Join the Community
                         </Link>
                     </Button>
                 </div>
