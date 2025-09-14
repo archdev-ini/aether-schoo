@@ -63,7 +63,6 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
             <p>© {new Date().getFullYear()} Aether by Buildr Africa. All rights reserved.</p>
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
-                <Badge variant="outline" className="border-primary/50 text-primary">Platform launching soon!</Badge>
                 <Link href="/privacy-policy" className="hover:text-foreground">Privacy Policy</Link>
                 <Link href="/terms" className="hover:text-foreground">Terms</Link>
             </div>
