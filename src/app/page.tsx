@@ -1,44 +1,29 @@
 
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Archive, Users, Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Bot, Code, Paintbrush } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { CountdownTimer } from "@/components/common/CountdownTimer";
 
-const whyAether = [
+const pillars = [
     {
-        icon: Calendar,
-        title: "Events First",
-        description: "From intimate workshops to flagship gatherings, Aether is built around experiences that matter.",
+        icon: Paintbrush,
+        title: "Learn",
+        description: "Access an Africa-first curriculum of courses, primers, and archives designed for the future of architecture.",
     },
     {
-        icon: Users,
-        title: "Community Powered",
-        description: "Architects, designers, and creators — connected through shared conversations.",
+        icon: Code,
+        title: "Build",
+        description: "Collaborate on real-world challenges, create portfolio-ready projects, and earn verifiable credentials in Horizon Studio.",
     },
     {
-        icon: Archive,
-        title: "The Archive",
-        description: "Every event leaves a trace. Revisit talks, insights, and debates through the Aether Archive.",
+        icon: Bot,
+        title: "Connect",
+        description: "Join a global network of peers, mentors, and industry leaders. Share knowledge, exchange ideas, and discover opportunities.",
     },
 ];
-
-function BlueprintBackground() {
-    return (
-        <div className="absolute inset-0 z-0 overflow-hidden opacity-5 dark:opacity-[0.03]">
-            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <pattern id="blueprint" patternUnits="userSpaceOnUse" width="50" height="50" patternTransform="scale(1) rotate(0)">
-                        <path d="M0 50 L50 50 L50 0" fill="none" stroke="hsl(var(--foreground))" strokeWidth="1"/>
-                        <path d="M40 50 L40 0 M30 50 L30 0 M20 50 L20 0 M10 50 L10 0" fill="none" stroke="hsl(var(--foreground))" strokeWidth="0.5"/>
-                         <path d="M50 40 L0 40 M50 30 L0 30 M50 20 L0 20 M50 10 L0 10" fill="none" stroke="hsl(var(--foreground))" strokeWidth="0.5"/>
-                    </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#blueprint)" />
-            </svg>
-        </div>
-    )
-}
 
 export default async function Home() {
   return (
@@ -46,19 +31,34 @@ export default async function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full py-20 md:py-32 lg:py-40 overflow-hidden">
-          <BlueprintBackground />
+          <div className="absolute inset-0 z-0 opacity-10 dark:opacity-20">
+             <Image 
+                src="https://images.unsplash.com/photo-1511285560922-38b32e8a448c?q=80&w=2070&auto=format&fit=crop"
+                alt="Blueprint background"
+                fill
+                style={{ objectFit: 'cover' }}
+                priority
+             />
+             <div className="absolute inset-0 bg-background/80 dark:bg-background/90"></div>
+          </div>
           <div className="container relative z-10 px-4 md:px-6">
             <div className="max-w-4xl mx-auto text-center">
-                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none font-headline">
-                    The Home of Architecture & Design Events
+                <Badge variant="outline" className="mb-4 py-2 px-4 border-primary/50 text-primary animate-in fade-in slide-in-from-bottom-4 duration-500">
+                   🚀 Prelaunch phase is live. Platform launching soon!
+                </Badge>
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none font-headline animate-in fade-in slide-in-from-bottom-6 duration-700">
+                    The Creative Ecosystem for Architects & Designers
                 </h1>
-                <p className="max-w-3xl mx-auto mt-6 text-muted-foreground md:text-xl">
-                    Conversations, workshops, and gatherings shaping the future of design in Africa and beyond.
+                <p className="max-w-3xl mx-auto mt-6 text-muted-foreground md:text-xl animate-in fade-in slide-in-from-bottom-8 duration-900">
+                    A global-facing, Africa-rooted community for learning, building, and connecting.
                 </p>
-                <div className="flex flex-col gap-4 mt-8 min-[400px]:flex-row justify-center">
+                <p className="max-w-3xl mx-auto mt-4 text-muted-foreground md:text-lg animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                  ✨ Access prelaunch resources and join the network shaping the future of design.
+                </p>
+                <div className="flex flex-col gap-4 mt-8 min-[400px]:flex-row justify-center animate-in fade-in slide-in-from-bottom-12 duration-1200">
                   <Button asChild size="lg" id="join-waitlist-hero">
                     <Link href="/join">
-                      Join the Community
+                      Become a Founding Member <ArrowRight className="ml-2" />
                     </Link>
                   </Button>
                 </div>
@@ -66,28 +66,11 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Prelaunch Phase Section */}
-        <section className="w-full py-16 md:py-24">
-           <div className="container text-center rounded-lg p-10 md:p-16">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">We’re Building Something New</h2>
-                <p className="max-w-3xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                   This November, Aether goes live as the dedicated home of architectural events — a place where designers, students, and professionals come together to connect, exchange ideas, and shape the future.
-                </p>
-                <div className="mt-8">
-                    <Button asChild size="lg" variant="outline">
-                        <Link href="/join">
-                           Stay Updated
-                        </Link>
-                    </Button>
-                </div>
-            </div>
-        </section>
-        
-        {/* Why Aether Section */}
-        <section id="why-aether" className="w-full py-16 md:py-24 bg-muted">
+        {/* Pillars Section */}
+        <section id="pillars" className="w-full py-16 md:py-24 bg-muted">
              <div className="container px-4 md:px-6">
                  <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:gap-12 lg:grid-cols-3">
-                    {whyAether.map((pillar) => (
+                    {pillars.map((pillar) => (
                          <div key={pillar.title} className="grid gap-4 text-center">
                             <div className="flex justify-center">
                                 <div className="bg-background border-2 border-primary/10 text-primary p-4 rounded-full">
@@ -102,23 +85,25 @@ export default async function Home() {
              </div>
         </section>
 
-        {/* Join Us Section */}
-        <section className="w-full py-16 md:py-24">
-           <div className="container text-center bg-background rounded-lg p-10 md:p-16">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">Join Us</h2>
-                <p className="max-w-2xl mx-auto mt-4 text-muted-foreground md:text-xl">
-                   Be the first to know when we launch. Join the community today and get exclusive access to our inaugural events this November.
-                </p>
-                <div className="mt-8">
+        {/* Countdown Section */}
+        <section className="w-full py-20 md:py-32">
+            <div className="container px-4 md:px-6">
+                <div className="max-w-4xl mx-auto text-center">
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline">⏳ Design the Future. Starting Now.</h2>
+                    <p className="max-w-xl mx-auto mt-4 text-muted-foreground md:text-xl">
+                        The full Aether platform launches December 8, 2025.
+                    </p>
+                    <div className="max-w-3xl mx-auto my-8">
+                       <CountdownTimer targetDate="2025-12-08T00:00:00" />
+                    </div>
                     <Button asChild size="lg">
                         <Link href="/join">
-                           Join the Community
+                           Become a Founding Member
                         </Link>
                     </Button>
                 </div>
             </div>
         </section>
-
       </main>
     </div>
   );
